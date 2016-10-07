@@ -9,6 +9,7 @@
 #include <allegro5/allegro_ttf.h>
 
 
+
 bool begin_allegro_init() {
 
 	if (!al_init()) {
