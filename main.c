@@ -11,28 +11,21 @@ ALLEGRO_DISPLAY *window = NULL;
 int window_width = 1280;
 int window_height = 720;
 ALLEGRO_FONT *font = NULL;
+ALLEGRO_BITMAP *praca1 = NULL;
 ALLEGRO_BITMAP *arvore1 = NULL;
+
 
 bool iniciar();
 
 int main(void)
 {
-		
-	if (!iniciar()) {
+		if (!iniciar()) {
 		return -1;
-	}
-
-	// creating a 1080p window
-	window = al_create_display(window_width, window_height);
+	}	
 	
-
-	if (!font) {
-		printf("Failed to create font.");
-		return -1;
-	}
-
 	// fill with white
-	al_clear_to_color(al_map_rgb(255, 255, 255));
+	al_draw_bitmap(praca1, 0, 0, 0);
+
 	al_flip_display();
 	
 	// Retângulo: x1, y1, x2, y2, cor, espessura
@@ -57,7 +50,7 @@ int main(void)
 	//Items text
 	al_draw_text(font, al_map_rgb(255, 255, 255), rect_x2 - (text_x - rect_x1), text_y, ALLEGRO_ALIGN_RIGHT, "Items");
 
-	//al_draw_bitmap(arvore1, 450, 750, 0);
+	al_draw_bitmap(arvore1, 1000, 350, 0);
 		
 	al_flip_display();
 
@@ -93,19 +86,37 @@ bool iniciar() {
 		printf("Failed to init allegro TFF.");
 		return false;
 	}
+	if (!al_init_image_addon())
+	{
+		fprintf(stderr, "Falha ao inicializar add-on allegro_image.\n");
+		return false;
+	}
+	window = al_create_display(window_width, window_height);
+	if (!window) {
+		printf("Falha ao carregar a tela");
+		return false;
+	}
 	font = al_load_font("C:/Windows/Fonts/impact.ttf", 48, 0);
 	if (!font) {
 		printf("Falha ao carregar a fonte");
 		al_destroy_display(window);
 		return false;
 	}
-	/*arvore1 = al_load_bitmap("C:/monstros/arvore1.png");
+	arvore1 = al_load_bitmap("monstros/arvore1.png");
 	if (!arvore1)
 	{
 		printf("Falha ao carregar personagem");
 		al_destroy_display(window);
 		return false;
-	}*/
+	}
+	praca1 = al_load_bitmap("cenario/Praca1.jpg");
+	if (!praca1)
+	{
+		printf("Falha ao carregar o fundo da tela");
+		al_destroy_display(window);
+		return false;
+	}
 	return true;
 }
+
 
