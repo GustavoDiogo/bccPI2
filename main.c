@@ -7,7 +7,11 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
+<<<<<<< HEAD
 #define animarvore1frame 3
+=======
+#define maxFrame 3
+>>>>>>> b410b231bbe60b10835ef99301166329d8cf24b0
 
 int curFrame = 0;
 int frameCount = 0;
@@ -24,7 +28,11 @@ ALLEGRO_BITMAP *arvore1 = NULL;
 ALLEGRO_BITMAP *arvore2 = NULL;
 ALLEGRO_BITMAP *arvore3 = NULL;
 ALLEGRO_BITMAP *p1parado = NULL;	
+<<<<<<< HEAD
 ALLEGRO_BITMAP *animarvore1[animarvore1frame];
+=======
+ALLEGRO_BITMAP *animarvore1[maxFrame];
+>>>>>>> b410b231bbe60b10835ef99301166329d8cf24b0
 
 void fbackground();
 void fanimarvore1();
@@ -67,7 +75,10 @@ int main(void)
 			else if(ev.type == ALLEGRO_EVENT_TIMER)
 			{
 				fbackground();
+<<<<<<< HEAD
 				fanimp1();
+=======
+>>>>>>> b410b231bbe60b10835ef99301166329d8cf24b0
 				fanimarvore1();
 				
 				al_flip_display();
@@ -109,6 +120,7 @@ void fbackground() {
 	al_draw_text(font, al_map_rgb(255, 255, 255), rect_x2 - (text_x - rect_x1), text_y, ALLEGRO_ALIGN_RIGHT, "Items");
 }
 
+<<<<<<< HEAD
 void fanimp1() {
 	
 
@@ -136,6 +148,30 @@ void fanimarvore1() {
 		al_destroy_bitmap(animarvore1[i]);
 	}
 		
+=======
+void fanimarvore1() {
+
+	animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
+	animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
+	animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
+
+	if (++frameCount >= frameDelay)
+	{
+		frameCount = 0;
+		if (++curFrame >= maxFrame)
+		{
+			curFrame = 0;
+		}
+	}
+
+	al_draw_bitmap(animarvore1[curFrame], 950, 350, 0);
+
+
+	for (int i = 0; i < maxFrame; i++) {
+		al_destroy_bitmap(animarvore1[i]);
+	}
+
+>>>>>>> b410b231bbe60b10835ef99301166329d8cf24b0
 }
 
 		
@@ -192,6 +228,8 @@ bool iniciar()
 	if (!event_queue)
 	{
 		printf("Falha ao iniciar fila de eventos");
+<<<<<<< HEAD
+=======
 		al_destroy_display(window);
 		return false;
 	}
@@ -199,6 +237,35 @@ bool iniciar()
 	if (!timer)
 	{
 		printf("Falha ao iniciar o timer");
+>>>>>>> b410b231bbe60b10835ef99301166329d8cf24b0
+		al_destroy_display(window);
+		return false;
+	}
+	timer = al_create_timer(1.0 / 60);
+	if (!timer)
+	{
+		printf("Falha ao iniciar o timer");
+		al_destroy_display(window);
+		return false;
+	}
+	arvore2 = al_load_bitmap("monstros/arvore2.png");
+	if (!arvore1)
+	{
+		printf("Falha ao carregar personagem");
+		al_destroy_display(window);
+		return false;
+	}
+	arvore3 = al_load_bitmap("monstros/arvore3.png");
+	if (!arvore1)
+	{
+		printf("Falha ao carregar personagem");
+		al_destroy_display(window);
+		return false;
+	}
+	p1parado = al_load_bitmap("personagens/p1parado.png");
+	if (!p1parado)
+	{
+		printf("Falha ao carregar personagem");
 		al_destroy_display(window);
 		return false;
 	}
@@ -211,4 +278,7 @@ bool iniciar()
 	}
 	return true;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> b410b231bbe60b10835ef99301166329d8cf24b0
