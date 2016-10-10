@@ -35,15 +35,15 @@ int main(void)
 	}	
 		bool sair = false;
 		
-		al_register_event_source(event_queue, al_get_timer_event_source(timer));
+		//al_register_event_source(event_queue, al_get_timer_event_source(timer));
 		al_register_event_source(event_queue, al_get_keyboard_event_source());
 		al_start_timer(timer);
 	
 		while (!sair)
-		{
+		{		
 			ALLEGRO_EVENT ev;
 			al_wait_for_event(event_queue, &ev);
-						
+
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
 				switch (ev.keyboard.keycode)
@@ -60,8 +60,6 @@ int main(void)
 				case ALLEGRO_KEY_DOWN:
 					break;
 				}
-			}
-			else if (ev.type == ALLEGRO_EVENT_TIMER) {
 				// background
 				al_draw_bitmap(praca1, 0, 0, 0);
 
@@ -92,7 +90,10 @@ int main(void)
 
 				// hold for 10 seconds
 				al_rest(10.0);
+				
 			}
+			
+			
 
 		}
 			
