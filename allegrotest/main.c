@@ -28,11 +28,12 @@ ALLEGRO_BITMAP *p1parado = NULL;
 ALLEGRO_BITMAP *animarvore1[animarvore1frame];
 ALLEGRO_BITMAP *animp1[animp1frame];
 
+bool iniciar();
 void fbackground();
 void fanimp1();
 void fanimarvore1();
 
-bool iniciar();
+
 
 int main(void)
 {
@@ -85,7 +86,7 @@ int main(void)
 		al_destroy_display(window);
 		al_destroy_font(font);
 		al_destroy_event_queue(event_queue);
-		al_destroy_bitmap(praca1);
+		
 
 	return 0;
 }
