@@ -8,10 +8,10 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
 
-int curframe = 0;
-int framecount = 0;
-int framedelay = 5;
-
+const int maxFrame = 2;
+int curFrame = 0;
+int frameCount = 0;
+int frameDelay = 5;
 
 ALLEGRO_DISPLAY *window = NULL;
 int window_width = 1280;
@@ -23,8 +23,8 @@ ALLEGRO_BITMAP *praca1 = NULL;
 ALLEGRO_BITMAP *arvore1 = NULL;
 ALLEGRO_BITMAP *arvore2 = NULL;
 ALLEGRO_BITMAP *arvore3 = NULL;
-ALLEGRO_BITMAP *p1parado = NULL;
-ALLEGRO_BITMAP *image[8];
+ALLEGRO_BITMAP *p1parado = NULL;	
+ALLEGRO_BITMAP *animarvore1[2];
 
 bool iniciar();
 
@@ -35,15 +35,20 @@ int main(void)
 	}	
 		bool sair = false;
 		
-		//al_register_event_source(event_queue, al_get_timer_event_source(timer));
+		al_register_event_source(event_queue, al_get_timer_event_source(timer));
 		al_register_event_source(event_queue, al_get_keyboard_event_source());
 		al_start_timer(timer);
-	
+
+		//monstros
+		animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
+		animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
+		animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
+			 										
 		while (!sair)
 		{		
 			ALLEGRO_EVENT ev;
 			al_wait_for_event(event_queue, &ev);
-
+												
 			if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
 			{
 				switch (ev.keyboard.keycode)
@@ -59,7 +64,10 @@ int main(void)
 					break;
 				case ALLEGRO_KEY_DOWN:
 					break;
-				}
+				}								
+			}
+			else if(ev.type == ALLEGRO_EVENT_TIMER)
+			{
 				// background
 				al_draw_bitmap(praca1, 0, 0, 0);
 
@@ -87,31 +95,28 @@ int main(void)
 
 				// Atualizando display
 				al_flip_display();
-
-				// hold for 10 seconds
-				al_rest(10.0);
 				
+				if (++frameCount >= frameDelay)
+				{
+					if(++curFrame>= maxFrame)
+					{
+						curFrame = 0;
+						frameCount = 0;
+					}
+				}
+
+				al_draw_bitmap(animarvore1[curFrame], 950, 350, 0);
+				al_flip_display();
 			}
-			
 			
 
 		}
-			
-											
-				/*image[0] = al_load_bitmap("monstros/arvore1.png");
-				image[1] = al_load_bitmap("monstros/arvore2.png");
-				image[2] = al_load_bitmap("monstros/arvore3.png");*/
-
-			
-		/*for (int i = 0; i < maxframes; i++) {
-		
-	}
+						
+						
+		for (int i = 0; i < maxFrame; i++) {
+			al_destroy_bitmap(animarvore1[i]);
+		}
 	
-	for(int i = 0; i< maxframes;i++){
-		al_destroy_bitmap(image[i]);
-	
-
-	}*/
 
 	// end
 		al_destroy_display(window);
