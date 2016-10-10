@@ -8,6 +8,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
 #define animarvore1frame 3
+#define animp1frame 3
 
 int curFrame = 0;
 int frameCount = 0;
@@ -25,8 +26,10 @@ ALLEGRO_BITMAP *arvore2 = NULL;
 ALLEGRO_BITMAP *arvore3 = NULL;
 ALLEGRO_BITMAP *p1parado = NULL;	
 ALLEGRO_BITMAP *animarvore1[animarvore1frame];
+ALLEGRO_BITMAP *animp1[animp1frame];
 
 void fbackground();
+void fanimp1();
 void fanimarvore1();
 
 bool iniciar();
@@ -67,7 +70,8 @@ int main(void)
 			else if(ev.type == ALLEGRO_EVENT_TIMER)
 			{
 				fbackground();
-				fanimarvore1();
+				fanimp1(200,430);
+				fanimarvore1(950,350);
 				
 				al_flip_display();
 				
@@ -108,7 +112,15 @@ void fbackground() {
 	al_draw_text(font, al_map_rgb(255, 255, 255), rect_x2 - (text_x - rect_x1), text_y, ALLEGRO_ALIGN_RIGHT, "Items");
 }
 
-void fanimarvore1() {
+void fanimp1(int x, int y) {
+	
+	animp1[0] = al_load_bitmap("personagens/p1paradoesq.png");
+	al_draw_bitmap(animp1[0], x, y, 0);
+
+
+}
+
+void fanimarvore1(int x,int y) {
 
 	animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
 	animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
@@ -123,7 +135,7 @@ void fanimarvore1() {
 		}
 	}
 
-	al_draw_bitmap(animarvore1[curFrame], 950, 350, 0);
+	al_draw_bitmap(animarvore1[curFrame], x, y, 0);
 
 
 	for (int i = 0; i < animarvore1frame; i++) {
@@ -193,13 +205,6 @@ bool iniciar()
 	if (!timer)
 	{
 		printf("Falha ao iniciar o timer");
-		al_destroy_display(window);
-		return false;
-	}
-	p1parado = al_load_bitmap("personagens/p1parado.png");
-	if (!p1parado)
-	{
-		printf("Falha ao carregar personagem");
 		al_destroy_display(window);
 		return false;
 	}
