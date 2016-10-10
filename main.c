@@ -7,11 +7,11 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
+#define maxFrame 3
 
-const int maxFrame = 2;
 int curFrame = 0;
 int frameCount = 0;
-int frameDelay = 5;
+int frameDelay = 13;
 
 ALLEGRO_DISPLAY *window = NULL;
 int window_width = 1280;
@@ -24,7 +24,10 @@ ALLEGRO_BITMAP *arvore1 = NULL;
 ALLEGRO_BITMAP *arvore2 = NULL;
 ALLEGRO_BITMAP *arvore3 = NULL;
 ALLEGRO_BITMAP *p1parado = NULL;	
-ALLEGRO_BITMAP *animarvore1[2];
+ALLEGRO_BITMAP *animarvore1[maxFrame];
+
+void fbackground();
+void fanimarvore1();
 
 bool iniciar();
 
@@ -38,11 +41,6 @@ int main(void)
 		al_register_event_source(event_queue, al_get_timer_event_source(timer));
 		al_register_event_source(event_queue, al_get_keyboard_event_source());
 		al_start_timer(timer);
-
-		//monstros
-		animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
-		animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
-		animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
 			 										
 		while (!sair)
 		{		
@@ -68,55 +66,16 @@ int main(void)
 			}
 			else if(ev.type == ALLEGRO_EVENT_TIMER)
 			{
-				// background
-				al_draw_bitmap(praca1, 0, 0, 0);
-
-				// Retângulo: x1, y1, x2, y2, cor, espessura
-				double rect_width = window_width / 2.0;
-				double rect_height = window_height / 4.5;
-
-				double center_x = rect_width;
-				double rect_x1 = center_x - (rect_width / 2.0);
-				double rect_x2 = center_x + (rect_width / 2.0);
-				double rect_y1 = window_height - rect_height - 20.0;
-				double rect_y2 = window_height - 20.0;
-
-				double text_x = rect_x1 + (rect_width / 15.0);
-				double text_y = rect_y1 + (rect_height / 15.0);
-
-				//Text box	
-				al_draw_filled_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, al_map_rgb(0, 0, 255));
-
-				//Ataque normal text
-				al_draw_text(font, al_map_rgb(255, 255, 255), text_x, text_y, ALLEGRO_ALIGN_LEFT, "Ataque normal");
-
-				//Items text
-				al_draw_text(font, al_map_rgb(255, 255, 255), rect_x2 - (text_x - rect_x1), text_y, ALLEGRO_ALIGN_RIGHT, "Items");
-
-				// Atualizando display
+				fbackground();
+				fanimarvore1();
+				
 				al_flip_display();
 				
-				if (++frameCount >= frameDelay)
-				{
-					if(++curFrame>= maxFrame)
-					{
-						curFrame = 0;
-						frameCount = 0;
-					}
-				}
-
-				al_draw_bitmap(animarvore1[curFrame], 950, 350, 0);
-				al_flip_display();
+				
 			}
 			
-
-		}
-						
-						
-		for (int i = 0; i < maxFrame; i++) {
-			al_destroy_bitmap(animarvore1[i]);
-		}
-	
+		}			
+			
 
 	// end
 		al_destroy_display(window);
@@ -125,6 +84,52 @@ int main(void)
 		al_destroy_bitmap(praca1);
 
 	return 0;
+}
+
+void fbackground() {
+	al_draw_bitmap(praca1, 0, 0, 0);
+
+	double rect_width = window_width / 2.0;
+	double rect_height = window_height / 4.5;
+	
+	double center_x = rect_width;
+	double rect_x1 = center_x - (rect_width / 2.0);
+	double rect_x2 = center_x + (rect_width / 2.0);
+	double rect_y1 = window_height - rect_height - 20.0;
+	double rect_y2 = window_height - 20.0;
+
+	double text_x = rect_x1 + (rect_width / 15.0);
+	double text_y = rect_y1 + (rect_height / 15.0);
+
+	al_draw_filled_rectangle(rect_x1, rect_y1, rect_x2, rect_y2, al_map_rgb(0, 0, 255));
+
+	al_draw_text(font, al_map_rgb(255, 255, 255), text_x, text_y, ALLEGRO_ALIGN_LEFT, "Ataque normal");
+
+	al_draw_text(font, al_map_rgb(255, 255, 255), rect_x2 - (text_x - rect_x1), text_y, ALLEGRO_ALIGN_RIGHT, "Items");
+}
+
+void fanimarvore1() {
+
+	animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
+	animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
+	animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
+
+	if (++frameCount >= frameDelay)
+	{
+		frameCount = 0;
+		if (++curFrame >= maxFrame)
+		{
+			curFrame = 0;
+		}
+	}
+
+	al_draw_bitmap(animarvore1[curFrame], 950, 350, 0);
+
+
+	for (int i = 0; i < maxFrame; i++) {
+		al_destroy_bitmap(animarvore1[i]);
+	}
+
 }
 
 		
