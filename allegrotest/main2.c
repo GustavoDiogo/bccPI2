@@ -137,10 +137,12 @@ void fanimarvore1(int x,int y) {
 
 	al_draw_bitmap(animarvore1[curFrame], x, y, 0);
 
-		for (int i = 0; i < animarvore1frame; i++) {
-		al_destroy_bitmap(animarvore1[i]);
+	//Como o load está no init agora, não é preciso destruir os bitmaps
+	
+		//for (int i = 0; i < animarvore1frame; i++) {
+		//al_destroy_bitmap(animarvore1[i]);
 
-	}
+	//}
 
 	
 		
