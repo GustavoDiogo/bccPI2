@@ -242,7 +242,7 @@ bool iniciar()
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[0] = al_load_bitmap("personagens/p1paradoesq.png");
+	animp1[0] = al_load_bitmap("personagens/p1parado.png");
 	if (!animp1[0])
 	{
 		printf("Falha ao carregar o personagem");
