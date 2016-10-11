@@ -27,8 +27,8 @@ ALLEGRO_BITMAP *animp1[animp1frame];
 
 bool iniciar();
 void fbackground();
-void fanimp1();
-void fanimarvore1();
+void fanimp1(int x, int y);
+void fanimarvore1(int x, int y);
 
 
 int main(void)
@@ -121,9 +121,9 @@ void fanimp1(int x, int y) {
 void fanimarvore1(int x, int y) {
 
 
-	animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
-	animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
-	animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
+	//animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
+	//animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
+	//animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
 
 	if (++frameCount >= frameDelay)
 	{
@@ -136,11 +136,11 @@ void fanimarvore1(int x, int y) {
 
 	al_draw_bitmap(animarvore1[curFrame], x, y, 0);
 
-	
-	for (int i = 0; i < animarvore1frame; i++) {
-	al_destroy_bitmap(animarvore1[i]);
 
-	}
+	/*for (int i = 0; i < animarvore1frame; i++) {
+		al_destroy_bitmap(animarvore1[i]);
+
+	}*/
 
 
 
@@ -217,30 +217,29 @@ bool iniciar()
 		//al_destroy_display(window);
 		return false;
 	}
-	/*animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
-	if (!animarvore1[0])
-		printf("Falha ao carregar o monstro");
-		al_destroy_display(window);
+	
+	animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
+	if (!animarvore1[0]) {
+	printf("Falha ao carregar o monstro");
+	al_destroy_display(window);
 	return false;
-	{
-
+	
 	}
 	animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
-	if (!animarvore1[1])
-		printf("Falha ao carregar o monstro");
-		al_destroy_display(window);
+	if (!animarvore1[1]) {
+	printf("Falha ao carregar o monstro");
+	al_destroy_display(window);
 	return false;
-	{
-
+	
 	}
 	animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
 	if (!animarvore1[2])
 	{
-		printf("Falha ao carregar o monstro");
-		al_destroy_display(window);
-		return false;
-	}*/
-	animp1[0] = al_load_bitmap("personagens/p1paradoesq.png");
+	printf("Falha ao carregar o monstro");
+	al_destroy_display(window);
+	return false;
+	}
+	animp1[0] = al_load_bitmap("personagens/p1parado.png");
 	if (!animp1[0])
 	{
 		printf("Falha ao carregar o personagem");
