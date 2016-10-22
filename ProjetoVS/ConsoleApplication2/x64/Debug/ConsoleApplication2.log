@@ -1,0 +1,9 @@
+﻿ConsoleApplication2.obj : error LNK2019: unresolved external symbol __imp_al_init_primitives_addon referenced in function "bool __cdecl begin_allegro_init(void)" (?begin_allegro_init@@YA_NXZ)
+ConsoleApplication2.obj : error LNK2019: unresolved external symbol __imp_al_draw_filled_rectangle referenced in function "void __cdecl draw_battle_menu(void)" (?draw_battle_menu@@YAXXZ)
+ConsoleApplication2.obj : error LNK2019: unresolved external symbol __imp_al_load_font referenced in function "bool __cdecl begin_allegro_init(void)" (?begin_allegro_init@@YA_NXZ)
+ConsoleApplication2.obj : error LNK2019: unresolved external symbol __imp_al_draw_text referenced in function "void __cdecl draw_battle_menu(void)" (?draw_battle_menu@@YAXXZ)
+ConsoleApplication2.obj : error LNK2019: unresolved external symbol __imp_al_destroy_font referenced in function "void __cdecl destroy_allegro(void)" (?destroy_allegro@@YAXXZ)
+ConsoleApplication2.obj : error LNK2019: unresolved external symbol __imp_al_init_font_addon referenced in function "bool __cdecl begin_allegro_init(void)" (?begin_allegro_init@@YA_NXZ)
+ConsoleApplication2.obj : error LNK2019: unresolved external symbol __imp_al_init_ttf_addon referenced in function "bool __cdecl begin_allegro_init(void)" (?begin_allegro_init@@YA_NXZ)
+ConsoleApplication2.obj : error LNK2019: unresolved external symbol __imp_al_init_image_addon referenced in function "bool __cdecl begin_allegro_init(void)" (?begin_allegro_init@@YA_NXZ)
+C:\Users\gusta\Desktop\bccpi2\ProjetoVS\x64\Debug\ConsoleApplication2.exe : fatal error LNK1120: 8 unresolved externals
