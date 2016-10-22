@@ -8,11 +8,15 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
 #define animarvore1frame 3
-#define animp1frame 3
+#define animp1frame 6
 
-int curFrame = 0;
-int frameCount = 0;
-int frameDelay = 13;
+typedef struct Animations {
+	int curFrame;
+	int frameCount;
+	int frameDelay;
+} Animation;
+
+
 
 ALLEGRO_DISPLAY *window = NULL;
 int window_width = 1280;
@@ -29,6 +33,7 @@ bool iniciar();
 void fbackground();
 void fanimp1(int x, int y);
 void fanimarvore1(int x, int y);
+//void fanimataquep1(int x, int y);
 
 
 int main(void)
@@ -37,7 +42,7 @@ int main(void)
 		return -1;
 	}
 	bool sair = false;
-
+	
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_start_timer(timer);
@@ -68,8 +73,10 @@ int main(void)
 		else if (ev.type == ALLEGRO_EVENT_TIMER)
 		{
 			fbackground();
-			fanimp1(200, 430);
+						
+		//	fanimataquep1(200, 430);
 			fanimarvore1(950, 350);
+			
 
 			al_flip_display();
 
@@ -112,38 +119,45 @@ void fbackground() {
 
 }
 
-void fanimp1(int x, int y) {
-
-	al_draw_bitmap(animp1[0], x, y, 0);
-
-}
-
-void fanimarvore1(int x, int y) {
-
-
-	//animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
-	//animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
-	//animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
-
+/*void fanimataquep1(int x, int y) {
+		
 	if (++frameCount >= frameDelay)
 	{
 		frameCount = 0;
-		if (++curFrame >= animarvore1frame)
+		if (++curFrame >= animp1frame)
 		{
 			curFrame = 0;
 		}
 	}
+	for(int i = 0;i>=animp1frame;i++)
+	al_draw_bitmap(animp1[i], x+10, y+10, 1);
 
-	al_draw_bitmap(animarvore1[curFrame], x, y, 0);
-
-
-	/*for (int i = 0; i < animarvore1frame; i++) {
-		al_destroy_bitmap(animarvore1[i]);
-
-	}*/
+}*/
 
 
+void fanimarvore1(int x, int y) {
+	
+	Animation arvore1;
 
+	arvore1.frameCount = 0;
+	arvore1.frameDelay = 13;
+	arvore1.curFrame = 0;
+		
+	if (++arvore1.frameCount >= arvore1.frameDelay)
+	{
+
+		arvore1.frameCount = 0;
+		if (++ arvore1.curFrame >= animarvore1frame)
+		{
+			arvore1.curFrame = 0;
+			
+			
+		}
+	}
+	
+		al_draw_bitmap(animarvore1[arvore1.curFrame], x, y, 0);
+	
+	
 }
 
 
@@ -214,33 +228,68 @@ bool iniciar()
 	if (!praca1)
 	{
 		printf("Falha ao carregar o fundo da tela");
-		//al_destroy_display(window);
+		al_destroy_display(window);
 		return false;
 	}
-	
+
 	animarvore1[0] = al_load_bitmap("monstros/arvore1.png");
 	if (!animarvore1[0]) {
-	printf("Falha ao carregar o monstro");
-	al_destroy_display(window);
-	return false;
-	
+		printf("Falha ao carregar o monstro");
+		al_destroy_display(window);
+		return false;
+
 	}
 	animarvore1[1] = al_load_bitmap("monstros/arvore2.png");
 	if (!animarvore1[1]) {
-	printf("Falha ao carregar o monstro");
-	al_destroy_display(window);
-	return false;
-	
+		printf("Falha ao carregar o monstro");
+		al_destroy_display(window);
+		return false;
+
 	}
 	animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
 	if (!animarvore1[2])
 	{
-	printf("Falha ao carregar o monstro");
-	al_destroy_display(window);
-	return false;
+		printf("Falha ao carregar o monstro");
+		al_destroy_display(window);
+		return false;
 	}
-	animp1[0] = al_load_bitmap("personagens/p1parado.png");
+	animp1[0] = al_load_bitmap("personagens/p1paradoesq.png");
 	if (!animp1[0])
+	{
+		printf("Falha ao carregar o personagem");
+		al_destroy_display(window);
+		return false;
+	}
+	animp1[1] = al_load_bitmap("personagens/p1andando1.png");
+	if (!animp1[1])
+	{
+		printf("Falha ao carregar o personagem");
+		al_destroy_display(window);
+		return false;
+	}
+	animp1[2] = al_load_bitmap("personagens/p1andando2.png");
+	if (!animp1[2])
+	{
+		printf("Falha ao carregar o personagem");
+		al_destroy_display(window);
+		return false;
+	}
+	animp1[3] = al_load_bitmap("personagens/p1ataque1.png");
+	if (!animp1[3])
+	{
+		printf("Falha ao carregar o personagem");
+		al_destroy_display(window);
+		return false;
+	}
+	animp1[4] = al_load_bitmap("personagens/p1ataque2.png");
+	if (!animp1[4])
+	{
+		printf("Falha ao carregar o personagem");
+		al_destroy_display(window);
+		return false;
+	}
+	animp1[5] = al_load_bitmap("personagens/p1ataque3.png");
+	if (!animp1[5])
 	{
 		printf("Falha ao carregar o personagem");
 		al_destroy_display(window);
