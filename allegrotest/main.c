@@ -8,7 +8,39 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
 #define animarvore1frame 3
-#define animp1frame 5
+
+#define PER1_ANIM_ANDAR 2
+#define PER1_ANIM_ATAQUE 3
+#define PER1_ANIM_BLOQUEIO 1
+#define PER1_ANIM_PARADO 1
+
+
+enum ECurrentPerAnim
+{
+	ANDAR,
+	ATAQUE,
+	BLOCK,
+	PARADO
+};
+
+struct ObjAnim 
+{
+	int x;
+	int y;
+
+	enum ECurrentAnim currentAnimState;
+
+	int currentFrame;
+	int currentMaxFrame;
+
+	int frameRate;
+	int tick;
+
+	ALLEGRO_BITMAP *animAndar[PER1_ANIM_ANDAR];
+	ALLEGRO_BITMAP *animAtaque[PER1_ANIM_ATAQUE];
+	ALLEGRO_BITMAP *animBloqueio[PER1_ANIM_BLOQUEIO];
+	ALLEGRO_BITMAP *animParado[PER1_ANIM_PARADO];
+};
 
 int curFramearvore1 = 0;
 int frameCountarvore1 = 0;
@@ -28,14 +60,17 @@ ALLEGRO_FONT *font = NULL;
 ALLEGRO_BITMAP *praca1 = NULL;
 ALLEGRO_BITMAP *p1parado = NULL;
 ALLEGRO_BITMAP *animarvore1[animarvore1frame];
-ALLEGRO_BITMAP *animp1[animp1frame];
+ALLEGRO_BITMAP *animp1[PER1_ANIM_ANDAR];
+
+struct ObjAnim PerAnim1;
 
 bool iniciar();
 void fbackground();
 void fanimp1(int x, int y);
 void fanimarvore1(int x, int y);
 void fanimataquep1(int x, int y);
-
+void updateAnim(struct ObjAnim *objAnim, bool invert);
+void updateObjAnim(struct ObjAnim *objAnim, ALLEGRO_BITMAP *anim[], bool invert);
 
 int main(void)
 {
@@ -47,7 +82,6 @@ int main(void)
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_start_timer(timer);
-
 
 	while (!sair)
 	{
@@ -62,12 +96,16 @@ int main(void)
 				sair = true;
 				break;
 			case ALLEGRO_KEY_LEFT:
+				PerAnim1.currentAnimState = ATAQUE;
 				break;
 			case ALLEGRO_KEY_RIGHT:
+				PerAnim1.currentAnimState = ANDAR;
 				break;
 			case ALLEGRO_KEY_UP:
+				//setNewAnim(&PerAnim1, BLOCK);
 				break;
 			case ALLEGRO_KEY_DOWN:
+				//setNewAnim(&PerAnim1, PARADO);
 				break;
 			}
 		}
@@ -75,9 +113,10 @@ int main(void)
 		{
 			fbackground();
 			
-			fanimataquep1(200, 430);
+			// fanimataquep1(200, 430);
 			fanimarvore1(950, 350);
 
+			updateAnim(&PerAnim1, true);
 
 			al_flip_display();
 
@@ -120,6 +159,54 @@ void fbackground() {
 
 }
 
+void updateAnim(struct ObjAnim *objAnim, bool invert)
+{
+	switch (objAnim->currentAnimState)
+	{
+	case ANDAR:
+		objAnim->currentMaxFrame = PER1_ANIM_ANDAR;
+
+		updateObjAnim(objAnim, objAnim->animAndar, invert);
+		break;
+	case ATAQUE:
+		objAnim->currentMaxFrame = PER1_ANIM_ATAQUE;
+		
+		updateObjAnim(objAnim, objAnim->animAtaque, invert);
+		break;
+	case BLOCK:
+		objAnim->currentMaxFrame = PER1_ANIM_BLOQUEIO;
+		
+		updateObjAnim(objAnim, objAnim->animBloqueio, invert);
+		break;
+	case PARADO:
+		objAnim->currentMaxFrame = PER1_ANIM_PARADO;
+
+		updateObjAnim(objAnim, objAnim->animParado, invert);
+		break;
+	default:
+		break;
+	}
+}
+
+void updateObjAnim(struct ObjAnim *objAnim, ALLEGRO_BITMAP *anim[], bool invert)
+{
+	objAnim->tick++;
+
+	if (objAnim->tick >= objAnim->frameRate)
+	{
+		objAnim->tick = 0;
+		
+		objAnim->currentFrame++;
+
+		if (objAnim->currentFrame >= objAnim->currentMaxFrame)
+		{
+			objAnim->currentFrame = 0;
+		}
+	}
+
+	al_draw_bitmap(anim[objAnim->currentFrame], objAnim->x, objAnim->y, (invert == true) ? 1 : 0);
+}
+
 void fanimataquep1(int x, int y) {
 
 
@@ -136,12 +223,8 @@ void fanimataquep1(int x, int y) {
 
 		}
 	}
-
-
+	
 	al_draw_bitmap(animp1[curFramep1], x, y, 1);
-
-
-
 }
 
 
@@ -156,15 +239,10 @@ void fanimarvore1(int x, int y) {
 		if (++curFramearvore1 >= animarvore1frame)
 		{
 			curFramearvore1 = 0;
-
-
 		}
 	}
 
-
 	al_draw_bitmap(animarvore1[curFramearvore1], x, y, 0);
-
-
 }
 
 
@@ -261,38 +339,101 @@ bool iniciar()
 		return false;
 	}
 
-	animp1[0] = al_load_bitmap("personagens/p1andando1.png");
-	if (!animp1[0])
+	// Inicializa struc do personagem
+	/*
+	struct ObjAnim 
 	{
-		printf("Falha ao carregar o personagem");
+		enum ECurrentAnim
+		{
+			ANDAR,
+			ATAQUE,
+			BLOCK,
+			PARADO
+		};
+
+		int x;
+		int y;
+
+		enum ECurrentAnim currentAnim;
+
+		int currentFrame;
+		int maxFrame;
+		int frameRate;
+		int tick;
+
+		ALLEGRO_BITMAP *animAndar[2];
+		ALLEGRO_BITMAP *animAtaque[3];
+		ALLEGRO_BITMAP *animBloqueio;
+		ALLEGRO_BITMAP *animParado;
+	};
+	*/
+
+	PerAnim1.x = 200;
+	PerAnim1.y = 430;
+
+	PerAnim1.tick = 0;
+
+	PerAnim1.currentFrame = 0; 
+	PerAnim1.frameRate = 10;
+
+	PerAnim1.animAndar[0] = al_load_bitmap("personagens/p1andando1.png");
+	PerAnim1.animAndar[1] = al_load_bitmap("personagens/p1andando2.png");
+
+	PerAnim1.animAtaque[0] = al_load_bitmap("personagens/p1ataque1.png");
+	PerAnim1.animAtaque[1] = al_load_bitmap("personagens/p1ataque2.png");
+	PerAnim1.animAtaque[2] = al_load_bitmap("personagens/p1ataque3.png");
+
+	PerAnim1.animBloqueio[0] = al_load_bitmap("personagens/p1bloqueio.png");
+
+	PerAnim1.animParado[0] = al_load_bitmap("personagens/p1parado.png");
+		
+	PerAnim1.currentAnimState = ANDAR;
+
+	if (!PerAnim1.animAndar[0])
+	{
+		printf("Erro ao carregar Struct do Personagem! animAndar0\n");
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[1] = al_load_bitmap("personagens/p1andando2.png");
-	if (!animp1[1])
+
+	if (!PerAnim1.animAndar[1])
 	{
-		printf("Falha ao carregar o personagem");
+		printf("Erro ao carregar Struct do Personagem! animAndar1\n");
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[2] = al_load_bitmap("personagens/p1ataque1.png");
-	if (!animp1[2])
+
+	if (!PerAnim1.animAtaque[0])
 	{
-		printf("Falha ao carregar o personagem");
+		printf("Erro ao carregar Struct do Personagem! animAtaque0\n");
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[3] = al_load_bitmap("personagens/p1ataque2.png");
-	if (!animp1[3])
+
+	if (!PerAnim1.animAtaque[1])
 	{
-		printf("Falha ao carregar o personagem");
+		printf("Erro ao carregar Struct do Personagem! animAtaque1\n");
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[4] = al_load_bitmap("personagens/p1ataque3.png");
-	if (!animp1[4])
+
+	if (!PerAnim1.animAtaque[2])
 	{
-		printf("Falha ao carregar o personagem");
+		printf("Erro ao carregar Struct do Personagem! animAtaque2\n");
+		al_destroy_display(window);
+		return false;
+	}
+
+	if (!PerAnim1.animBloqueio[0])
+	{
+		printf("Erro ao carregar Struct do Personagem! animBloqueio0\n");
+		al_destroy_display(window);
+		return false;
+	}
+
+	if (!PerAnim1.animParado[0])
+	{
+		printf("Erro ao carregar Struct do Personagem! animParado0\n");
 		al_destroy_display(window);
 		return false;
 	}
