@@ -14,27 +14,41 @@
 #define PER1_ANIM_BLOQUEIO 1
 #define PER1_ANIM_PARADO 1
 
-
-enum ECurrentPerAnim
-{
-	ANDAR,
-	ATAQUE,
-	BLOCK,
-	PARADO
-};
-
 struct ObjAnim 
 {
+	enum 
+	{
+		ANDAR,
+		ATAQUE,
+		BLOCK,
+		PARADO
+	} ECurrentPerAnim;
+
+	enum
+	{
+		ATTACKING,
+		IDLE
+
+	} ECurrentPerState;
+
 	int x;
 	int y;
 
 	enum ECurrentAnim currentAnimState;
+	enum ECurrentPerState currentState;
 
 	int currentFrame;
 	int currentMaxFrame;
 
 	int frameRate;
 	int tick;
+
+	bool invert;
+
+	int walkSpeed;
+	bool bAttackAnimController;
+
+	ALLEGRO_BITMAP* currentAnim;
 
 	ALLEGRO_BITMAP *animAndar[PER1_ANIM_ANDAR];
 	ALLEGRO_BITMAP *animAtaque[PER1_ANIM_ATAQUE];
@@ -72,6 +86,9 @@ void fanimataquep1(int x, int y);
 void updateAnim(struct ObjAnim *objAnim, bool invert);
 void updateObjAnim(struct ObjAnim *objAnim, ALLEGRO_BITMAP *anim[], bool invert);
 
+void triggerAnimationUpdate();
+void atackMobAnim(struct ObjAnim *objAnim);
+
 int main(void)
 {
 	if (!iniciar()) {
@@ -96,16 +113,15 @@ int main(void)
 				sair = true;
 				break;
 			case ALLEGRO_KEY_LEFT:
-				PerAnim1.currentAnimState = ATAQUE;
+				PerAnim1.currentState = ATTACKING;
+				triggerAnimationUpdate();
 				break;
 			case ALLEGRO_KEY_RIGHT:
-				PerAnim1.currentAnimState = ANDAR;
+				
 				break;
 			case ALLEGRO_KEY_UP:
-				//setNewAnim(&PerAnim1, BLOCK);
 				break;
 			case ALLEGRO_KEY_DOWN:
-				//setNewAnim(&PerAnim1, PARADO);
 				break;
 			}
 		}
@@ -116,7 +132,12 @@ int main(void)
 			// fanimataquep1(200, 430);
 			fanimarvore1(950, 350);
 
-			updateAnim(&PerAnim1, true);
+			updateAnim(&PerAnim1, PerAnim1.invert);
+
+			if (PerAnim1.currentAnim == ATTACKING)
+			{
+				atackMobAnim(&PerAnim1);
+			}
 
 			al_flip_display();
 
@@ -220,7 +241,6 @@ void fanimataquep1(int x, int y) {
 
 			curFramep1 = 0;
 
-
 		}
 	}
 	
@@ -245,6 +265,54 @@ void fanimarvore1(int x, int y) {
 	al_draw_bitmap(animarvore1[curFramearvore1], x, y, 0);
 }
 
+void triggerAnimationUpdate()
+{
+	PerAnim1.currentAnimState = ANDAR;
+	PerAnim1.bAttackAnimController = false;
+	PerAnim1.walkSpeed = 5;
+}
+
+void atackMobAnim(struct ObjAnim *objAnim)
+{
+	objAnim->x += objAnim->walkSpeed;
+
+	if (!objAnim->bAttackAnimController)
+	{
+		if (objAnim->x >= 900)
+		{
+			objAnim->walkSpeed = 0;
+
+			objAnim->currentAnimState = ATAQUE;
+			
+			if (objAnim->currentAnimState == ATAQUE)
+			{
+				if (objAnim->currentFrame >= objAnim->currentMaxFrame - 1)
+				{
+					objAnim->currentAnimState = ANDAR;
+
+					objAnim->bAttackAnimController = true;
+				}
+			}
+		}
+	}
+	else
+	{
+		PerAnim1.invert = false;
+
+		objAnim->walkSpeed = -5;
+
+		if (objAnim->x <= 200)
+		{
+			objAnim->currentAnimState = PARADO;
+			objAnim->currentFrame = 0;
+
+			objAnim->currentState = IDLE;
+
+			PerAnim1.invert = true;
+			objAnim->walkSpeed = 0;
+		}
+	}
+}
 
 bool iniciar()
 {
@@ -340,33 +408,6 @@ bool iniciar()
 	}
 
 	// Inicializa struc do personagem
-	/*
-	struct ObjAnim 
-	{
-		enum ECurrentAnim
-		{
-			ANDAR,
-			ATAQUE,
-			BLOCK,
-			PARADO
-		};
-
-		int x;
-		int y;
-
-		enum ECurrentAnim currentAnim;
-
-		int currentFrame;
-		int maxFrame;
-		int frameRate;
-		int tick;
-
-		ALLEGRO_BITMAP *animAndar[2];
-		ALLEGRO_BITMAP *animAtaque[3];
-		ALLEGRO_BITMAP *animBloqueio;
-		ALLEGRO_BITMAP *animParado;
-	};
-	*/
 
 	PerAnim1.x = 200;
 	PerAnim1.y = 430;
@@ -387,7 +428,13 @@ bool iniciar()
 
 	PerAnim1.animParado[0] = al_load_bitmap("personagens/p1parado.png");
 		
-	PerAnim1.currentAnimState = ANDAR;
+	PerAnim1.currentAnimState = PARADO;
+	PerAnim1.currentState = IDLE;
+	
+	PerAnim1.invert = true;
+	
+	PerAnim1.bAttackAnimController = false;
+	PerAnim1.walkSpeed = 0;
 
 	if (!PerAnim1.animAndar[0])
 	{
