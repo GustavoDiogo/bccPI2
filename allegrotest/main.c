@@ -34,7 +34,7 @@ bool iniciar();
 void fbackground();
 void fanimp1(int x, int y);
 void fanimarvore1(int x, int y);
-//void fanimataquep1(int x, int y);
+void fanimataquep1(int x, int y);
 
 
 int main(void)
@@ -43,7 +43,7 @@ int main(void)
 		return -1;
 	}
 	bool sair = false;
-	
+
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
 	al_start_timer(timer);
@@ -74,31 +74,10 @@ int main(void)
 		else if (ev.type == ALLEGRO_EVENT_TIMER)
 		{
 			fbackground();
-
-			int x = 200;
 			
-			if (++frameCountp1 >= frameDelayp1)
-			{
-
-				
-
-				if (++curFramep1 >= 2)
-				{
-					frameCountp1 = 0;
-					curFramep1 = 0;
-
-					x += 10;
-
-				}
-
-			}
-
-
-			al_draw_bitmap(animp1[curFramep1], x, 430, 1);
-
-			//fanimataquep1(200, 430);
+			fanimataquep1(200, 430);
 			fanimarvore1(950, 350);
-			
+
 
 			al_flip_display();
 
@@ -141,7 +120,7 @@ void fbackground() {
 
 }
 
-/*void fanimataquep1(int x, int y) {
+void fanimataquep1(int x, int y) {
 
 
 	if (++frameCountp1 >= frameDelayp1)
@@ -151,27 +130,24 @@ void fbackground() {
 
 		if (++curFramep1 >= 2)
 		{
-			
-			curFramep1 = 0;
-		
-						
-		}
-		
-		x += 10;
 
+			curFramep1 = 0;
+
+
+		}
 	}
 
 
-		al_draw_bitmap(animp1[curFramep1], x, y, 1);
-	
+	al_draw_bitmap(animp1[curFramep1], x, y, 1);
 
 
-}*/
+
+}
 
 
 
 void fanimarvore1(int x, int y) {
-	
+
 	if (++frameCountarvore1 >= frameDelayarvore1)
 	{
 
@@ -180,15 +156,15 @@ void fanimarvore1(int x, int y) {
 		if (++curFramearvore1 >= animarvore1frame)
 		{
 			curFramearvore1 = 0;
-			
+
 
 		}
 	}
-	
+
 
 	al_draw_bitmap(animarvore1[curFramearvore1], x, y, 0);
-	
-	
+
+
 }
 
 
@@ -284,7 +260,7 @@ bool iniciar()
 		al_destroy_display(window);
 		return false;
 	}
-	
+
 	animp1[0] = al_load_bitmap("personagens/p1andando1.png");
 	if (!animp1[0])
 	{
