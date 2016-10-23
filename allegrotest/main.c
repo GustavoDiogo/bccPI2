@@ -8,11 +8,15 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
 #define animarvore1frame 3
-#define animp1frame 6
+#define animp1frame 5
 
-int curFrame = 0;
-int frameCount = 0;
-int frameDelay = 13;
+int curFramearvore1 = 0;
+int frameCountarvore1 = 0;
+int frameDelayarvore1 = 13;
+
+int curFramep1 = 0;
+int frameCountp1 = 0;
+int frameDelayp1 = 13;
 
 
 ALLEGRO_DISPLAY *window = NULL;
@@ -70,8 +74,29 @@ int main(void)
 		else if (ev.type == ALLEGRO_EVENT_TIMER)
 		{
 			fbackground();
-						
-		//	fanimataquep1(200, 430);
+
+			int x = 200;
+			
+			if (++frameCountp1 >= frameDelayp1)
+			{
+
+				
+
+				if (++curFramep1 >= 2)
+				{
+					frameCountp1 = 0;
+					curFramep1 = 0;
+
+					x += 10;
+
+				}
+
+			}
+
+
+			al_draw_bitmap(animp1[curFramep1], x, 430, 1);
+
+			//fanimataquep1(200, 430);
 			fanimarvore1(950, 350);
 			
 
@@ -117,41 +142,53 @@ void fbackground() {
 }
 
 /*void fanimataquep1(int x, int y) {
-		
-	if (++frameCount >= frameDelay)
+
+
+	if (++frameCountp1 >= frameDelayp1)
 	{
-		frameCount = 0;
-		if (++curFrame >= animp1frame)
+
+		frameCountp1 = 0;
+
+		if (++curFramep1 >= 2)
 		{
-			curFrame = 0;
+			
+			curFramep1 = 0;
+		
+						
 		}
+		
+		x += 10;
+
 	}
-	for(int i = 0;i>=animp1frame;i++)
-	al_draw_bitmap(animp1[i], x+10, y+10, 1);
+
+
+		al_draw_bitmap(animp1[curFramep1], x, y, 1);
+	
+
 
 }*/
 
 
-void fanimarvore1(int x, int y) {
 
-		
-	if (++frameCount >= frameDelay)
+void fanimarvore1(int x, int y) {
+	
+	if (++frameCountarvore1 >= frameDelayarvore1)
 	{
 
-		frameCount = 0;
-		if (++curFrame >= animarvore1frame)
+		frameCountarvore1 = 0;
+
+		if (++curFramearvore1 >= animarvore1frame)
 		{
-			curFrame = 0;
+			curFramearvore1 = 0;
 			
-			
+
 		}
 	}
 	
-		al_draw_bitmap(animarvore1[curFrame], x, y, 0);
+
+	al_draw_bitmap(animarvore1[curFramearvore1], x, y, 0);
 	
 	
-
-
 }
 
 
@@ -247,43 +284,37 @@ bool iniciar()
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[0] = al_load_bitmap("personagens/p1paradoesq.png");
+	
+	animp1[0] = al_load_bitmap("personagens/p1andando1.png");
 	if (!animp1[0])
 	{
 		printf("Falha ao carregar o personagem");
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[1] = al_load_bitmap("personagens/p1andando1.png");
+	animp1[1] = al_load_bitmap("personagens/p1andando2.png");
 	if (!animp1[1])
 	{
 		printf("Falha ao carregar o personagem");
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[2] = al_load_bitmap("personagens/p1andando2.png");
+	animp1[2] = al_load_bitmap("personagens/p1ataque1.png");
 	if (!animp1[2])
 	{
 		printf("Falha ao carregar o personagem");
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[3] = al_load_bitmap("personagens/p1ataque1.png");
+	animp1[3] = al_load_bitmap("personagens/p1ataque2.png");
 	if (!animp1[3])
 	{
 		printf("Falha ao carregar o personagem");
 		al_destroy_display(window);
 		return false;
 	}
-	animp1[4] = al_load_bitmap("personagens/p1ataque2.png");
+	animp1[4] = al_load_bitmap("personagens/p1ataque3.png");
 	if (!animp1[4])
-	{
-		printf("Falha ao carregar o personagem");
-		al_destroy_display(window);
-		return false;
-	}
-	animp1[5] = al_load_bitmap("personagens/p1ataque3.png");
-	if (!animp1[5])
 	{
 		printf("Falha ao carregar o personagem");
 		al_destroy_display(window);
