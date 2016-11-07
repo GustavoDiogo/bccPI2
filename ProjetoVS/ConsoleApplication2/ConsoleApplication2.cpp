@@ -30,6 +30,9 @@
 #define WORLD_TIMER 0.01
 #define BATTLE_TIMER 0.2
 #define STEPS_WALK_ANIM 100
+#define CHARACTER_HEIGHT 85
+#define CHARACTER_WIDTH 65
+#define CHAR_INTERACTION_SIZE 120
 
 
 const int window_height = 720;
@@ -49,6 +52,7 @@ int skill_quantity = 0;
 int item_quantity = 0;
 int mon_quantity = 0;
 int char_quantity = 1;
+int current_stage = 0;
 
 
 ALLEGRO_DISPLAY *window = NULL;
@@ -57,12 +61,7 @@ ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 ALLEGRO_TIMER *battle_timer, *world_timer;
 ALLEGRO_BITMAP *arrow = NULL;
 ALLEGRO_BITMAP *monster_arrow = NULL;
-ALLEGRO_BITMAP *praca1 = NULL;
-ALLEGRO_BITMAP *arvore1 = NULL;
-ALLEGRO_BITMAP *arvore2 = NULL;
-ALLEGRO_BITMAP *arvore3 = NULL;
-ALLEGRO_BITMAP *animp1[animp1frame];
-ALLEGRO_BITMAP *animarvore1[animarvore1frames];
+ALLEGRO_BITMAP *background;
 
 //MARK: Structs
 
@@ -219,6 +218,9 @@ struct worldObject {
     int x2;
     int y2;
     
+    int action_id;
+    int action_quantity;
+    
     enum ObjectType object_type;
 };
 
@@ -233,11 +235,9 @@ Inventory *inventory;
 
 struct monster monsters[3];
 struct character characters[4];
-ALLEGRO_BITMAP *world_objects[20];
+struct worldObject objects[20];
+int objects_quantity = 0;
 
-//Monster *monster1 = NULL;
-//Monster *monster2 = NULL;
-//Monster *monster3 = NULL;
 
 //MARK: Convenience Funx
 
@@ -306,6 +306,29 @@ ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h) {
 }
 
 //MARK: Inits
+
+void load_background_at_stage(int stage) {
+    
+    if(background) {
+        al_destroy_bitmap(background);
+    }
+    
+    switch (stage) {
+        case 0:
+            background = al_load_bitmap("Praca1.jpg");
+            break;
+        case 1:
+            background = al_load_bitmap("Praca1.jpg");
+            break;
+        case 2:
+            background = al_load_bitmap("Praca1.jpg");
+            break;
+        default:
+            break;
+    }
+    
+}
+
 
 bool load_character_animations(int num) {
     
@@ -490,7 +513,6 @@ void load_questions() {
 
 bool begin_allegro_init() {
     
-    
     //Inits of allegro
     if (!al_init()) {
         printf("Failed to init allegro.");
@@ -564,29 +586,13 @@ bool begin_allegro_init() {
     //    animp1[0] = al_load_bitmap("personagens/p1parado.png");
     
     arrow = load_bitmap_at_size("arrow.png", 35, 35);
-    praca1 = al_load_bitmap("Praca1.jpg");
-    animarvore1[0] = al_load_bitmap("arvore1.png");
-    animarvore1[1] = al_load_bitmap("arvore2.png");
-    animarvore1[2] = al_load_bitmap("arvore3.png");
-    animp1[0] = al_load_bitmap("p1parado.png");
     monster_arrow = load_bitmap_at_size("arrow.png", 80, 80);
+    load_background_at_stage(current_stage);
     
     if (!arrow) {
         return false;
     }
-    if (!praca1) {
-        return false;
-    }
-    if (!animarvore1[0]) {
-        return false;
-    }
-    if (!animarvore1[1]) {
-        return false;
-    }
-    if (!animarvore1[2]) {
-        return false;
-    }
-    if (!animp1[0]) {
+    if (!background) {
         return false;
     }
     if(!monster_arrow) {
@@ -700,16 +706,8 @@ void destroy_allegro() {
     
     int a;
     
-    for(a = 0; a < animarvore1frames; a++) {
-        al_destroy_bitmap(animarvore1[a]);
-    }
-    
-    for(a = 0; a < animp1frame; a++) {
-        al_destroy_bitmap(animp1[a]);
-    }
-    
     al_destroy_bitmap(monster_arrow);
-    al_destroy_bitmap(praca1);
+    al_destroy_bitmap(background);
     al_destroy_bitmap(arrow);
     al_destroy_display(window);
     al_destroy_font(font);
@@ -720,7 +718,6 @@ void destroy_allegro() {
 
 
 //MARK: Create Objects Identifier
-
 
 void create_monster_animations(int index) {
     
@@ -957,6 +954,33 @@ void remove_item_from_inventory(int item_place) {
 }
 
 
+void load_battle_background_at_stage(int stage) {
+    
+    if(background) {
+        al_destroy_bitmap(background);
+    }
+    
+    switch (stage) {
+        case 0:
+            background = al_load_bitmap("Praca1.jpg");
+            break;
+        case 1:
+            background = al_load_bitmap("Praca1.jpg");
+            break;
+        case 2:
+            background = al_load_bitmap("Praca1.jpg");
+            break;
+        default:
+            break;
+    }
+    
+    if(!background) {
+        printf("Problem loading the battle background.\n");
+        destroy_allegro();
+    }
+    
+}
+
 
 void load_item_list() {
     
@@ -1127,6 +1151,18 @@ void load_skill_list(int index) {
 
 //MARK: Exit Screen and Saves
 
+void load_saved_game() {
+    
+}
+
+void save_game() {
+    
+}
+
+void show_gameover_screen() {
+    
+}
+
 void show_exit_screen() {
     
     double w = window_width / 3.0;
@@ -1182,7 +1218,7 @@ void show_exit_screen() {
 //MARK: Drawings
 
 void draw_background() {
-    al_draw_bitmap(praca1, 0, 0, 0);
+    al_draw_bitmap(background, 0, 0, 0);
 }
 
 
@@ -1313,6 +1349,40 @@ void draw_skills_box() {
         }
     }
     
+}
+
+void draw_world_objects() {
+    
+    for(int x = 0; x < objects_quantity; x++) {
+        al_draw_bitmap(objects[x].bitmap, objects[x].x1, objects[x].y1, 0);
+    }
+}
+
+void draw_character_info(int chara) {
+    
+    al_draw_filled_circle(40, 40, 20, al_map_rgba(255, 255, 0, 0.5));
+    
+    double y_fator = (double)characters[chara].hp / characters[chara].maxhp;
+    
+    al_draw_filled_rectangle(60, 50, 260, 100, al_map_rgb(255, 0, 0));
+    al_draw_filled_rectangle(63, 53, 63 + (y_fator * 200), 97, al_map_rgb(0, 255, 0));
+    
+}
+
+void draw_main_character_on_position() {
+    
+    draw_background();
+    draw_world_objects();
+    draw_character_info(0);
+    
+    int walk_index = characters[0].animation_object.walkIndex;
+    bool invert = characters[0].animation_object.invert;
+    
+    if(invert)
+        al_draw_bitmap(characters[0].animation_object.animAndar[walk_index], characters[0].animation_object.x, characters[0].animation_object.y, ALLEGRO_FLIP_HORIZONTAL);
+    else al_draw_bitmap(characters[0].animation_object.animAndar[walk_index], characters[0].animation_object.x, characters[0].animation_object.y, 0);
+    
+    al_flip_display();
 }
 
 
@@ -1448,6 +1518,15 @@ void draw_arrow_skills(int selected) {
     }
 }
 
+//MARK: NPCs
+
+void draw_dialogue_screen(char dialogue[300]) {
+    
+}
+
+void show_dialogue_screen_with_id(int dialogue_id) {
+    
+}
 
 //MARK: Animations
 
@@ -1819,20 +1898,81 @@ int show_question() {
 
 //MARK: Battle
 
+
+int exp_needed_for_level(int level) {
+    
+    switch (level) {
+        case 1:
+            return 100;
+            break;
+        case 2:
+            return 200;
+            break;
+        case 3:
+            return 300;
+            break;
+        case 4:
+            return 400;
+            break;
+        case 5:
+            return 500;
+            break;
+        case 6:
+            return 600;
+            break;
+        case 7:
+            return 700;
+            break;
+        default:
+            return 9999;
+            break;
+    }
+}
+
+void level_up_characters_if_needed() {
+    
+    for(int x = 0; x > char_quantity; x++) {
+        if(characters[x].exp >= exp_needed_for_level(characters[x].level)) {
+            characters[x].level++;
+            characters[x].exp = characters[x].exp - exp_needed_for_level(characters[x].level);
+        }
+    }
+}
+
+
+void add_exp_to_characters() {
+    
+    int exp = 0;
+    
+    for(int x = 0; x > mon_quantity; x++) {
+        exp += monsters[x].exp;
+    }
+    
+    for(int x = 0; x > char_quantity; x++) {
+        characters[x].exp += exp;
+    }
+    
+    level_up_characters_if_needed();
+    
+}
+
 void position_characters_for_battle() {
     
     characters[0].animation_object.x = 200;
     characters[0].animation_object.y = 430;
+    characters[0].animation_object.invert = true;
     
     if(char_quantity > 1) {
         
         characters[1].animation_object.x = 0;
         characters[1].animation_object.y = 0;
+        characters[1].animation_object.invert = true;
         
         if(char_quantity > 2) {
             
             characters[2].animation_object.x = 0;
             characters[2].animation_object.y = 0;
+            characters[2].animation_object.invert = true;
             
         }
     }
@@ -2040,6 +2180,9 @@ int battle_selection_loop(int quantity, bool monster_selection) {
 // 3 -> ESCAPE
 
 int begin_battle(int mon_id, int mon_num) {
+    
+    //set background for battle
+    load_battle_background_at_stage(current_stage);
     
     //Set new position for the battle
     position_characters_for_battle();
@@ -2375,26 +2518,103 @@ int begin_battle(int mon_id, int mon_num) {
 
 //MARK: Outside
 
-void draw_world_objects() {
+
+void execute_action_for_object(int obj) {
+    
+    int battle_result;
+    
+    switch (objects[obj].object_type) {
+        case NPC:
+            show_dialogue_screen_with_id(objects[obj].action_id);
+            break;
+        case CHEST:
+            add_item_to_inventory(objects[obj].action_id);
+            break;
+        case MONSTER:
+            
+            battle_result = begin_battle(objects[obj].action_id, objects[obj].action_quantity);
+            
+            if(battle_result == 2) {
+                show_gameover_screen();
+            }
+            
+            else if(battle_result == 1) {
+                add_exp_to_characters();
+            }
+            
+            break;
+        default:
+            break;
+    }
     
 }
 
-void draw_character_info() {
+int check_object_at_area(int x1,int x2,int y1,int y2) {
+    
+    for(int z = 0; z < objects_quantity; z++) {
+        
+        int ox1 = objects[z].x1;
+        int ox2 = objects[z].x2;
+        int oy1 = objects[z].y1;
+        int oy2 = objects[z].y2;
+        
+        if(ox1 > x1 && ox1 < x2) {
+            if(oy1 > y1 && oy1 < y2) {
+                return z;
+            }
+            
+            else if(oy2 > y1 && oy2 < y2) {
+                return z;
+            }
+        }
+        
+        else if (ox2 > x1 && ox2 < x2) {
+            if(oy1 > y1 && oy1 < y2) {
+                return z;
+            }
+            
+            else if(oy2 > y1 && oy2 < y2) {
+                return z;
+            }
+        }
+        
+    }
+    
+    return -1;
     
 }
 
-void draw_main_character_on_position() {
+void check_character_interaction() {
     
-    draw_background();
-    //draw_world_objects();
-    //draw_character_info();
+    int x1, x2, y1, y2;
     
-    int walk_index = characters[0].animation_object.walkIndex;
+    y1 = characters[0].animation_object.y - ((CHAR_INTERACTION_SIZE - CHARACTER_HEIGHT) / 2);
+    y2 = y1 + CHAR_INTERACTION_SIZE;
     
-    al_draw_bitmap(characters[0].animation_object.animAndar[walk_index], characters[0].animation_object.x, characters[0].animation_object.y, ALLEGRO_FLIP_HORIZONTAL);
-    al_flip_display();
+    //Character is looking right
+    if(characters[0].animation_object.invert) {
+        
+        x1 = characters[0].animation_object.x + CHARACTER_WIDTH;
+        x2 = x1 + CHAR_INTERACTION_SIZE;
+    }
+    
+    //Character is looking left
+    else {
+        x2 = characters[0].animation_object.x;
+        x1 = x2 - CHAR_INTERACTION_SIZE;
+    }
+    
+    int index = check_object_at_area(x1,x2,y1,y2);
+    
+    if(index < 0) {
+        //No objects on area
+    }
+    
+    else {
+        execute_action_for_object(index);
+    }
+    
 }
-
 
 void walk_character(bool up, bool down, bool left, bool right) {
     
@@ -2404,11 +2624,15 @@ void walk_character(bool up, bool down, bool left, bool right) {
     else if(!up && down)
         characters[0].animation_object.y += (WALK_SPEED_Y / (1 / WORLD_TIMER));
     
-    if(left && !right)
+    if(left && !right) {
         characters[0].animation_object.x -= (WALK_SPEED_X / (1 / WORLD_TIMER));
+        characters[0].animation_object.invert = false;
+    }
     
-    else if(!left && right)
+    else if(!left && right) {
         characters[0].animation_object.x += (WALK_SPEED_X / (1 / WORLD_TIMER));
+        characters[0].animation_object.invert = true;
+    }
     
     if(!up && !down && !left && !right) {
         characters[0].animation_object.walkCount = 0;
@@ -2429,6 +2653,8 @@ void walk_character(bool up, bool down, bool left, bool right) {
 }
 
 void scenario() {
+    
+    al_start_timer(world_timer);
     
     while (1) {
         
@@ -2454,7 +2680,7 @@ void scenario() {
                     right = true;
                     break;
                 case ALLEGRO_KEY_ENTER:
-                    
+                    check_character_interaction();
                     break;
                 case ALLEGRO_KEY_ESCAPE:
                     show_exit_screen();
@@ -2482,10 +2708,11 @@ void scenario() {
                     show_exit_screen();
                     break;
             }
-            
         }
         
-        walk_character(up, down, left, right);
+        else if (ev.type == ALLEGRO_EVENT_TIMER) {
+            walk_character(up, down, left, right);
+        }
     }
     
 }
