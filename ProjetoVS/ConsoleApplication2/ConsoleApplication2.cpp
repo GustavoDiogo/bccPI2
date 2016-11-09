@@ -25,15 +25,20 @@
 #define PER1_ANIM_STOP 1
 #define MONSTER_ANIM_MAX 5
 #define MAX_WALK_Y 420
-#define WALK_SPEED_X 15
-#define WALK_SPEED_Y 10
+#define WALK_SPEED_X 100
+#define WALK_SPEED_Y 80
 #define WORLD_TIMER 0.01
 #define BATTLE_TIMER 0.2
-#define STEPS_WALK_ANIM 100
+#define STEPS_WALK_ANIM 20
 #define CHARACTER_HEIGHT 85
 #define CHARACTER_WIDTH 65
 #define CHAR_INTERACTION_SIZE 120
-
+#define WALK_MONSTER_MIN 100
+#define WALK_MONSTER_MAX 200
+#define MAX_STAGES 3
+#define START_X_RIGHT 1100
+#define START_Y 550
+#define START_X_LEFT 180
 
 const int window_height = 720;
 const int window_width = 1280;
@@ -53,8 +58,12 @@ int item_quantity = 0;
 int mon_quantity = 0;
 int char_quantity = 1;
 int current_stage = 0;
+int walk_interations = 0;
+int interations_to_monster = 0;
+int fx_count = 0;
+bool monsters_on_walk = true;
 
-
+ALLEGRO_BITMAP *fxs[30];
 ALLEGRO_DISPLAY *window = NULL;
 ALLEGRO_FONT *font = NULL;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -81,7 +90,8 @@ enum ECurrentPerAnim {
 
 enum ECurrentPerState {
     ATTACKING,
-    IDLE
+    IDLE,
+    WALKING
 };
 
 struct MonsterAnim {
@@ -108,8 +118,8 @@ struct MonsterAnim {
 
 struct PerAnim {
     
-    int x;
-    int y;
+    double x;
+    double y;
     
     enum ECurrentPerAnim currentAnimState;
     enum ECurrentPerState currentState;
@@ -139,9 +149,11 @@ struct PerAnim {
 struct skill{
     
     int id;
+    int fx_id;
     float atk;
     float matak;
     int mana_cost;
+    bool target_monster;
     char name[20];
     
 };
@@ -307,7 +319,11 @@ ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h) {
 
 //MARK: Inits
 
-void load_background_at_stage(int stage) {
+void set_new_interations_to_monster() {
+    interations_to_monster = WALK_MONSTER_MIN + rand_lim(WALK_MONSTER_MAX - WALK_MONSTER_MIN);
+}
+
+void load_stage(int stage) {
     
     if(background) {
         al_destroy_bitmap(background);
@@ -315,13 +331,13 @@ void load_background_at_stage(int stage) {
     
     switch (stage) {
         case 0:
-            background = al_load_bitmap("Praca1.jpg");
+            background = al_load_bitmap("stage1.jpg");
             break;
         case 1:
-            background = al_load_bitmap("Praca1.jpg");
+            background = al_load_bitmap("stage2.jpg");
             break;
         case 2:
-            background = al_load_bitmap("Praca1.jpg");
+            background = al_load_bitmap("stage3.jpg");
             break;
         default:
             break;
@@ -334,8 +350,8 @@ bool load_character_animations(int num) {
     
     if(num == 0) {
         
-        characters[num].animation_object.x = 200;
-        characters[num].animation_object.y = 430;
+        characters[num].animation_object.x = START_X_RIGHT;
+        characters[num].animation_object.y = START_Y;
         
         characters[num].animation_object.tick = 0;
         
@@ -355,7 +371,7 @@ bool load_character_animations(int num) {
         characters[num].animation_object.currentAnimState = STOP;
         characters[num].animation_object.currentState = IDLE;
         
-        characters[num].animation_object.invert = true;
+        characters[num].animation_object.invert = false;
         
         characters[num].animation_object.bAttackAnimController = false;
         characters[num].animation_object.walkSpeed = 0;
@@ -585,9 +601,9 @@ bool begin_allegro_init() {
     //    animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
     //    animp1[0] = al_load_bitmap("personagens/p1parado.png");
     
-    arrow = load_bitmap_at_size("arrow.png", 35, 35);
-    monster_arrow = load_bitmap_at_size("arrow.png", 80, 80);
-    load_background_at_stage(current_stage);
+    arrow = load_bitmap_at_size("rightarrow.png", 35, 35);
+    monster_arrow = load_bitmap_at_size("downarrow.png", 80, 80);
+    load_stage(current_stage);
     
     if (!arrow) {
         return false;
@@ -604,6 +620,9 @@ bool begin_allegro_init() {
     
     //load questions from txt
     load_questions();
+    
+    //set how many interations is needed to appear the monster
+    set_new_interations_to_monster();
     
     //init RPG game objects
     //main_char = (Character *) malloc(sizeof(Character));
@@ -698,13 +717,23 @@ void destroy_objects() {
 }
 
 
+void destroy_fx() {
+    
+    for(int x = 0; x < 30; x++) {
+        if(fxs[x]) {
+            al_destroy_bitmap(fxs[x]);
+        }
+        
+    }
+    
+}
+
 void destroy_allegro() {
     
     destroy_questions();
     destroy_objects();
     destroy_characters_animations();
-    
-    int a;
+    destroy_fx();
     
     al_destroy_bitmap(monster_arrow);
     al_destroy_bitmap(background);
@@ -716,8 +745,142 @@ void destroy_allegro() {
     al_destroy_timer(world_timer);
 }
 
-
 //MARK: Create Objects Identifier
+
+
+void load_fx_animation(int ani_id) {
+    
+    destroy_fx();
+    
+    switch (ani_id) {
+            
+        //Fire
+        case 0:
+            fx_count = 8;
+            fxs[0] = al_load_bitmap("fogo1.png");
+            fxs[1] = al_load_bitmap("fogo2.png");
+            fxs[2] = al_load_bitmap("fogo3.png");
+            fxs[3] = al_load_bitmap("fogo4.png");
+            fxs[4] = al_load_bitmap("fogo5.png");
+            fxs[5] = al_load_bitmap("fogo6.png");
+            fxs[6] = al_load_bitmap("fogo7.png");
+            fxs[7] = al_load_bitmap("fogo8.png");
+            break;
+            //Potion
+        case 1:
+            fx_count = 21;
+            fxs[0] = al_load_bitmap("mana01.png");
+            fxs[1] = al_load_bitmap("mana02.png");
+            fxs[2] = al_load_bitmap("mana03.png");
+            fxs[3] = al_load_bitmap("mana04.png");
+            fxs[4] = al_load_bitmap("mana05.png");
+            fxs[5] = al_load_bitmap("mana06.png");
+            fxs[6] = al_load_bitmap("mana07.png");
+            fxs[7] = al_load_bitmap("mana08.png");
+            fxs[8] = al_load_bitmap("mana09.png");
+            fxs[9] = al_load_bitmap("mana10.png");
+            fxs[10] = al_load_bitmap("mana11.png");
+            fxs[11] = al_load_bitmap("mana12.png");
+            fxs[12] = al_load_bitmap("mana13.png");
+            fxs[13] = al_load_bitmap("mana14.png");
+            fxs[14] = al_load_bitmap("mana15.png");
+            fxs[15] = al_load_bitmap("mana16.png");
+            fxs[16] = al_load_bitmap("mana17.png");
+            fxs[17] = al_load_bitmap("mana18.png");
+            fxs[18] = al_load_bitmap("mana19.png");
+            fxs[19] = al_load_bitmap("mana20.png");
+            fxs[20] = al_load_bitmap("mana21.png");
+
+            break;
+            //Healing
+        case 2:
+            fx_count = 21;
+            fxs[0] = al_load_bitmap("cura01.png");
+            fxs[1] = al_load_bitmap("cura02.png");
+            fxs[2] = al_load_bitmap("cura03.png");
+            fxs[3] = al_load_bitmap("cura04.png");
+            fxs[4] = al_load_bitmap("cura05.png");
+            fxs[5] = al_load_bitmap("cura06.png");
+            fxs[6] = al_load_bitmap("cura07.png");
+            fxs[7] = al_load_bitmap("cura08.png");
+            fxs[8] = al_load_bitmap("cura09.png");
+            fxs[9] = al_load_bitmap("cura10.png");
+            fxs[10] = al_load_bitmap("cura11.png");
+            fxs[11] = al_load_bitmap("cura12.png");
+            fxs[12] = al_load_bitmap("cura13.png");
+            fxs[13] = al_load_bitmap("cura14.png");
+            fxs[14] = al_load_bitmap("cura15.png");
+            fxs[15] = al_load_bitmap("cura16.png");
+            fxs[16] = al_load_bitmap("cura17.png");
+            fxs[17] = al_load_bitmap("cura18.png");
+            fxs[18] = al_load_bitmap("cura19.png");
+            fxs[19] = al_load_bitmap("cura20.png");
+            fxs[20] = al_load_bitmap("cura21.png");
+            break;
+            
+        default:
+            fx_count = 0;
+            break;
+    }
+    
+    for(int x = 0; x < fx_count; x ++) {
+        if(!fxs[x]) {
+            printf("Some error occured when loading the fxs.\n");
+            return;
+        }
+    }
+    
+}
+
+
+int monster_id_on_stage(int stage) {
+    
+    switch (stage) {
+        case 0:
+            return 0;
+            break;
+        case 1:
+            return 0;
+            break;
+        case 2:
+            return 0;
+            break;
+        default:
+            return 0;
+            break;
+    }
+    
+}
+
+int exp_needed_for_level(int level) {
+    
+    switch (level) {
+        case 1:
+            return 100;
+            break;
+        case 2:
+            return 200;
+            break;
+        case 3:
+            return 300;
+            break;
+        case 4:
+            return 400;
+            break;
+        case 5:
+            return 500;
+            break;
+        case 6:
+            return 600;
+            break;
+        case 7:
+            return 700;
+            break;
+        default:
+            return 9999;
+            break;
+    }
+}
 
 void create_monster_animations(int index) {
     
@@ -765,8 +928,8 @@ void create_monster(int mon_id, int index) {
             monsters[index].name[3] = 'o';
             monsters[index].name[4] = 'r';
             monsters[index].name[5] = 'e';
-            monsters[index].hp = 300;
-            monsters[index].maxhp = 300;
+            monsters[index].hp = 90;
+            monsters[index].maxhp = 90;
             monsters[index].atk = 100;
             monsters[index].def = 40;
             monsters[index].matak = 0;
@@ -787,12 +950,12 @@ void create_monster(int mon_id, int index) {
             monsters[index].animation_object.y = 350;
             break;
         case 1:
-            monsters[index].animation_object.x = 0;
-            monsters[index].animation_object.y = 0;
+            monsters[index].animation_object.x = 800;
+            monsters[index].animation_object.y = 300;
             break;
         case 2:
-            monsters[index].animation_object.x = 0;
-            monsters[index].animation_object.y = 0;
+            monsters[index].animation_object.x = 650;
+            monsters[index].animation_object.y = 320;
             break;
             
         default:
@@ -962,13 +1125,13 @@ void load_battle_background_at_stage(int stage) {
     
     switch (stage) {
         case 0:
-            background = al_load_bitmap("Praca1.jpg");
+            background = al_load_bitmap("stage1.jpg");
             break;
         case 1:
-            background = al_load_bitmap("Praca1.jpg");
+            background = al_load_bitmap("stage2.jpg");
             break;
         case 2:
-            background = al_load_bitmap("Praca1.jpg");
+            background = al_load_bitmap("stage3.jpg");
             break;
         default:
             break;
@@ -1070,6 +1233,9 @@ void load_skill(int chara, int index) {
             characters[chara].skills[index].atk = 1.3;
             characters[chara].skills[index].matak = 0.0;
             characters[chara].skills[index].mana_cost = 10;
+            characters[chara].skills[index].fx_id = 0;
+            characters[chara].skills[index].target_monster = true;
+            
             break;
     }
     
@@ -1247,31 +1413,39 @@ void draw_life_bars() {
     //   -| 130 |- //
     // 15 |
     
+    //Main character
     double y_fator = (double)characters[0].hp / characters[0].maxhp;
     
     al_draw_filled_rectangle(170, 410, 300, 425, al_map_rgb(255, 0, 0));
     al_draw_filled_rectangle(172, 412, 168 + (y_fator * 130), 423, al_map_rgb(0, 255, 0));
     
     
-    y_fator = (double)monsters[0].hp / monsters[0].maxhp;
+    //Monster 1
+    if(monsters[0].hp > 0) {
+        
+        y_fator = (double)monsters[0].hp / monsters[0].maxhp;
+        
+        al_draw_filled_rectangle(980, 335, 1110, 350, al_map_rgb(255, 0, 0));
+        al_draw_filled_rectangle(982, 337, 978 + (y_fator * 130), 348, al_map_rgb(0, 255, 0));
+    }
     
-    al_draw_filled_rectangle(980, 335, 1110, 350, al_map_rgb(255, 0, 0));
-    al_draw_filled_rectangle(982, 337, 978 + (y_fator * 130), 348, al_map_rgb(0, 255, 0));
-    
-    if(monsters[1].id >= 0) {
+    //Monster 2
+    if(monsters[1].id >= 0 && monsters[1].hp > 0) {
         
         y_fator = (double)monsters[1].hp / monsters[1].maxhp;
         
-        al_draw_filled_rectangle(0, 0, 0, 0, al_map_rgb(255, 0, 0));
-        al_draw_filled_rectangle(0, 0, 0, 0, al_map_rgb(0, 255, 0));
+        al_draw_filled_rectangle(830, 285, 960, 300, al_map_rgb(255, 0, 0));
+        al_draw_filled_rectangle(832, 287, 828 + (y_fator * 130), 298, al_map_rgb(0, 255, 0));
         
-        if(monsters[2].id >= 0){
-            
-            y_fator = (double)monsters[2].hp / monsters[2].maxhp;
-            
-            al_draw_filled_rectangle(0, 0, 0, 0, al_map_rgb(255, 0, 0));
-            al_draw_filled_rectangle(0, 0, 0, 0, al_map_rgb(0, 255, 0));
-        }
+    }
+    //Monster 3
+    if(monsters[2].id >= 0 && monsters[2].hp > 0){
+        
+        y_fator = (double)monsters[2].hp / monsters[2].maxhp;
+        
+        al_draw_filled_rectangle(680, 310, 810, 325, al_map_rgb(255, 0, 0));
+        al_draw_filled_rectangle(682, 312, 678 + (y_fator * 130), 323, al_map_rgb(0, 255, 0));
+        
     }
 }
 
@@ -1360,12 +1534,57 @@ void draw_world_objects() {
 
 void draw_character_info(int chara) {
     
-    al_draw_filled_circle(40, 40, 20, al_map_rgba(255, 255, 0, 0.5));
+    al_draw_circle(80, 80, 70, al_map_rgba(100, 100, 100, 0.5), 10.0);
     
     double y_fator = (double)characters[chara].hp / characters[chara].maxhp;
     
-    al_draw_filled_rectangle(60, 50, 260, 100, al_map_rgb(255, 0, 0));
-    al_draw_filled_rectangle(63, 53, 63 + (y_fator * 200), 97, al_map_rgb(0, 255, 0));
+    al_draw_filled_circle(190, 40, 20, al_map_rgb(255, 0, 0));
+    al_draw_filled_circle(590, 40, 20, al_map_rgb(255, 0, 0));
+    
+    al_draw_filled_rectangle(190, 20, 590, 60, al_map_rgb(255, 0, 0));
+    al_draw_filled_rectangle(192, 22, 190 + (y_fator * 398), 58, al_map_rgb(0, 255, 0));
+    
+    al_draw_filled_circle(190, 40, 18, al_map_rgb(0, 255, 0));
+    al_draw_filled_circle(190 + (y_fator * 398), 40, 18, al_map_rgb(0, 255, 0));
+    
+    
+    y_fator = (double)characters[chara].sp / characters[chara].maxsp;
+    
+    al_draw_filled_circle(190, 100, 20, al_map_rgb(255, 0, 0));
+    al_draw_filled_circle(590, 100, 20, al_map_rgb(255, 0, 0));
+    
+    al_draw_filled_rectangle(190, 80, 590, 120, al_map_rgb(255, 0, 0));
+    al_draw_filled_rectangle(192, 82, 190 + (y_fator * 398), 118, al_map_rgb(0, 0, 255));
+    
+    al_draw_filled_circle(190, 100, 18, al_map_rgb(0, 0, 255));
+    al_draw_filled_circle(190 + (y_fator * 398), 100, 18, al_map_rgb(0, 0, 255));
+
+    
+    y_fator = (double)characters[chara].exp / exp_needed_for_level(characters[chara].level);
+    
+    al_draw_filled_circle(180, 150, 10, al_map_rgb(200, 200, 0));
+    al_draw_filled_circle(480, 150, 10, al_map_rgb(200, 200, 0));
+    
+    al_draw_filled_rectangle(180, 140, 480, 160, al_map_rgb(200, 200, 0));
+    al_draw_filled_rectangle(182, 142, 180 + (y_fator * 298), 158, al_map_rgb(255, 255, 0));
+    
+    al_draw_filled_circle(180, 150, 8, al_map_rgb(255, 255, 0));
+    al_draw_filled_circle(180 + (y_fator * 298), 150, 8, al_map_rgb(255, 255, 0));
+    
+    
+    char str[9] = {'L','e','v','e','l',' ',' ',' ','\0'};
+    
+    if(characters[chara].level > 9) {
+        int s = characters[chara].level / 10;
+        str[6] = s + 48;
+        str[7] = (characters[chara].level - (s * 10)) + 48;
+    }
+    
+    else {
+        str[6] = characters[chara].level + 48;
+    }
+    
+    al_draw_text(font, al_map_rgb(255, 255, 0), 25, 170, ALLEGRO_ALIGN_LEFT, str);
     
 }
 
@@ -1377,10 +1596,21 @@ void draw_main_character_on_position() {
     
     int walk_index = characters[0].animation_object.walkIndex;
     bool invert = characters[0].animation_object.invert;
+    ALLEGRO_BITMAP *bitmap;
+    
+    if(characters[0].animation_object.currentState == IDLE) {
+        bitmap = characters[0].animation_object.animParado[0];
+    }
+    
+    else {
+        bitmap = characters[0].animation_object.animAndar[walk_index];
+    }
     
     if(invert)
-        al_draw_bitmap(characters[0].animation_object.animAndar[walk_index], characters[0].animation_object.x, characters[0].animation_object.y, ALLEGRO_FLIP_HORIZONTAL);
-    else al_draw_bitmap(characters[0].animation_object.animAndar[walk_index], characters[0].animation_object.x, characters[0].animation_object.y, 0);
+        al_draw_bitmap(bitmap, characters[0].animation_object.x, characters[0].animation_object.y, ALLEGRO_FLIP_HORIZONTAL);
+    else al_draw_bitmap(bitmap, characters[0].animation_object.x, characters[0].animation_object.y, 0);
+    
+    //printf("drawing on %d, %d \n", characters[0].animation_object.x, characters[0].animation_object.y);
     
     al_flip_display();
 }
@@ -1463,10 +1693,10 @@ void draw_arrow_monster(int selected) {
             al_draw_bitmap(monster_arrow, 1005, 245, 0);
             break;
         case 1:
-            al_draw_bitmap(monster_arrow, 0, 0, 0);
+            al_draw_bitmap(monster_arrow, 855, 195, 0);
             break;
         case 2:
-            al_draw_bitmap(monster_arrow, 0, 0, 0);
+            al_draw_bitmap(monster_arrow, 705, 220, 0);
             break;
         default:
             break;
@@ -1553,6 +1783,10 @@ void updateObjAnim(struct PerAnim objAnim, ALLEGRO_BITMAP *anim[]) {
 
 void draw_monster(int mon) {
     
+    if(monsters[mon].hp <= 0) {
+        return;
+    }
+    
     int frame = monsters[mon].animation_object.currentFrame;
     int x = monsters[mon].animation_object.x;
     int y = monsters[mon].animation_object.y;
@@ -1611,12 +1845,27 @@ void update_animation_character(int character) {
         characters[character].animation_object.currentFrame = 0;
 }
 
+void update_animations_on_monster(int mon) {
+    
+    if(monsters[mon].id >= 0) {
+        
+        draw_monster(mon);
+        
+        monsters[mon].animation_object.currentFrame++;
+        
+        if (monsters[mon].animation_object.currentFrame >= monsters[mon].animation_object.currentMaxFrame)
+            monsters[mon].animation_object.currentFrame = 0;
+        
+    }
+    
+}
+
 void update_animations_monsters() {
     
     for(int x = 0; x < MAX_MONSTERS; x++) {
         
         if(monsters[x].id >= 0) {
-            printf("Monster %d with frame %d", x, monsters[x].animation_object.currentFrame);
+            //printf("Monster %d with frame %d", x, monsters[x].animation_object.currentFrame);
             
             draw_monster(x);
             
@@ -1631,16 +1880,18 @@ void update_animations_monsters() {
 }
 
 
-void execute_fx_animation(int seconds, int fx_id) {
+void execute_fx_animation(double seconds, int fx_id, int idx, bool monster) {
     
-    int frames = 50;
+    load_fx_animation(fx_id);
+    
     int current_frame = 0;
     
-    ALLEGRO_TIMER *ani_timer = al_create_timer(1);
+    ALLEGRO_TIMER *ani_timer = al_create_timer(seconds / (double)fx_count);
     
     al_stop_timer(battle_timer);
     al_register_event_source(event_queue, al_get_timer_event_source(ani_timer));
     al_start_timer(ani_timer);
+    
     
     while(1) {
         
@@ -1651,19 +1902,29 @@ void execute_fx_animation(int seconds, int fx_id) {
             
             draw_background();
             
-            for(int x = 0; x > mon_quantity; x++) {
+            for(int x = 0; x < mon_quantity; x++) {
                 draw_monster(x);
             }
             
-            for(int x = 0; x > char_quantity; x++) {
+            for(int x = 0; x < char_quantity; x++) {
                 draw_character_stopped(x);
             }
             
             current_frame++;
             
-            if(current_frame > frames) {
+            if(current_frame >= fx_count) {
                 break;
             }
+            
+            if(monster) {
+                al_draw_bitmap(fxs[current_frame], monsters[idx].animation_object.x, monsters[idx].animation_object.y, 0);
+            }
+            
+            else {
+                al_draw_bitmap(fxs[current_frame], characters[idx].animation_object.x, characters[idx].animation_object.y, 0);
+            }
+            
+            al_flip_display();
         }
         
     }
@@ -1724,7 +1985,7 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
                 if(anim_index >= PER1_ANIM_WALK) {
                     anim_index = 0;
                 }
-                update_animations_monsters();
+                update_animations_on_monster(mon);
             }
             
             al_flip_display();
@@ -1747,7 +2008,7 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
                 for(z = 0; z < PER1_ANIM_ATACK; z++) {
                     draw_background();
                     al_draw_bitmap(characters[chara].animation_object.animAtaque[z], x, y, ALLEGRO_FLIP_HORIZONTAL);
-                    update_animations_monsters();
+                    update_animations_on_monster(mon);
                     al_flip_display();
                     al_rest(0.15);
                 }
@@ -1757,7 +2018,7 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
                 for( ; z >= 0; z--) {
                     draw_background();
                     al_draw_bitmap(characters[chara].animation_object.animAtaque[z], x, y, ALLEGRO_FLIP_HORIZONTAL);
-                    update_animations_monsters();
+                    update_animations_on_monster(mon);
                     al_flip_display();
                     al_rest(0.15);
                 }
@@ -1899,42 +2160,12 @@ int show_question() {
 //MARK: Battle
 
 
-int exp_needed_for_level(int level) {
-    
-    switch (level) {
-        case 1:
-            return 100;
-            break;
-        case 2:
-            return 200;
-            break;
-        case 3:
-            return 300;
-            break;
-        case 4:
-            return 400;
-            break;
-        case 5:
-            return 500;
-            break;
-        case 6:
-            return 600;
-            break;
-        case 7:
-            return 700;
-            break;
-        default:
-            return 9999;
-            break;
-    }
-}
-
 void level_up_characters_if_needed() {
     
-    for(int x = 0; x > char_quantity; x++) {
+    for(int x = 0; x < char_quantity; x++) {
         if(characters[x].exp >= exp_needed_for_level(characters[x].level)) {
-            characters[x].level++;
             characters[x].exp = characters[x].exp - exp_needed_for_level(characters[x].level);
+            characters[x].level++;
         }
     }
 }
@@ -1944,11 +2175,11 @@ void add_exp_to_characters() {
     
     int exp = 0;
     
-    for(int x = 0; x > mon_quantity; x++) {
+    for(int x = 0; x < mon_quantity; x++) {
         exp += monsters[x].exp;
     }
     
-    for(int x = 0; x > char_quantity; x++) {
+    for(int x = 0; x < char_quantity; x++) {
         characters[x].exp += exp;
     }
     
@@ -2039,6 +2270,8 @@ void heal_character(int chara, int value, bool is_hp) {
 
 void use_item_on_character(int chara, int item_place) {
     
+    execute_fx_animation(1.5, 001, chara, false);
+    
     heal_character(chara, inventory->items[get_item_index_from_inventory(item_place)].hp, true);
     heal_character(chara, inventory->items[get_item_index_from_inventory(item_place)].sp, false);
     
@@ -2055,6 +2288,7 @@ void damage_monster(int monster, int value) {
 
 void use_skill_on_monster(int monster, int chara, int skill_idx) {
     
+    execute_fx_animation(1, characters[chara].skills[skill_idx].fx_id, monster, true);
     
     if(characters[chara].skills[skill_idx].mana_cost <= characters[chara].sp) {
         
@@ -2108,6 +2342,15 @@ int battle_selection_loop(int quantity, bool monster_selection) {
     // maior valor à esquerda
     int selected = 0;
     
+    while(monsters[selected].hp <= 0 && monster_selection) {
+        
+        selected++;
+        
+        if(selected >= quantity) {
+            selected = 0;
+            break;
+        }
+    }
     
     //DRAWING ALL EXCEPT THE MENU
     al_clear_to_color(al_map_rgb(255, 255, 255));
@@ -2120,7 +2363,6 @@ int battle_selection_loop(int quantity, bool monster_selection) {
     else draw_arrow_character(selected);
     al_flip_display();
     
-    
     while(!monster_selected) {
         
         ALLEGRO_EVENT ev;
@@ -2131,11 +2373,23 @@ int battle_selection_loop(int quantity, bool monster_selection) {
             switch (ev.keyboard.keycode) {
                     
                 case ALLEGRO_KEY_LEFT:
+                    
                     selected++;
                     
                     if(selected >= quantity) {
                         selected = 0;
                     }
+                    
+                    while(monsters[selected].hp <= 0 && monster_selection) {
+                        
+                        selected++;
+                        
+                        if(selected >= quantity) {
+                            selected = 0;
+                            break;
+                        }
+                    }
+                    
                     break;
                 case ALLEGRO_KEY_RIGHT:
                     selected--;
@@ -2143,6 +2397,16 @@ int battle_selection_loop(int quantity, bool monster_selection) {
                     if(selected < 0) {
                         selected = quantity - 1;
                     }
+                    
+                    while(monsters[selected].hp <= 0 && monster_selection) {
+                        
+                        selected--;
+                        
+                        if(selected < 0) {
+                            selected = quantity - 1;
+                        }
+                    }
+                    
                     break;
                 case ALLEGRO_KEY_ENTER:
                     monster_selected = true;
@@ -2181,6 +2445,12 @@ int battle_selection_loop(int quantity, bool monster_selection) {
 
 int begin_battle(int mon_id, int mon_num) {
     
+    int return_result = 0;
+    double prev_x = characters[0].animation_object.x, prev_y = characters[0].animation_object.y;
+    
+    al_stop_timer(world_timer);
+    al_start_timer(battle_timer);
+    
     //set background for battle
     load_battle_background_at_stage(current_stage);
     
@@ -2188,8 +2458,9 @@ int begin_battle(int mon_id, int mon_num) {
     position_characters_for_battle();
     
     //clear previous monsters from the array and set quantity to global value
-    mon_quantity = mon_num;
     clear_monsters();
+    mon_quantity = mon_num;
+    printf("mon quan = %d", mon_quantity);
     
     create_monster(mon_id, 0);
     
@@ -2264,9 +2535,9 @@ int begin_battle(int mon_id, int mon_num) {
             
             //Timer to animate monsters
             else if (ev.type == ALLEGRO_EVENT_TIMER) {
-                printf("T\n");
                 al_clear_to_color(al_map_rgb(255, 255, 255));
                 draw_background();
+                draw_character_info(character_acting);
                 draw_arrow_with(selected_x, selected_y);
                 update_animation_character(character_acting);
                 update_animations_monsters();
@@ -2324,6 +2595,7 @@ int begin_battle(int mon_id, int mon_num) {
                     draw_all_characters();
                     draw_all_monsters();
                     draw_life_bars();
+                    draw_character_info(character_acting);
                     draw_arrow_items(selected);
                     al_flip_display();
                     
@@ -2365,6 +2637,7 @@ int begin_battle(int mon_id, int mon_num) {
                             draw_all_characters();
                             draw_all_monsters();
                             draw_life_bars();
+                            draw_character_info(character_acting);
                             draw_arrow_items(selected);
                             al_flip_display();
                         }
@@ -2411,6 +2684,7 @@ int begin_battle(int mon_id, int mon_num) {
                     draw_all_characters();
                     draw_all_monsters();
                     draw_life_bars();
+                    draw_character_info(character_acting);
                     draw_arrow_skills(selected);
                     al_flip_display();
                     
@@ -2459,6 +2733,7 @@ int begin_battle(int mon_id, int mon_num) {
                             draw_all_characters();
                             draw_all_monsters();
                             draw_life_bars();
+                            draw_character_info(character_acting);
                             draw_arrow_skills(selected);
                             al_flip_display();
                         }
@@ -2466,10 +2741,21 @@ int begin_battle(int mon_id, int mon_num) {
                     
                     if(!cancell) {
                         
-                        int mon_sel = battle_selection_loop(mon_num, true);
+                        int target;
                         
-                        if(mon_sel >= 0)
-                            use_skill_on_monster(mon_sel, character_acting, selected);
+                        //Skill used on monster
+                        if(characters[character_acting].skills[selected].target_monster) {
+                            target = battle_selection_loop(mon_num, true);
+                            use_skill_on_monster(target, character_acting, selected);
+                        }
+                        
+                        //Skill used on character
+                        else  {
+                            target = battle_selection_loop(mon_num, false);
+                            //MARK: NEED FUNCTION FOR HEALING
+                            //user_skill_on_character(target, character_acting, selected);
+                        }
+                        
                     }
                     
                 }
@@ -2479,7 +2765,7 @@ int begin_battle(int mon_id, int mon_num) {
             else if(selected_x && selected_y) {
                 //FUGIR
                 battle_on = false;
-                return 3;
+                return_result = 2;
             }
         }
         
@@ -2502,17 +2788,27 @@ int begin_battle(int mon_id, int mon_num) {
         if(check_characters_death()) {
             //GAME OVER!!
             battle_on = false;
-            return 2;
+            return_result = 2;
         }
         
         else if(check_monsters_death()) {
             //BATTLE WON!
+            add_exp_to_characters();
             battle_on = false;
-            return 1;
+            return_result = 1;
         }
     }
     
-    return 0;
+    //Stops battle timer and restart world timer
+    al_stop_timer(battle_timer);
+    al_start_timer(world_timer);
+    
+    //Set original position of character before the battle
+    characters[0].animation_object.x = prev_x;
+    characters[0].animation_object.y = prev_y;
+    
+    //battle return result
+    return return_result;
 }
 
 
@@ -2608,6 +2904,7 @@ void check_character_interaction() {
     
     if(index < 0) {
         //No objects on area
+        printf("No objects in the area.\n");
     }
     
     else {
@@ -2616,49 +2913,109 @@ void check_character_interaction() {
     
 }
 
-void walk_character(bool up, bool down, bool left, bool right) {
+//Returns 1 to advance stage
+//Returns -1 to regress stage
+//Returns 2 to reset keys after battle
+//Returns 0 for nothing
+int walk_character(bool up, bool down, bool left, bool right) {
     
-    if(up && !down)
+    //Move up
+    if(up && !down) {
+        printf("%f\n", (WALK_SPEED_Y / (1 / WORLD_TIMER)));
         characters[0].animation_object.y -= (WALK_SPEED_Y / (1 / WORLD_TIMER));
+        
+        //Max y to go up
+        if(characters[0].animation_object.y < MAX_WALK_Y) {
+            characters[0].animation_object.y = MAX_WALK_Y;
+        }
+    }
     
-    else if(!up && down)
+    //Move down
+    else if(!up && down) {
         characters[0].animation_object.y += (WALK_SPEED_Y / (1 / WORLD_TIMER));
+        
+        //Leaving the screen on bottom
+        if(characters[0].animation_object.y + CHARACTER_HEIGHT > window_height) {
+            characters[0].animation_object.y = window_height - CHARACTER_HEIGHT;
+        }
+    }
     
+    //Turn the character to the left
     if(left && !right) {
         characters[0].animation_object.x -= (WALK_SPEED_X / (1 / WORLD_TIMER));
         characters[0].animation_object.invert = false;
+        
+        //Advance stage
+        if(characters[0].animation_object.x <= 1) {
+            characters[0].animation_object.x = 1;
+            return 1;
+        }
+        
     }
     
+    //Turn the character to the right
     else if(!left && right) {
         characters[0].animation_object.x += (WALK_SPEED_X / (1 / WORLD_TIMER));
         characters[0].animation_object.invert = true;
+        
+        //Return to previous stage
+        if(characters[0].animation_object.x + CHARACTER_WIDTH >= window_width) {
+            characters[0].animation_object.x = window_width - CHARACTER_WIDTH;
+            return -1;
+        }
     }
     
+    //No movement, meaning no walk animation
     if(!up && !down && !left && !right) {
+        characters[0].animation_object.currentState = IDLE;
         characters[0].animation_object.walkCount = 0;
+        characters[0].animation_object.walkIndex = 0;
     }
     
-    else characters[0].animation_object.walkCount++;
+    //Movement, update animation walk count and count to monster
+    else {
+        characters[0].animation_object.currentState = WALKING;
+        characters[0].animation_object.walkCount++;
+        
+        //If the option of monsters appear on walk is on
+        if(monsters_on_walk) {
+            walk_interations++;
+            
+            //Event of monster appearing
+            if(walk_interations >= interations_to_monster) {
+                walk_interations = 0;
+                set_new_interations_to_monster();
+                begin_battle(monster_id_on_stage(current_stage), rand_lim(MAX_MONSTERS));
+                al_flush_event_queue(event_queue);
+                
+                return 2;
+            }
+        }
+    }
     
+    //Change animation status for walknig
     if(characters[0].animation_object.walkCount >= STEPS_WALK_ANIM) {
         characters[0].animation_object.walkCount = 0;
         characters[0].animation_object.walkIndex++;
         
-        if(characters[0].animation_object.walkIndex > PER1_ANIM_WALK) {
+        if(characters[0].animation_object.walkIndex >= PER1_ANIM_WALK) {
             characters[0].animation_object.walkIndex = 0;
         }
     }
     
+    //Perform the drawing
     draw_main_character_on_position();
+    
+    return 0;
 }
 
 void scenario() {
     
     al_start_timer(world_timer);
     
+    bool up = false, down = false, left = false, right = false;
+    
     while (1) {
-        
-        bool up = false, down = false, left = false, right = false;
         
         ALLEGRO_EVENT ev;
         al_wait_for_event(event_queue, &ev);
@@ -2686,6 +3043,7 @@ void scenario() {
                     show_exit_screen();
                     break;
             }
+
         }
         
         else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
@@ -2708,10 +3066,51 @@ void scenario() {
                     show_exit_screen();
                     break;
             }
+
         }
         
         else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            walk_character(up, down, left, right);
+            
+            int action = walk_character(up, down, left, right);
+            
+            //Reset keys after battle
+            if(action == 2) {
+                up = false;
+                down = false;
+                left = false;
+                right = false;
+            }
+            
+            else if(action == 1) {
+                if(current_stage + 1 < MAX_STAGES) {
+                    current_stage++;
+                    characters[0].animation_object.x = START_X_RIGHT;
+                    characters[0].animation_object.y = START_Y;
+                    load_stage(current_stage);
+                    
+                    //INSERT TRANSICTION HERE!
+                }
+                //ENDING OF THE GAME
+                else {
+                
+                }
+            }
+            
+            else if(action == -1) {
+                if(current_stage - 1 >= 0) {
+                    current_stage--;
+                    characters[0].animation_object.x = START_X_LEFT;
+                    characters[0].animation_object.y = START_Y;
+                    load_stage(current_stage);
+                    
+                    //INSERT TRANSICTION HERE!
+                }
+                
+                //BEGINNING OF THE GAME
+                else {
+                    
+                }
+            }
         }
     }
     
@@ -2732,13 +3131,19 @@ int main(int argc, char **argv) {
         return -1;
     }
     
+    al_register_event_source(event_queue, al_get_timer_event_source(battle_timer));
+    al_register_event_source(event_queue, al_get_timer_event_source(world_timer));
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
+    
     add_skill_to_character(0, 1, 0);
     add_item_to_inventory(1);
     add_item_to_inventory(2);
     add_item_to_inventory(1);
     add_item_to_inventory(1);
     
-    draw_battle_menu();
+    scenario();
+    
+    /*draw_battle_menu();
     
     al_register_event_source(event_queue, al_get_timer_event_source(battle_timer));
     al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -2747,7 +3152,7 @@ int main(int argc, char **argv) {
     
     int battle_result = begin_battle(000, 1);
     
-    destroy_allegro();
+    destroy_allegro();*/
     
     return 0;
     
