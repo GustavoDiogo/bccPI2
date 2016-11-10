@@ -1,0 +1,784 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FF350E981DB6E1B8000B1AB2 /* questions.rtf in Resources */ = {isa = PBXBuildFile; fileRef = FF350E971DB6E1B8000B1AB2 /* questions.rtf */; };
+		FF350E9A1DB6E231000B1AB2 /* questions.txt in Resources */ = {isa = PBXBuildFile; fileRef = FF350E991DB6E231000B1AB2 /* questions.txt */; };
+		FF384AD81DCACEBA0005BE03 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = FF384AD71DCACEBA0005BE03 /* main.c */; };
+		FF384ADF1DCD3AF20005BE03 /* p1bloqueio.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AD91DCD3AF20005BE03 /* p1bloqueio.png */; };
+		FF384AE01DCD3AF20005BE03 /* p1ataque2.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384ADA1DCD3AF20005BE03 /* p1ataque2.png */; };
+		FF384AE11DCD3AF20005BE03 /* p1andando2.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384ADB1DCD3AF20005BE03 /* p1andando2.png */; };
+		FF384AE21DCD3AF20005BE03 /* p1ataque1.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384ADC1DCD3AF20005BE03 /* p1ataque1.png */; };
+		FF384AE31DCD3AF20005BE03 /* p1andando1.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384ADD1DCD3AF20005BE03 /* p1andando1.png */; };
+		FF384AE41DCD3AF20005BE03 /* p1ataque3.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384ADE1DCD3AF20005BE03 /* p1ataque3.png */; };
+		FF384AE81DD301420005BE03 /* stage1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = FF384AE51DD301420005BE03 /* stage1.jpg */; };
+		FF384AE91DD301420005BE03 /* stage3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = FF384AE61DD301420005BE03 /* stage3.jpg */; };
+		FF384AEA1DD301420005BE03 /* stage2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = FF384AE71DD301420005BE03 /* stage2.jpg */; };
+		FF384AED1DD3361C0005BE03 /* rightarrow.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AEB1DD3361C0005BE03 /* rightarrow.png */; };
+		FF384AEE1DD3361C0005BE03 /* downarrow.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AEC1DD3361C0005BE03 /* downarrow.png */; };
+		FF384B221DD341E10005BE03 /* cura01.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF01DD341E10005BE03 /* cura01.png */; };
+		FF384B231DD341E10005BE03 /* cura02.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF11DD341E10005BE03 /* cura02.png */; };
+		FF384B241DD341E10005BE03 /* cura03.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF21DD341E10005BE03 /* cura03.png */; };
+		FF384B251DD341E10005BE03 /* cura04.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF31DD341E10005BE03 /* cura04.png */; };
+		FF384B261DD341E10005BE03 /* cura05.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF41DD341E10005BE03 /* cura05.png */; };
+		FF384B271DD341E10005BE03 /* cura06.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF51DD341E10005BE03 /* cura06.png */; };
+		FF384B281DD341E10005BE03 /* cura07.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF61DD341E10005BE03 /* cura07.png */; };
+		FF384B291DD341E10005BE03 /* cura08.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF71DD341E10005BE03 /* cura08.png */; };
+		FF384B2A1DD341E10005BE03 /* cura09.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF81DD341E10005BE03 /* cura09.png */; };
+		FF384B2B1DD341E10005BE03 /* cura10.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AF91DD341E10005BE03 /* cura10.png */; };
+		FF384B2C1DD341E10005BE03 /* cura11.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AFA1DD341E10005BE03 /* cura11.png */; };
+		FF384B2D1DD341E10005BE03 /* cura12.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AFB1DD341E10005BE03 /* cura12.png */; };
+		FF384B2E1DD341E10005BE03 /* cura13.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AFC1DD341E10005BE03 /* cura13.png */; };
+		FF384B2F1DD341E10005BE03 /* cura14.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AFD1DD341E10005BE03 /* cura14.png */; };
+		FF384B301DD341E10005BE03 /* cura15.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AFE1DD341E10005BE03 /* cura15.png */; };
+		FF384B311DD341E10005BE03 /* cura16.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384AFF1DD341E10005BE03 /* cura16.png */; };
+		FF384B321DD341E10005BE03 /* cura17.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B001DD341E10005BE03 /* cura17.png */; };
+		FF384B331DD341E10005BE03 /* cura18.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B011DD341E10005BE03 /* cura18.png */; };
+		FF384B341DD341E10005BE03 /* cura19.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B021DD341E10005BE03 /* cura19.png */; };
+		FF384B351DD341E10005BE03 /* cura20.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B031DD341E10005BE03 /* cura20.png */; };
+		FF384B361DD341E10005BE03 /* cura21.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B041DD341E10005BE03 /* cura21.png */; };
+		FF384B371DD341E10005BE03 /* fogo1.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B051DD341E10005BE03 /* fogo1.png */; };
+		FF384B381DD341E10005BE03 /* fogo2.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B061DD341E10005BE03 /* fogo2.png */; };
+		FF384B391DD341E10005BE03 /* fogo3.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B071DD341E10005BE03 /* fogo3.png */; };
+		FF384B3A1DD341E10005BE03 /* fogo4.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B081DD341E10005BE03 /* fogo4.png */; };
+		FF384B3B1DD341E10005BE03 /* fogo5.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B091DD341E10005BE03 /* fogo5.png */; };
+		FF384B3C1DD341E10005BE03 /* fogo6.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B0A1DD341E10005BE03 /* fogo6.png */; };
+		FF384B3D1DD341E10005BE03 /* fogo7.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B0B1DD341E10005BE03 /* fogo7.png */; };
+		FF384B3E1DD341E10005BE03 /* fogo8.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B0C1DD341E10005BE03 /* fogo8.png */; };
+		FF384B3F1DD341E10005BE03 /* mana01.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B0D1DD341E10005BE03 /* mana01.png */; };
+		FF384B401DD341E10005BE03 /* mana02.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B0E1DD341E10005BE03 /* mana02.png */; };
+		FF384B411DD341E10005BE03 /* mana03.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B0F1DD341E10005BE03 /* mana03.png */; };
+		FF384B421DD341E10005BE03 /* mana04.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B101DD341E10005BE03 /* mana04.png */; };
+		FF384B431DD341E10005BE03 /* mana05.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B111DD341E10005BE03 /* mana05.png */; };
+		FF384B441DD341E10005BE03 /* mana06.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B121DD341E10005BE03 /* mana06.png */; };
+		FF384B451DD341E10005BE03 /* mana07.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B131DD341E10005BE03 /* mana07.png */; };
+		FF384B461DD341E10005BE03 /* mana08.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B141DD341E10005BE03 /* mana08.png */; };
+		FF384B471DD341E10005BE03 /* mana09.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B151DD341E10005BE03 /* mana09.png */; };
+		FF384B481DD341E10005BE03 /* mana10.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B161DD341E10005BE03 /* mana10.png */; };
+		FF384B491DD341E10005BE03 /* mana11.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B171DD341E10005BE03 /* mana11.png */; };
+		FF384B4A1DD341E10005BE03 /* mana12.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B181DD341E10005BE03 /* mana12.png */; };
+		FF384B4B1DD341E10005BE03 /* mana13.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B191DD341E10005BE03 /* mana13.png */; };
+		FF384B4C1DD341E10005BE03 /* mana14.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B1A1DD341E10005BE03 /* mana14.png */; };
+		FF384B4D1DD341E10005BE03 /* mana15.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B1B1DD341E10005BE03 /* mana15.png */; };
+		FF384B4E1DD341E10005BE03 /* mana16.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B1C1DD341E10005BE03 /* mana16.png */; };
+		FF384B4F1DD341E10005BE03 /* mana17.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B1D1DD341E10005BE03 /* mana17.png */; };
+		FF384B501DD341E10005BE03 /* mana18.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B1E1DD341E10005BE03 /* mana18.png */; };
+		FF384B511DD341E10005BE03 /* mana19.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B1F1DD341E10005BE03 /* mana19.png */; };
+		FF384B521DD341E10005BE03 /* mana20.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B201DD341E10005BE03 /* mana20.png */; };
+		FF384B531DD341E10005BE03 /* mana21.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B211DD341E10005BE03 /* mana21.png */; };
+		FF384B571DD3F0550005BE03 /* cogumelo3.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B541DD3F0550005BE03 /* cogumelo3.png */; };
+		FF384B581DD3F0550005BE03 /* cogumelo2.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B551DD3F0550005BE03 /* cogumelo2.png */; };
+		FF384B591DD3F0550005BE03 /* cogumelo1.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B561DD3F0550005BE03 /* cogumelo1.png */; };
+		FF4A02131DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01EC1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */; };
+		FF4A02141DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01ED1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */; };
+		FF4A02151DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01EE1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */; };
+		FF4A02161DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01EF1DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */; };
+		FF4A02171DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F01DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */; };
+		FF4A02181DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F11DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */; };
+		FF4A02191DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F21DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */; };
+		FF4A021A1DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F31DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */; };
+		FF4A021B1DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F41DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */; };
+		FF4A021C1DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F51DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */; };
+		FF4A021D1DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F61DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */; };
+		FF4A021E1DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F71DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */; };
+		FF4A021F1DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F81DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */; };
+		FF4A02201DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01F91DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */; };
+		FF4A02211DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01FA1DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */; };
+		FF4A02221DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01FB1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */; };
+		FF4A02231DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01FC1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */; };
+		FF4A02241DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01FD1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */; };
+		FF4A02251DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01FE1DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */; };
+		FF4A02261DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01FF1DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */; };
+		FF4A02271DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02001DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */; };
+		FF4A02281DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02011DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */; };
+		FF4A02291DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02021DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */; };
+		FF4A022A1DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02031DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */; };
+		FF4A022B1DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02041DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */; };
+		FF4A022C1DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02051DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */; };
+		FF4A022D1DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02061DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */; };
+		FF4A022E1DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02071DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */; };
+		FF4A022F1DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02081DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */; };
+		FF4A02301DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02091DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */; };
+		FF4A02311DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A020A1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */; };
+		FF4A02321DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A020B1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */; };
+		FF4A02331DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A020C1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */; };
+		FF4A02341DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A020D1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */; };
+		FF4A02351DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A020E1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */; };
+		FF4A02361DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A020F1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */; };
+		FF4A02371DB1A1C700F86B8C /* liballegro.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02101DB1A1C700F86B8C /* liballegro.5.2.1.dylib */; };
+		FF4A02381DB1A1C700F86B8C /* liballegro.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02111DB1A1C700F86B8C /* liballegro.5.2.1.dylib */; };
+		FF4A02391DB1A1C700F86B8C /* liballegro.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02121DB1A1C700F86B8C /* liballegro.5.2.1.dylib */; };
+		FF4A023F1DB1A35D00F86B8C /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A023C1DB1A35D00F86B8C /* AudioToolbox.framework */; };
+		FF4A02401DB1A35D00F86B8C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A023D1DB1A35D00F86B8C /* Cocoa.framework */; };
+		FF4A02451DB1A37800F86B8C /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02421DB1A37800F86B8C /* IOKit.framework */; };
+		FF4A02461DB1A37800F86B8C /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02431DB1A37800F86B8C /* OpenAL.framework */; };
+		FF4A02471DB1A37800F86B8C /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A02441DB1A37800F86B8C /* OpenGL.framework */; };
+		FF4A02531DB1A64500F86B8C /* arial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FF4A02481DB1A64400F86B8C /* arial.ttf */; };
+		FF4A02541DB1A64500F86B8C /* Praca1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = FF4A024A1DB1A64500F86B8C /* Praca1.jpg */; };
+		FF4A02551DB1A64500F86B8C /* arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = FF4A024C1DB1A64500F86B8C /* arrow.png */; };
+		FF4A02561DB1A64500F86B8C /* arvore1.png in Resources */ = {isa = PBXBuildFile; fileRef = FF4A024E1DB1A64500F86B8C /* arvore1.png */; };
+		FF4A02571DB1A64500F86B8C /* arvore2.png in Resources */ = {isa = PBXBuildFile; fileRef = FF4A024F1DB1A64500F86B8C /* arvore2.png */; };
+		FF4A02581DB1A64500F86B8C /* arvore3.png in Resources */ = {isa = PBXBuildFile; fileRef = FF4A02501DB1A64500F86B8C /* arvore3.png */; };
+		FF4A02591DB1A64500F86B8C /* p1parado.png in Resources */ = {isa = PBXBuildFile; fileRef = FF4A02521DB1A64500F86B8C /* p1parado.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		FF350E971DB6E1B8000B1AB2 /* questions.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = questions.rtf; sourceTree = "<group>"; };
+		FF350E991DB6E231000B1AB2 /* questions.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = questions.txt; sourceTree = "<group>"; };
+		FF384AD71DCACEBA0005BE03 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		FF384AD91DCD3AF20005BE03 /* p1bloqueio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p1bloqueio.png; sourceTree = "<group>"; };
+		FF384ADA1DCD3AF20005BE03 /* p1ataque2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p1ataque2.png; sourceTree = "<group>"; };
+		FF384ADB1DCD3AF20005BE03 /* p1andando2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p1andando2.png; sourceTree = "<group>"; };
+		FF384ADC1DCD3AF20005BE03 /* p1ataque1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p1ataque1.png; sourceTree = "<group>"; };
+		FF384ADD1DCD3AF20005BE03 /* p1andando1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p1andando1.png; sourceTree = "<group>"; };
+		FF384ADE1DCD3AF20005BE03 /* p1ataque3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p1ataque3.png; sourceTree = "<group>"; };
+		FF384AE51DD301420005BE03 /* stage1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = stage1.jpg; sourceTree = "<group>"; };
+		FF384AE61DD301420005BE03 /* stage3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = stage3.jpg; sourceTree = "<group>"; };
+		FF384AE71DD301420005BE03 /* stage2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = stage2.jpg; sourceTree = "<group>"; };
+		FF384AEB1DD3361C0005BE03 /* rightarrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rightarrow.png; sourceTree = "<group>"; };
+		FF384AEC1DD3361C0005BE03 /* downarrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = downarrow.png; sourceTree = "<group>"; };
+		FF384AF01DD341E10005BE03 /* cura01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura01.png; sourceTree = "<group>"; };
+		FF384AF11DD341E10005BE03 /* cura02.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura02.png; sourceTree = "<group>"; };
+		FF384AF21DD341E10005BE03 /* cura03.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura03.png; sourceTree = "<group>"; };
+		FF384AF31DD341E10005BE03 /* cura04.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura04.png; sourceTree = "<group>"; };
+		FF384AF41DD341E10005BE03 /* cura05.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura05.png; sourceTree = "<group>"; };
+		FF384AF51DD341E10005BE03 /* cura06.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura06.png; sourceTree = "<group>"; };
+		FF384AF61DD341E10005BE03 /* cura07.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura07.png; sourceTree = "<group>"; };
+		FF384AF71DD341E10005BE03 /* cura08.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura08.png; sourceTree = "<group>"; };
+		FF384AF81DD341E10005BE03 /* cura09.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura09.png; sourceTree = "<group>"; };
+		FF384AF91DD341E10005BE03 /* cura10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura10.png; sourceTree = "<group>"; };
+		FF384AFA1DD341E10005BE03 /* cura11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura11.png; sourceTree = "<group>"; };
+		FF384AFB1DD341E10005BE03 /* cura12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura12.png; sourceTree = "<group>"; };
+		FF384AFC1DD341E10005BE03 /* cura13.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura13.png; sourceTree = "<group>"; };
+		FF384AFD1DD341E10005BE03 /* cura14.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura14.png; sourceTree = "<group>"; };
+		FF384AFE1DD341E10005BE03 /* cura15.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura15.png; sourceTree = "<group>"; };
+		FF384AFF1DD341E10005BE03 /* cura16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura16.png; sourceTree = "<group>"; };
+		FF384B001DD341E10005BE03 /* cura17.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura17.png; sourceTree = "<group>"; };
+		FF384B011DD341E10005BE03 /* cura18.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura18.png; sourceTree = "<group>"; };
+		FF384B021DD341E10005BE03 /* cura19.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura19.png; sourceTree = "<group>"; };
+		FF384B031DD341E10005BE03 /* cura20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura20.png; sourceTree = "<group>"; };
+		FF384B041DD341E10005BE03 /* cura21.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cura21.png; sourceTree = "<group>"; };
+		FF384B051DD341E10005BE03 /* fogo1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fogo1.png; sourceTree = "<group>"; };
+		FF384B061DD341E10005BE03 /* fogo2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fogo2.png; sourceTree = "<group>"; };
+		FF384B071DD341E10005BE03 /* fogo3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fogo3.png; sourceTree = "<group>"; };
+		FF384B081DD341E10005BE03 /* fogo4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fogo4.png; sourceTree = "<group>"; };
+		FF384B091DD341E10005BE03 /* fogo5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fogo5.png; sourceTree = "<group>"; };
+		FF384B0A1DD341E10005BE03 /* fogo6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fogo6.png; sourceTree = "<group>"; };
+		FF384B0B1DD341E10005BE03 /* fogo7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fogo7.png; sourceTree = "<group>"; };
+		FF384B0C1DD341E10005BE03 /* fogo8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fogo8.png; sourceTree = "<group>"; };
+		FF384B0D1DD341E10005BE03 /* mana01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana01.png; sourceTree = "<group>"; };
+		FF384B0E1DD341E10005BE03 /* mana02.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana02.png; sourceTree = "<group>"; };
+		FF384B0F1DD341E10005BE03 /* mana03.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana03.png; sourceTree = "<group>"; };
+		FF384B101DD341E10005BE03 /* mana04.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana04.png; sourceTree = "<group>"; };
+		FF384B111DD341E10005BE03 /* mana05.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana05.png; sourceTree = "<group>"; };
+		FF384B121DD341E10005BE03 /* mana06.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana06.png; sourceTree = "<group>"; };
+		FF384B131DD341E10005BE03 /* mana07.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana07.png; sourceTree = "<group>"; };
+		FF384B141DD341E10005BE03 /* mana08.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana08.png; sourceTree = "<group>"; };
+		FF384B151DD341E10005BE03 /* mana09.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana09.png; sourceTree = "<group>"; };
+		FF384B161DD341E10005BE03 /* mana10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana10.png; sourceTree = "<group>"; };
+		FF384B171DD341E10005BE03 /* mana11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana11.png; sourceTree = "<group>"; };
+		FF384B181DD341E10005BE03 /* mana12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana12.png; sourceTree = "<group>"; };
+		FF384B191DD341E10005BE03 /* mana13.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana13.png; sourceTree = "<group>"; };
+		FF384B1A1DD341E10005BE03 /* mana14.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana14.png; sourceTree = "<group>"; };
+		FF384B1B1DD341E10005BE03 /* mana15.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana15.png; sourceTree = "<group>"; };
+		FF384B1C1DD341E10005BE03 /* mana16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana16.png; sourceTree = "<group>"; };
+		FF384B1D1DD341E10005BE03 /* mana17.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana17.png; sourceTree = "<group>"; };
+		FF384B1E1DD341E10005BE03 /* mana18.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana18.png; sourceTree = "<group>"; };
+		FF384B1F1DD341E10005BE03 /* mana19.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana19.png; sourceTree = "<group>"; };
+		FF384B201DD341E10005BE03 /* mana20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana20.png; sourceTree = "<group>"; };
+		FF384B211DD341E10005BE03 /* mana21.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mana21.png; sourceTree = "<group>"; };
+		FF384B541DD3F0550005BE03 /* cogumelo3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cogumelo3.png; sourceTree = "<group>"; };
+		FF384B551DD3F0550005BE03 /* cogumelo2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cogumelo2.png; sourceTree = "<group>"; };
+		FF384B561DD3F0550005BE03 /* cogumelo1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cogumelo1.png; sourceTree = "<group>"; };
+		FF4A01D81DB1A10C00F86B8C /* PI2BCC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PI2BCC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FF4A01E61DB1A10C00F86B8C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FF4A01EC1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_acodec.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_acodec.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01ED1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_acodec.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_acodec.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01EE1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_acodec.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_acodec.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01EF1DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_audio.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_audio.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F01DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_audio.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_audio.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F11DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_audio.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_audio.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F21DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_color.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_color.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F31DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_color.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_color.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F41DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_color.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_color.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F51DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_dialog.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_dialog.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F61DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_dialog.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_dialog.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F71DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_dialog.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_dialog.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F81DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_font.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_font.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01F91DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_font.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_font.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01FA1DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_font.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_font.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01FB1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_image.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_image.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01FC1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_image.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_image.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01FD1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_image.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_image.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01FE1DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_main.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_main.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A01FF1DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_main.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_main.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02001DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_main.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_main.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02011DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_memfile.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_memfile.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02021DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_memfile.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_memfile.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02031DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_memfile.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_memfile.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02041DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_physfs.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_physfs.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02051DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_physfs.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_physfs.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02061DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_physfs.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_physfs.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02071DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_primitives.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_primitives.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02081DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_primitives.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_primitives.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02091DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_primitives.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_primitives.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A020A1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_ttf.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_ttf.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A020B1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_ttf.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_ttf.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A020C1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_ttf.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_ttf.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A020D1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_video.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_video.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A020E1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_video.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_video.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A020F1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_video.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_video.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02101DB1A1C700F86B8C /* liballegro.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02111DB1A1C700F86B8C /* liballegro.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A02121DB1A1C700F86B8C /* liballegro.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro.5.2.1.dylib; sourceTree = "<group>"; };
+		FF4A023C1DB1A35D00F86B8C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		FF4A023D1DB1A35D00F86B8C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		FF4A023E1DB1A35D00F86B8C /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = System/Library/Frameworks/IOBluetooth.framework; sourceTree = SDKROOT; };
+		FF4A02421DB1A37800F86B8C /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		FF4A02431DB1A37800F86B8C /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		FF4A02441DB1A37800F86B8C /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		FF4A02481DB1A64400F86B8C /* arial.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = arial.ttf; sourceTree = "<group>"; };
+		FF4A024A1DB1A64500F86B8C /* Praca1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Praca1.jpg; sourceTree = "<group>"; };
+		FF4A024C1DB1A64500F86B8C /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow.png; sourceTree = "<group>"; };
+		FF4A024E1DB1A64500F86B8C /* arvore1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arvore1.png; sourceTree = "<group>"; };
+		FF4A024F1DB1A64500F86B8C /* arvore2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arvore2.png; sourceTree = "<group>"; };
+		FF4A02501DB1A64500F86B8C /* arvore3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arvore3.png; sourceTree = "<group>"; };
+		FF4A02521DB1A64500F86B8C /* p1parado.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p1parado.png; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FF4A01D51DB1A10C00F86B8C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FF4A02451DB1A37800F86B8C /* IOKit.framework in Frameworks */,
+				FF4A02461DB1A37800F86B8C /* OpenAL.framework in Frameworks */,
+				FF4A02471DB1A37800F86B8C /* OpenGL.framework in Frameworks */,
+				FF4A023F1DB1A35D00F86B8C /* AudioToolbox.framework in Frameworks */,
+				FF4A02401DB1A35D00F86B8C /* Cocoa.framework in Frameworks */,
+				FF4A02131DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */,
+				FF4A02141DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */,
+				FF4A02151DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */,
+				FF4A02161DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib in Frameworks */,
+				FF4A02171DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib in Frameworks */,
+				FF4A02181DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib in Frameworks */,
+				FF4A02191DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib in Frameworks */,
+				FF4A021A1DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib in Frameworks */,
+				FF4A021B1DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib in Frameworks */,
+				FF4A021C1DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib in Frameworks */,
+				FF4A021D1DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib in Frameworks */,
+				FF4A021E1DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib in Frameworks */,
+				FF4A021F1DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib in Frameworks */,
+				FF4A02201DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib in Frameworks */,
+				FF4A02211DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib in Frameworks */,
+				FF4A02221DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib in Frameworks */,
+				FF4A02231DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib in Frameworks */,
+				FF4A02241DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib in Frameworks */,
+				FF4A02251DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib in Frameworks */,
+				FF4A02261DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib in Frameworks */,
+				FF4A02271DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib in Frameworks */,
+				FF4A02281DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib in Frameworks */,
+				FF4A02291DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib in Frameworks */,
+				FF4A022A1DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib in Frameworks */,
+				FF4A022B1DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib in Frameworks */,
+				FF4A022C1DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib in Frameworks */,
+				FF4A022D1DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib in Frameworks */,
+				FF4A022E1DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib in Frameworks */,
+				FF4A022F1DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib in Frameworks */,
+				FF4A02301DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib in Frameworks */,
+				FF4A02311DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib in Frameworks */,
+				FF4A02321DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib in Frameworks */,
+				FF4A02331DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib in Frameworks */,
+				FF4A02341DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib in Frameworks */,
+				FF4A02351DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib in Frameworks */,
+				FF4A02361DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib in Frameworks */,
+				FF4A02371DB1A1C700F86B8C /* liballegro.5.2.1.dylib in Frameworks */,
+				FF4A02381DB1A1C700F86B8C /* liballegro.5.2.1.dylib in Frameworks */,
+				FF4A02391DB1A1C700F86B8C /* liballegro.5.2.1.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FF384AEF1DD341300005BE03 /* animations */ = {
+			isa = PBXGroup;
+			children = (
+				FF384AF01DD341E10005BE03 /* cura01.png */,
+				FF384AF11DD341E10005BE03 /* cura02.png */,
+				FF384AF21DD341E10005BE03 /* cura03.png */,
+				FF384AF31DD341E10005BE03 /* cura04.png */,
+				FF384AF41DD341E10005BE03 /* cura05.png */,
+				FF384AF51DD341E10005BE03 /* cura06.png */,
+				FF384AF61DD341E10005BE03 /* cura07.png */,
+				FF384AF71DD341E10005BE03 /* cura08.png */,
+				FF384AF81DD341E10005BE03 /* cura09.png */,
+				FF384AF91DD341E10005BE03 /* cura10.png */,
+				FF384AFA1DD341E10005BE03 /* cura11.png */,
+				FF384AFB1DD341E10005BE03 /* cura12.png */,
+				FF384AFC1DD341E10005BE03 /* cura13.png */,
+				FF384AFD1DD341E10005BE03 /* cura14.png */,
+				FF384AFE1DD341E10005BE03 /* cura15.png */,
+				FF384AFF1DD341E10005BE03 /* cura16.png */,
+				FF384B001DD341E10005BE03 /* cura17.png */,
+				FF384B011DD341E10005BE03 /* cura18.png */,
+				FF384B021DD341E10005BE03 /* cura19.png */,
+				FF384B031DD341E10005BE03 /* cura20.png */,
+				FF384B041DD341E10005BE03 /* cura21.png */,
+				FF384B051DD341E10005BE03 /* fogo1.png */,
+				FF384B061DD341E10005BE03 /* fogo2.png */,
+				FF384B071DD341E10005BE03 /* fogo3.png */,
+				FF384B081DD341E10005BE03 /* fogo4.png */,
+				FF384B091DD341E10005BE03 /* fogo5.png */,
+				FF384B0A1DD341E10005BE03 /* fogo6.png */,
+				FF384B0B1DD341E10005BE03 /* fogo7.png */,
+				FF384B0C1DD341E10005BE03 /* fogo8.png */,
+				FF384B0D1DD341E10005BE03 /* mana01.png */,
+				FF384B0E1DD341E10005BE03 /* mana02.png */,
+				FF384B0F1DD341E10005BE03 /* mana03.png */,
+				FF384B101DD341E10005BE03 /* mana04.png */,
+				FF384B111DD341E10005BE03 /* mana05.png */,
+				FF384B121DD341E10005BE03 /* mana06.png */,
+				FF384B131DD341E10005BE03 /* mana07.png */,
+				FF384B141DD341E10005BE03 /* mana08.png */,
+				FF384B151DD341E10005BE03 /* mana09.png */,
+				FF384B161DD341E10005BE03 /* mana10.png */,
+				FF384B171DD341E10005BE03 /* mana11.png */,
+				FF384B181DD341E10005BE03 /* mana12.png */,
+				FF384B191DD341E10005BE03 /* mana13.png */,
+				FF384B1A1DD341E10005BE03 /* mana14.png */,
+				FF384B1B1DD341E10005BE03 /* mana15.png */,
+				FF384B1C1DD341E10005BE03 /* mana16.png */,
+				FF384B1D1DD341E10005BE03 /* mana17.png */,
+				FF384B1E1DD341E10005BE03 /* mana18.png */,
+				FF384B1F1DD341E10005BE03 /* mana19.png */,
+				FF384B201DD341E10005BE03 /* mana20.png */,
+				FF384B211DD341E10005BE03 /* mana21.png */,
+			);
+			name = animations;
+			sourceTree = "<group>";
+		};
+		FF4A01CF1DB1A10C00F86B8C = {
+			isa = PBXGroup;
+			children = (
+				FF4A02421DB1A37800F86B8C /* IOKit.framework */,
+				FF4A02431DB1A37800F86B8C /* OpenAL.framework */,
+				FF4A02441DB1A37800F86B8C /* OpenGL.framework */,
+				FF4A023C1DB1A35D00F86B8C /* AudioToolbox.framework */,
+				FF4A023D1DB1A35D00F86B8C /* Cocoa.framework */,
+				FF4A023E1DB1A35D00F86B8C /* IOBluetooth.framework */,
+				FF4A01EC1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */,
+				FF4A01ED1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */,
+				FF4A01EE1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */,
+				FF4A01EF1DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */,
+				FF4A01F01DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */,
+				FF4A01F11DB1A1C700F86B8C /* liballegro_audio.5.2.1.dylib */,
+				FF4A01F21DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */,
+				FF4A01F31DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */,
+				FF4A01F41DB1A1C700F86B8C /* liballegro_color.5.2.1.dylib */,
+				FF4A01F51DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */,
+				FF4A01F61DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */,
+				FF4A01F71DB1A1C700F86B8C /* liballegro_dialog.5.2.1.dylib */,
+				FF4A01F81DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */,
+				FF4A01F91DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */,
+				FF350E991DB6E231000B1AB2 /* questions.txt */,
+				FF4A01FA1DB1A1C700F86B8C /* liballegro_font.5.2.1.dylib */,
+				FF4A01FB1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */,
+				FF4A01FC1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */,
+				FF4A01FD1DB1A1C700F86B8C /* liballegro_image.5.2.1.dylib */,
+				FF4A01FE1DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */,
+				FF4A01FF1DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */,
+				FF4A02001DB1A1C700F86B8C /* liballegro_main.5.2.1.dylib */,
+				FF4A02011DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */,
+				FF4A02021DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */,
+				FF4A02031DB1A1C700F86B8C /* liballegro_memfile.5.2.1.dylib */,
+				FF4A02041DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */,
+				FF4A02051DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */,
+				FF4A02061DB1A1C700F86B8C /* liballegro_physfs.5.2.1.dylib */,
+				FF4A02071DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */,
+				FF4A02081DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */,
+				FF4A02091DB1A1C700F86B8C /* liballegro_primitives.5.2.1.dylib */,
+				FF350E971DB6E1B8000B1AB2 /* questions.rtf */,
+				FF4A020A1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */,
+				FF4A020B1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */,
+				FF4A020C1DB1A1C700F86B8C /* liballegro_ttf.5.2.1.dylib */,
+				FF4A020D1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */,
+				FF4A020E1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */,
+				FF4A020F1DB1A1C700F86B8C /* liballegro_video.5.2.1.dylib */,
+				FF4A02101DB1A1C700F86B8C /* liballegro.5.2.1.dylib */,
+				FF4A02111DB1A1C700F86B8C /* liballegro.5.2.1.dylib */,
+				FF4A02121DB1A1C700F86B8C /* liballegro.5.2.1.dylib */,
+				FF4A01DA1DB1A10C00F86B8C /* PI2BCC */,
+				FF4A01D91DB1A10C00F86B8C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FF4A01D91DB1A10C00F86B8C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FF4A01D81DB1A10C00F86B8C /* PI2BCC.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FF4A01DA1DB1A10C00F86B8C /* PI2BCC */ = {
+			isa = PBXGroup;
+			children = (
+				FF384AEF1DD341300005BE03 /* animations */,
+				FF4A02481DB1A64400F86B8C /* arial.ttf */,
+				FF4A02491DB1A64500F86B8C /* cenario */,
+				FF4A024B1DB1A64500F86B8C /* images */,
+				FF4A024D1DB1A64500F86B8C /* monstros */,
+				FF4A02511DB1A64500F86B8C /* personagens */,
+				FF4A01E61DB1A10C00F86B8C /* Info.plist */,
+				FF4A01DE1DB1A10C00F86B8C /* Supporting Files */,
+				FF384AD71DCACEBA0005BE03 /* main.c */,
+			);
+			path = PI2BCC;
+			sourceTree = "<group>";
+		};
+		FF4A01DE1DB1A10C00F86B8C /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		FF4A02491DB1A64500F86B8C /* cenario */ = {
+			isa = PBXGroup;
+			children = (
+				FF4A024A1DB1A64500F86B8C /* Praca1.jpg */,
+				FF384AE51DD301420005BE03 /* stage1.jpg */,
+				FF384AE61DD301420005BE03 /* stage3.jpg */,
+				FF384AE71DD301420005BE03 /* stage2.jpg */,
+			);
+			path = cenario;
+			sourceTree = "<group>";
+		};
+		FF4A024B1DB1A64500F86B8C /* images */ = {
+			isa = PBXGroup;
+			children = (
+				FF384AEB1DD3361C0005BE03 /* rightarrow.png */,
+				FF384AEC1DD3361C0005BE03 /* downarrow.png */,
+				FF4A024C1DB1A64500F86B8C /* arrow.png */,
+			);
+			path = images;
+			sourceTree = "<group>";
+		};
+		FF4A024D1DB1A64500F86B8C /* monstros */ = {
+			isa = PBXGroup;
+			children = (
+				FF384B541DD3F0550005BE03 /* cogumelo3.png */,
+				FF384B551DD3F0550005BE03 /* cogumelo2.png */,
+				FF384B561DD3F0550005BE03 /* cogumelo1.png */,
+				FF4A024E1DB1A64500F86B8C /* arvore1.png */,
+				FF4A024F1DB1A64500F86B8C /* arvore2.png */,
+				FF4A02501DB1A64500F86B8C /* arvore3.png */,
+			);
+			path = monstros;
+			sourceTree = "<group>";
+		};
+		FF4A02511DB1A64500F86B8C /* personagens */ = {
+			isa = PBXGroup;
+			children = (
+				FF384AD91DCD3AF20005BE03 /* p1bloqueio.png */,
+				FF384ADA1DCD3AF20005BE03 /* p1ataque2.png */,
+				FF384ADB1DCD3AF20005BE03 /* p1andando2.png */,
+				FF384ADC1DCD3AF20005BE03 /* p1ataque1.png */,
+				FF384ADD1DCD3AF20005BE03 /* p1andando1.png */,
+				FF384ADE1DCD3AF20005BE03 /* p1ataque3.png */,
+				FF4A02521DB1A64500F86B8C /* p1parado.png */,
+			);
+			path = personagens;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FF4A01D71DB1A10C00F86B8C /* PI2BCC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FF4A01E91DB1A10C00F86B8C /* Build configuration list for PBXNativeTarget "PI2BCC" */;
+			buildPhases = (
+				FF4A01D41DB1A10C00F86B8C /* Sources */,
+				FF4A01D51DB1A10C00F86B8C /* Frameworks */,
+				FF4A01D61DB1A10C00F86B8C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PI2BCC;
+			productName = PI2BCC;
+			productReference = FF4A01D81DB1A10C00F86B8C /* PI2BCC.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FF4A01D01DB1A10C00F86B8C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = AM;
+				TargetAttributes = {
+					FF4A01D71DB1A10C00F86B8C = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+				};
+			};
+			buildConfigurationList = FF4A01D31DB1A10C00F86B8C /* Build configuration list for PBXProject "PI2BCC" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FF4A01CF1DB1A10C00F86B8C;
+			productRefGroup = FF4A01D91DB1A10C00F86B8C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FF4A01D71DB1A10C00F86B8C /* PI2BCC */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FF4A01D61DB1A10C00F86B8C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FF384B591DD3F0550005BE03 /* cogumelo1.png in Resources */,
+				FF384B4D1DD341E10005BE03 /* mana15.png in Resources */,
+				FF384B371DD341E10005BE03 /* fogo1.png in Resources */,
+				FF4A02571DB1A64500F86B8C /* arvore2.png in Resources */,
+				FF384AE11DCD3AF20005BE03 /* p1andando2.png in Resources */,
+				FF350E9A1DB6E231000B1AB2 /* questions.txt in Resources */,
+				FF384B521DD341E10005BE03 /* mana20.png in Resources */,
+				FF384B2C1DD341E10005BE03 /* cura11.png in Resources */,
+				FF384ADF1DCD3AF20005BE03 /* p1bloqueio.png in Resources */,
+				FF384B3B1DD341E10005BE03 /* fogo5.png in Resources */,
+				FF4A02531DB1A64500F86B8C /* arial.ttf in Resources */,
+				FF384B301DD341E10005BE03 /* cura15.png in Resources */,
+				FF350E981DB6E1B8000B1AB2 /* questions.rtf in Resources */,
+				FF384B281DD341E10005BE03 /* cura07.png in Resources */,
+				FF384B581DD3F0550005BE03 /* cogumelo2.png in Resources */,
+				FF384AED1DD3361C0005BE03 /* rightarrow.png in Resources */,
+				FF384B291DD341E10005BE03 /* cura08.png in Resources */,
+				FF384B421DD341E10005BE03 /* mana04.png in Resources */,
+				FF384B3A1DD341E10005BE03 /* fogo4.png in Resources */,
+				FF384B331DD341E10005BE03 /* cura18.png in Resources */,
+				FF384B461DD341E10005BE03 /* mana08.png in Resources */,
+				FF384AEE1DD3361C0005BE03 /* downarrow.png in Resources */,
+				FF384B2D1DD341E10005BE03 /* cura12.png in Resources */,
+				FF384B471DD341E10005BE03 /* mana09.png in Resources */,
+				FF384B501DD341E10005BE03 /* mana18.png in Resources */,
+				FF384B361DD341E10005BE03 /* cura21.png in Resources */,
+				FF4A02551DB1A64500F86B8C /* arrow.png in Resources */,
+				FF384B2B1DD341E10005BE03 /* cura10.png in Resources */,
+				FF4A02561DB1A64500F86B8C /* arvore1.png in Resources */,
+				FF384B2F1DD341E10005BE03 /* cura14.png in Resources */,
+				FF384B271DD341E10005BE03 /* cura06.png in Resources */,
+				FF384B381DD341E10005BE03 /* fogo2.png in Resources */,
+				FF4A02581DB1A64500F86B8C /* arvore3.png in Resources */,
+				FF384B531DD341E10005BE03 /* mana21.png in Resources */,
+				FF384B401DD341E10005BE03 /* mana02.png in Resources */,
+				FF384B2E1DD341E10005BE03 /* cura13.png in Resources */,
+				FF384B241DD341E10005BE03 /* cura03.png in Resources */,
+				FF384B321DD341E10005BE03 /* cura17.png in Resources */,
+				FF384B3E1DD341E10005BE03 /* fogo8.png in Resources */,
+				FF384B341DD341E10005BE03 /* cura19.png in Resources */,
+				FF384B251DD341E10005BE03 /* cura04.png in Resources */,
+				FF384B3D1DD341E10005BE03 /* fogo7.png in Resources */,
+				FF384B491DD341E10005BE03 /* mana11.png in Resources */,
+				FF384B411DD341E10005BE03 /* mana03.png in Resources */,
+				FF4A02541DB1A64500F86B8C /* Praca1.jpg in Resources */,
+				FF384B351DD341E10005BE03 /* cura20.png in Resources */,
+				FF384B4B1DD341E10005BE03 /* mana13.png in Resources */,
+				FF384B571DD3F0550005BE03 /* cogumelo3.png in Resources */,
+				FF384AE41DCD3AF20005BE03 /* p1ataque3.png in Resources */,
+				FF384AE31DCD3AF20005BE03 /* p1andando1.png in Resources */,
+				FF384B261DD341E10005BE03 /* cura05.png in Resources */,
+				FF384AE01DCD3AF20005BE03 /* p1ataque2.png in Resources */,
+				FF384B4E1DD341E10005BE03 /* mana16.png in Resources */,
+				FF384B511DD341E10005BE03 /* mana19.png in Resources */,
+				FF384B441DD341E10005BE03 /* mana06.png in Resources */,
+				FF384B221DD341E10005BE03 /* cura01.png in Resources */,
+				FF384AE21DCD3AF20005BE03 /* p1ataque1.png in Resources */,
+				FF384B431DD341E10005BE03 /* mana05.png in Resources */,
+				FF384AE81DD301420005BE03 /* stage1.jpg in Resources */,
+				FF384B481DD341E10005BE03 /* mana10.png in Resources */,
+				FF384B3F1DD341E10005BE03 /* mana01.png in Resources */,
+				FF384B3C1DD341E10005BE03 /* fogo6.png in Resources */,
+				FF4A02591DB1A64500F86B8C /* p1parado.png in Resources */,
+				FF384B4C1DD341E10005BE03 /* mana14.png in Resources */,
+				FF384B451DD341E10005BE03 /* mana07.png in Resources */,
+				FF384AE91DD301420005BE03 /* stage3.jpg in Resources */,
+				FF384B2A1DD341E10005BE03 /* cura09.png in Resources */,
+				FF384B4F1DD341E10005BE03 /* mana17.png in Resources */,
+				FF384B4A1DD341E10005BE03 /* mana12.png in Resources */,
+				FF384B231DD341E10005BE03 /* cura02.png in Resources */,
+				FF384AEA1DD301420005BE03 /* stage2.jpg in Resources */,
+				FF384B391DD341E10005BE03 /* fogo3.png in Resources */,
+				FF384B311DD341E10005BE03 /* cura16.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FF4A01D41DB1A10C00F86B8C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FF384AD81DCACEBA0005BE03 /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FF4A01E71DB1A10C00F86B8C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		FF4A01E81DB1A10C00F86B8C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/local/include;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		FF4A01EA1DB1A10C00F86B8C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = PI2BCC/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/allegro/5.2.1.1/lib,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = am.PI2BCC;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		FF4A01EB1DB1A10C00F86B8C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = PI2BCC/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/allegro/5.2.1.1/lib,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = am.PI2BCC;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FF4A01D31DB1A10C00F86B8C /* Build configuration list for PBXProject "PI2BCC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF4A01E71DB1A10C00F86B8C /* Debug */,
+				FF4A01E81DB1A10C00F86B8C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FF4A01E91DB1A10C00F86B8C /* Build configuration list for PBXNativeTarget "PI2BCC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FF4A01EA1DB1A10C00F86B8C /* Debug */,
+				FF4A01EB1DB1A10C00F86B8C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FF4A01D01DB1A10C00F86B8C /* Project object */;
+}
