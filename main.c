@@ -1,6 +1,3 @@
-// ConsoleApplication2.cpp : Defines the entry point for the console application.
-//
-
 #include <stdio.h>
 #include <stdbool.h>
 //#include "stdafx.h"
@@ -33,8 +30,8 @@
 #define CHARACTER_HEIGHT 85
 #define CHARACTER_WIDTH 65
 #define CHAR_INTERACTION_SIZE 120
-#define WALK_MONSTER_MIN 100
-#define WALK_MONSTER_MAX 200
+#define WALK_MONSTER_MIN 700
+#define WALK_MONSTER_MAX 1100
 #define MAX_STAGES 3
 #define START_X_RIGHT 1100
 #define START_Y 550
@@ -251,6 +248,187 @@ struct worldObject objects[20];
 int objects_quantity = 0;
 
 
+//MARK: Database
+
+const char *text_for_id(int txt_id) {
+    
+    switch (txt_id) {
+        case 0:
+            return "Ei, cuidado! O Senac está sendo invadido por monstros!";
+            break;
+        default:
+            return "";
+            break;
+    }
+    
+}
+
+void destroy_fx() {
+    
+    for(int x = 0; x < 30; x++) {
+        if(fxs[x]) {
+            al_destroy_bitmap(fxs[x]);
+        }
+    }
+}
+
+void load_fx_animation(int ani_id) {
+    
+    destroy_fx();
+    
+    switch (ani_id) {
+            
+            //Fire
+        case 0:
+            fx_count = 8;
+            fxs[0] = al_load_bitmap("fogo1.png");
+            fxs[1] = al_load_bitmap("fogo2.png");
+            fxs[2] = al_load_bitmap("fogo3.png");
+            fxs[3] = al_load_bitmap("fogo4.png");
+            fxs[4] = al_load_bitmap("fogo5.png");
+            fxs[5] = al_load_bitmap("fogo6.png");
+            fxs[6] = al_load_bitmap("fogo7.png");
+            fxs[7] = al_load_bitmap("fogo8.png");
+            break;
+            //Potion
+        case 1:
+            fx_count = 21;
+            fxs[0] = al_load_bitmap("mana01.png");
+            fxs[1] = al_load_bitmap("mana02.png");
+            fxs[2] = al_load_bitmap("mana03.png");
+            fxs[3] = al_load_bitmap("mana04.png");
+            fxs[4] = al_load_bitmap("mana05.png");
+            fxs[5] = al_load_bitmap("mana06.png");
+            fxs[6] = al_load_bitmap("mana07.png");
+            fxs[7] = al_load_bitmap("mana08.png");
+            fxs[8] = al_load_bitmap("mana09.png");
+            fxs[9] = al_load_bitmap("mana10.png");
+            fxs[10] = al_load_bitmap("mana11.png");
+            fxs[11] = al_load_bitmap("mana12.png");
+            fxs[12] = al_load_bitmap("mana13.png");
+            fxs[13] = al_load_bitmap("mana14.png");
+            fxs[14] = al_load_bitmap("mana15.png");
+            fxs[15] = al_load_bitmap("mana16.png");
+            fxs[16] = al_load_bitmap("mana17.png");
+            fxs[17] = al_load_bitmap("mana18.png");
+            fxs[18] = al_load_bitmap("mana19.png");
+            fxs[19] = al_load_bitmap("mana20.png");
+            fxs[20] = al_load_bitmap("mana21.png");
+            
+            break;
+            //Healing
+        case 2:
+            fx_count = 21;
+            fxs[0] = al_load_bitmap("cura01.png");
+            fxs[1] = al_load_bitmap("cura02.png");
+            fxs[2] = al_load_bitmap("cura03.png");
+            fxs[3] = al_load_bitmap("cura04.png");
+            fxs[4] = al_load_bitmap("cura05.png");
+            fxs[5] = al_load_bitmap("cura06.png");
+            fxs[6] = al_load_bitmap("cura07.png");
+            fxs[7] = al_load_bitmap("cura08.png");
+            fxs[8] = al_load_bitmap("cura09.png");
+            fxs[9] = al_load_bitmap("cura10.png");
+            fxs[10] = al_load_bitmap("cura11.png");
+            fxs[11] = al_load_bitmap("cura12.png");
+            fxs[12] = al_load_bitmap("cura13.png");
+            fxs[13] = al_load_bitmap("cura14.png");
+            fxs[14] = al_load_bitmap("cura15.png");
+            fxs[15] = al_load_bitmap("cura16.png");
+            fxs[16] = al_load_bitmap("cura17.png");
+            fxs[17] = al_load_bitmap("cura18.png");
+            fxs[18] = al_load_bitmap("cura19.png");
+            fxs[19] = al_load_bitmap("cura20.png");
+            fxs[20] = al_load_bitmap("cura21.png");
+            break;
+            
+        default:
+            fx_count = 0;
+            break;
+    }
+    
+    for(int x = 0; x < fx_count; x ++) {
+        if(!fxs[x]) {
+            printf("Some error occured when loading the fxs.\n");
+            return;
+        }
+    }
+}
+
+
+int monster_id_on_stage(int stage) {
+    
+    switch (stage) {
+        case 0:
+            return 000;
+            break;
+        case 1:
+            return 000;
+            break;
+        case 2:
+            return 000;
+            break;
+        default:
+            return 0;
+            break;
+    }
+}
+
+int exp_needed_for_level(int level) {
+    
+    return level * 100;
+}
+
+
+void load_stage(int stage) {
+    
+    if(background) {
+        al_destroy_bitmap(background);
+    }
+    
+    switch (stage) {
+        case 0:
+            background = al_load_bitmap("stage1.jpg");
+            break;
+        case 1:
+            background = al_load_bitmap("stage2.jpg");
+            break;
+        case 2:
+            background = al_load_bitmap("stage3.jpg");
+            break;
+        default:
+            break;
+    }
+    
+}
+
+
+void load_character(int num) {
+    
+    switch (num) {
+        case 0:
+            characters[0].id = 0;
+            characters[0].name[0] = ' ';
+            characters[0].hp = 100;
+            characters[0].maxhp = 100;
+            characters[0].sp = 25;
+            characters[0].maxsp = 25;
+            characters[0].atk = 100;
+            characters[0].def = 70;
+            characters[0].matak = 5;
+            characters[0].mdef = 25;
+            characters[0].level = 1;
+            characters[0].exp = 0;
+            break;
+            
+        default:
+            break;
+    }
+    
+}
+
+
+
 //MARK: Convenience Funx
 
 
@@ -321,28 +499,6 @@ ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h) {
 
 void set_new_interations_to_monster() {
     interations_to_monster = WALK_MONSTER_MIN + rand_lim(WALK_MONSTER_MAX - WALK_MONSTER_MIN);
-}
-
-void load_stage(int stage) {
-    
-    if(background) {
-        al_destroy_bitmap(background);
-    }
-    
-    switch (stage) {
-        case 0:
-            background = al_load_bitmap("stage1.jpg");
-            break;
-        case 1:
-            background = al_load_bitmap("stage2.jpg");
-            break;
-        case 2:
-            background = al_load_bitmap("stage3.jpg");
-            break;
-        default:
-            break;
-    }
-    
 }
 
 
@@ -431,29 +587,6 @@ bool load_character_animations(int num) {
     
 }
 
-void load_character(int num) {
-    
-    switch (num) {
-        case 0:
-            characters[0].id = 0;
-            characters[0].name[0] = ' ';
-            characters[0].hp = 100;
-            characters[0].maxhp = 100;
-            characters[0].sp = 25;
-            characters[0].maxsp = 25;
-            characters[0].atk = 100;
-            characters[0].def = 70;
-            characters[0].matak = 5;
-            characters[0].mdef = 25;
-            characters[0].level = 1;
-            characters[0].exp = 0;
-            break;
-            
-        default:
-            break;
-    }
-    
-}
 
 void load_questions() {
     
@@ -717,17 +850,6 @@ void destroy_objects() {
 }
 
 
-void destroy_fx() {
-    
-    for(int x = 0; x < 30; x++) {
-        if(fxs[x]) {
-            al_destroy_bitmap(fxs[x]);
-        }
-        
-    }
-    
-}
-
 void destroy_allegro() {
     
     destroy_questions();
@@ -748,140 +870,6 @@ void destroy_allegro() {
 //MARK: Create Objects Identifier
 
 
-void load_fx_animation(int ani_id) {
-    
-    destroy_fx();
-    
-    switch (ani_id) {
-            
-        //Fire
-        case 0:
-            fx_count = 8;
-            fxs[0] = al_load_bitmap("fogo1.png");
-            fxs[1] = al_load_bitmap("fogo2.png");
-            fxs[2] = al_load_bitmap("fogo3.png");
-            fxs[3] = al_load_bitmap("fogo4.png");
-            fxs[4] = al_load_bitmap("fogo5.png");
-            fxs[5] = al_load_bitmap("fogo6.png");
-            fxs[6] = al_load_bitmap("fogo7.png");
-            fxs[7] = al_load_bitmap("fogo8.png");
-            break;
-            //Potion
-        case 1:
-            fx_count = 21;
-            fxs[0] = al_load_bitmap("mana01.png");
-            fxs[1] = al_load_bitmap("mana02.png");
-            fxs[2] = al_load_bitmap("mana03.png");
-            fxs[3] = al_load_bitmap("mana04.png");
-            fxs[4] = al_load_bitmap("mana05.png");
-            fxs[5] = al_load_bitmap("mana06.png");
-            fxs[6] = al_load_bitmap("mana07.png");
-            fxs[7] = al_load_bitmap("mana08.png");
-            fxs[8] = al_load_bitmap("mana09.png");
-            fxs[9] = al_load_bitmap("mana10.png");
-            fxs[10] = al_load_bitmap("mana11.png");
-            fxs[11] = al_load_bitmap("mana12.png");
-            fxs[12] = al_load_bitmap("mana13.png");
-            fxs[13] = al_load_bitmap("mana14.png");
-            fxs[14] = al_load_bitmap("mana15.png");
-            fxs[15] = al_load_bitmap("mana16.png");
-            fxs[16] = al_load_bitmap("mana17.png");
-            fxs[17] = al_load_bitmap("mana18.png");
-            fxs[18] = al_load_bitmap("mana19.png");
-            fxs[19] = al_load_bitmap("mana20.png");
-            fxs[20] = al_load_bitmap("mana21.png");
-
-            break;
-            //Healing
-        case 2:
-            fx_count = 21;
-            fxs[0] = al_load_bitmap("cura01.png");
-            fxs[1] = al_load_bitmap("cura02.png");
-            fxs[2] = al_load_bitmap("cura03.png");
-            fxs[3] = al_load_bitmap("cura04.png");
-            fxs[4] = al_load_bitmap("cura05.png");
-            fxs[5] = al_load_bitmap("cura06.png");
-            fxs[6] = al_load_bitmap("cura07.png");
-            fxs[7] = al_load_bitmap("cura08.png");
-            fxs[8] = al_load_bitmap("cura09.png");
-            fxs[9] = al_load_bitmap("cura10.png");
-            fxs[10] = al_load_bitmap("cura11.png");
-            fxs[11] = al_load_bitmap("cura12.png");
-            fxs[12] = al_load_bitmap("cura13.png");
-            fxs[13] = al_load_bitmap("cura14.png");
-            fxs[14] = al_load_bitmap("cura15.png");
-            fxs[15] = al_load_bitmap("cura16.png");
-            fxs[16] = al_load_bitmap("cura17.png");
-            fxs[17] = al_load_bitmap("cura18.png");
-            fxs[18] = al_load_bitmap("cura19.png");
-            fxs[19] = al_load_bitmap("cura20.png");
-            fxs[20] = al_load_bitmap("cura21.png");
-            break;
-            
-        default:
-            fx_count = 0;
-            break;
-    }
-    
-    for(int x = 0; x < fx_count; x ++) {
-        if(!fxs[x]) {
-            printf("Some error occured when loading the fxs.\n");
-            return;
-        }
-    }
-    
-}
-
-
-int monster_id_on_stage(int stage) {
-    
-    switch (stage) {
-        case 0:
-            return 0;
-            break;
-        case 1:
-            return 0;
-            break;
-        case 2:
-            return 0;
-            break;
-        default:
-            return 0;
-            break;
-    }
-    
-}
-
-int exp_needed_for_level(int level) {
-    
-    switch (level) {
-        case 1:
-            return 100;
-            break;
-        case 2:
-            return 200;
-            break;
-        case 3:
-            return 300;
-            break;
-        case 4:
-            return 400;
-            break;
-        case 5:
-            return 500;
-            break;
-        case 6:
-            return 600;
-            break;
-        case 7:
-            return 700;
-            break;
-        default:
-            return 9999;
-            break;
-    }
-}
-
 void create_monster_animations(int index) {
     
     switch (monsters[index].id) {
@@ -896,9 +884,16 @@ void create_monster_animations(int index) {
             monsters[index].animation_object.animations[1] = al_load_bitmap("arvore2.png");
             monsters[index].animation_object.animations[2] = al_load_bitmap("arvore3.png");
             
-            monsters[index].animation_object.walkSpeed = 0;
             break;
+        case 001:
+            monsters[index].animation_object.currentMaxFrame = 3;
+            monsters[index].animation_object.currentFrame = 0;
+            monsters[index].animation_object.tick = 0;
+            monsters[index].animation_object.animations[0] = al_load_bitmap("cogumelo1.png");
+            monsters[index].animation_object.animations[1] = al_load_bitmap("cogumelo2.png");
+            monsters[index].animation_object.animations[2] = al_load_bitmap("cogumelo3.png");
             
+            break;
         default:
             printf("No monster ID found.");
             break;
@@ -935,6 +930,29 @@ void create_monster(int mon_id, int index) {
             monsters[index].matak = 0;
             monsters[index].mdef = 10;
             monsters[index].exp = 50;
+            
+            create_monster_animations(index);
+            break;
+            
+            //Cogumelo
+        case 001:
+            
+            monsters[index].id = 001;
+            monsters[index].name[0] = 'C';
+            monsters[index].name[1] = 'o';
+            monsters[index].name[2] = 'g';
+            monsters[index].name[3] = 'u';
+            monsters[index].name[4] = 'm';
+            monsters[index].name[5] = 'e';
+            monsters[index].name[5] = 'l';
+            monsters[index].name[5] = 'o';
+            monsters[index].hp = 40;
+            monsters[index].maxhp = 40;
+            monsters[index].atk = 120;
+            monsters[index].def = 30;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 5;
+            monsters[index].exp = 20;
             
             create_monster_animations(index);
             break;
@@ -1319,6 +1337,23 @@ void load_skill_list(int index) {
 
 void load_saved_game() {
     
+    add_item_to_inventory(0);
+    add_item_to_inventory(0);
+    add_item_to_inventory(0);
+    
+    current_stage = 1;
+    char_quantity = 2;
+    
+    characters[0].level = 3;
+    characters[1].level = 5;
+    characters[0].hp = 30;
+    characters[1].hp = 50;
+    characters[0].sp = 30;
+    characters[1].sp = 50;
+    characters[0].exp = 300;
+    characters[1].exp = 500;
+    add_skill_to_character(0, 1, 0);
+    add_skill_to_character(1, 1, 0);
 }
 
 void save_game() {
@@ -1612,7 +1647,7 @@ void draw_main_character_on_position() {
     
     //printf("drawing on %d, %d \n", characters[0].animation_object.x, characters[0].animation_object.y);
     
-    al_flip_display();
+    //al_flip_display();
 }
 
 
@@ -2815,6 +2850,44 @@ int begin_battle(int mon_id, int mon_num) {
 //MARK: Outside
 
 
+void show_text(int text_id) {
+    
+    for(int x = 0; x < 255; x+=20) {
+        //al_clear_to_color(al_map_rgba(255, 255, 255, 255));
+        draw_main_character_on_position();
+        al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, x));
+        al_draw_text(font, al_map_rgba(255, 255, 255, x), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
+        al_flip_display();
+        al_rest(0.01);
+    }
+    
+    //al_clear_to_color(al_map_rgba(255, 255, 255, 255));
+    draw_main_character_on_position();
+    al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, 255));
+    al_draw_text(font, al_map_rgba(255, 255, 255, 255), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
+    al_flip_display();
+    
+    while (1) {
+        ALLEGRO_EVENT ev;
+        al_wait_for_event(event_queue, &ev);
+        
+        if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+            
+            for(int x = 255; x > 0; x-=20) {
+                printf("%d\n", x);
+                //al_clear_to_color(al_map_rgba(255, 255, 255, 255));
+                draw_main_character_on_position();
+                al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, x));
+                al_draw_text(font, al_map_rgba(255, 255, 255, x), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
+                al_flip_display();
+                al_rest(0.01);
+            }
+            break;
+        }
+    }
+}
+
+
 void execute_action_for_object(int obj) {
     
     int battle_result;
@@ -3005,6 +3078,7 @@ int walk_character(bool up, bool down, bool left, bool right) {
     
     //Perform the drawing
     draw_main_character_on_position();
+    al_flip_display();
     
     return 0;
 }
@@ -3141,18 +3215,9 @@ int main(int argc, char **argv) {
     add_item_to_inventory(1);
     add_item_to_inventory(1);
     
+    //al_rest(1);
+    show_text(0);
     scenario();
-    
-    /*draw_battle_menu();
-    
-    al_register_event_source(event_queue, al_get_timer_event_source(battle_timer));
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
-    
-    al_start_timer(battle_timer);
-    
-    int battle_result = begin_battle(000, 1);
-    
-    destroy_allegro();*/
     
     return 0;
     
