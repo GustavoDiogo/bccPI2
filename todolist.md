@@ -6,7 +6,8 @@
 
 +Tela de GameOver
 
-+Musicas
+~~+Musicas~~
++Função p/ músicas
 
 Interface
 
@@ -14,9 +15,9 @@ Icones dos personagens
 
 +Função de balão de fala(Caio)
 
-NPCs e Baús
+NPCs e ~~Baús~~
 
-Animação melhor e maior para fogo
+~~Animação melhor e maior para fogo~~
 
 +BOSS
 
