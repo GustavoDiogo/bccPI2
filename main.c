@@ -9,6 +9,8 @@
 #include <allegro5/events.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
+
+
 #define animarvore1frames 3
 #define animp1frame 1
 #define MAX_ITEMS 20
@@ -281,65 +283,65 @@ void load_fx_animation(int ani_id) {
             //Fire
         case 0:
             fx_count = 8;
-            fxs[0] = al_load_bitmap("fogo1.png");
-            fxs[1] = al_load_bitmap("fogo2.png");
-            fxs[2] = al_load_bitmap("fogo3.png");
-            fxs[3] = al_load_bitmap("fogo4.png");
-            fxs[4] = al_load_bitmap("fogo5.png");
-            fxs[5] = al_load_bitmap("fogo6.png");
-            fxs[6] = al_load_bitmap("fogo7.png");
-            fxs[7] = al_load_bitmap("fogo8.png");
+            fxs[0] = al_load_bitmap("efeitos/fogo1.png");
+            fxs[1] = al_load_bitmap("efeitos/fogo2.png");
+            fxs[2] = al_load_bitmap("efeitos/fogo3.png");
+            fxs[3] = al_load_bitmap("efeitos/fogo4.png");
+            fxs[4] = al_load_bitmap("efeitos/fogo5.png");
+            fxs[5] = al_load_bitmap("efeitos/fogo6.png");
+            fxs[6] = al_load_bitmap("efeitos/fogo7.png");
+            fxs[7] = al_load_bitmap("efeitos/fogo8.png");
             break;
             //Potion
         case 1:
             fx_count = 21;
-            fxs[0] = al_load_bitmap("mana01.png");
-            fxs[1] = al_load_bitmap("mana02.png");
-            fxs[2] = al_load_bitmap("mana03.png");
-            fxs[3] = al_load_bitmap("mana04.png");
-            fxs[4] = al_load_bitmap("mana05.png");
-            fxs[5] = al_load_bitmap("mana06.png");
-            fxs[6] = al_load_bitmap("mana07.png");
-            fxs[7] = al_load_bitmap("mana08.png");
-            fxs[8] = al_load_bitmap("mana09.png");
-            fxs[9] = al_load_bitmap("mana10.png");
-            fxs[10] = al_load_bitmap("mana11.png");
-            fxs[11] = al_load_bitmap("mana12.png");
-            fxs[12] = al_load_bitmap("mana13.png");
-            fxs[13] = al_load_bitmap("mana14.png");
-            fxs[14] = al_load_bitmap("mana15.png");
-            fxs[15] = al_load_bitmap("mana16.png");
-            fxs[16] = al_load_bitmap("mana17.png");
-            fxs[17] = al_load_bitmap("mana18.png");
-            fxs[18] = al_load_bitmap("mana19.png");
-            fxs[19] = al_load_bitmap("mana20.png");
-            fxs[20] = al_load_bitmap("mana21.png");
+            fxs[0] = al_load_bitmap("efeitos/mana01.png");
+            fxs[1] = al_load_bitmap("efeitos/mana02.png");
+            fxs[2] = al_load_bitmap("efeitos/mana03.png");
+            fxs[3] = al_load_bitmap("efeitos/mana04.png");
+            fxs[4] = al_load_bitmap("efeitos/mana05.png");
+            fxs[5] = al_load_bitmap("efeitos/mana06.png");
+            fxs[6] = al_load_bitmap("efeitos/mana07.png");
+            fxs[7] = al_load_bitmap("efeitos/mana08.png");
+            fxs[8] = al_load_bitmap("efeitos/mana09.png");
+            fxs[9] = al_load_bitmap("efeitos/mana10.png");
+            fxs[10] = al_load_bitmap("efeitos/mana11.png");
+            fxs[11] = al_load_bitmap("efeitos/mana12.png");
+            fxs[12] = al_load_bitmap("efeitos/mana13.png");
+            fxs[13] = al_load_bitmap("efeitos/mana14.png");
+            fxs[14] = al_load_bitmap("efeitos/mana15.png");
+            fxs[15] = al_load_bitmap("efeitos/mana16.png");
+            fxs[16] = al_load_bitmap("efeitos/mana17.png");
+            fxs[17] = al_load_bitmap("efeitos/mana18.png");
+            fxs[18] = al_load_bitmap("efeitos/mana19.png");
+            fxs[19] = al_load_bitmap("efeitos/mana20.png");
+            fxs[20] = al_load_bitmap("efeitos/mana21.png");
             
             break;
             //Healing
         case 2:
             fx_count = 21;
-            fxs[0] = al_load_bitmap("cura01.png");
-            fxs[1] = al_load_bitmap("cura02.png");
-            fxs[2] = al_load_bitmap("cura03.png");
-            fxs[3] = al_load_bitmap("cura04.png");
-            fxs[4] = al_load_bitmap("cura05.png");
-            fxs[5] = al_load_bitmap("cura06.png");
-            fxs[6] = al_load_bitmap("cura07.png");
-            fxs[7] = al_load_bitmap("cura08.png");
-            fxs[8] = al_load_bitmap("cura09.png");
-            fxs[9] = al_load_bitmap("cura10.png");
-            fxs[10] = al_load_bitmap("cura11.png");
-            fxs[11] = al_load_bitmap("cura12.png");
-            fxs[12] = al_load_bitmap("cura13.png");
-            fxs[13] = al_load_bitmap("cura14.png");
-            fxs[14] = al_load_bitmap("cura15.png");
-            fxs[15] = al_load_bitmap("cura16.png");
-            fxs[16] = al_load_bitmap("cura17.png");
-            fxs[17] = al_load_bitmap("cura18.png");
-            fxs[18] = al_load_bitmap("cura19.png");
-            fxs[19] = al_load_bitmap("cura20.png");
-            fxs[20] = al_load_bitmap("cura21.png");
+            fxs[0] = al_load_bitmap("efeitos/cura01.png");
+            fxs[1] = al_load_bitmap("efeitos/cura02.png");
+            fxs[2] = al_load_bitmap("efeitos/cura03.png");
+            fxs[3] = al_load_bitmap("efeitos/cura04.png");
+            fxs[4] = al_load_bitmap("efeitos/cura05.png");
+            fxs[5] = al_load_bitmap("efeitos/cura06.png");
+            fxs[6] = al_load_bitmap("efeitos/cura07.png");
+            fxs[7] = al_load_bitmap("efeitos/cura08.png");
+            fxs[8] = al_load_bitmap("efeitos/cura09.png");
+            fxs[9] = al_load_bitmap("efeitos/cura10.png");
+            fxs[10] = al_load_bitmap("efeitos/cura11.png");
+            fxs[11] = al_load_bitmap("efeitos/cura12.png");
+            fxs[12] = al_load_bitmap("efeitos/cura13.png");
+            fxs[13] = al_load_bitmap("efeitos/cura14.png");
+            fxs[14] = al_load_bitmap("efeitos/cura15.png");
+            fxs[15] = al_load_bitmap("efeitos/cura16.png");
+            fxs[16] = al_load_bitmap("efeitos/cura17.png");
+            fxs[17] = al_load_bitmap("efeitos/cura18.png");
+            fxs[18] = al_load_bitmap("efeitos/cura19.png");
+            fxs[19] = al_load_bitmap("efeitos/cura20.png");
+            fxs[20] = al_load_bitmap("efeitos/cura21.png");
             break;
             
         default:
@@ -388,13 +390,13 @@ void load_stage(int stage) {
     
     switch (stage) {
         case 0:
-            background = al_load_bitmap("stage1.jpg");
+            background = al_load_bitmap("cenario/stage1.jpg");
             break;
         case 1:
-            background = al_load_bitmap("stage2.jpg");
+            background = al_load_bitmap("cenario/stage2.jpg");
             break;
         case 2:
-            background = al_load_bitmap("stage3.jpg");
+            background = al_load_bitmap("cenario/stage3.jpg");
             break;
         default:
             break;
@@ -514,15 +516,15 @@ bool load_character_animations(int num) {
         characters[num].animation_object.currentFrame = 0;
         characters[num].animation_object.frameRate = 10;
         
-        characters[num].animation_object.animAndar[0] = al_load_bitmap("p1andando1.png");
-        characters[num].animation_object.animAndar[1] = al_load_bitmap("p1andando2.png");
+        characters[num].animation_object.animAndar[0] = al_load_bitmap("personagens/p1andando1.png");
+        characters[num].animation_object.animAndar[1] = al_load_bitmap("personagens/p1andando2.png");
         
-        characters[num].animation_object.animAtaque[0] = al_load_bitmap("p1ataque1.png");
-        characters[num].animation_object.animAtaque[1] = al_load_bitmap("p1ataque2.png");
-        characters[num].animation_object.animAtaque[2] = al_load_bitmap("p1ataque3.png");
+        characters[num].animation_object.animAtaque[0] = al_load_bitmap("personagens/p1ataque1.png");
+        characters[num].animation_object.animAtaque[1] = al_load_bitmap("personagens/p1ataque2.png");
+        characters[num].animation_object.animAtaque[2] = al_load_bitmap("personagens/p1ataque3.png");
         
-        characters[num].animation_object.animBloqueio[0] = al_load_bitmap("p1bloqueio.png");
-        characters[num].animation_object.animParado[0] = al_load_bitmap("p1parado.png");
+        characters[num].animation_object.animBloqueio[0] = al_load_bitmap("personagens/p1bloqueio.png");
+        characters[num].animation_object.animParado[0] = al_load_bitmap("personagens/p1parado.png");
         
         characters[num].animation_object.currentAnimState = STOP;
         characters[num].animation_object.currentState = IDLE;
@@ -698,7 +700,7 @@ bool begin_allegro_init() {
     
     //Trade font for Windows/Linux
     //font = al_load_font("C:/Windows/Fonts/arial.ttf", 36, 0);
-    font = al_load_font("/Library/Fonts/arial.ttf", 36, 0);
+    font = al_load_font("fonts/arial.ttf", 36, 0);
     event_queue = al_create_event_queue();
     battle_timer = al_create_timer(BATTLE_TIMER);
     world_timer = al_create_timer(WORLD_TIMER);
@@ -734,8 +736,8 @@ bool begin_allegro_init() {
     //    animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
     //    animp1[0] = al_load_bitmap("personagens/p1parado.png");
     
-    arrow = load_bitmap_at_size("rightarrow.png", 35, 35);
-    monster_arrow = load_bitmap_at_size("downarrow.png", 80, 80);
+    arrow = load_bitmap_at_size("icones/indicadordireita.png", 35, 35);
+    monster_arrow = load_bitmap_at_size("icones/indicadorbaixo.png", 80, 80);
     load_stage(current_stage);
     
     if (!arrow) {
@@ -880,18 +882,18 @@ void create_monster_animations(int index) {
             monsters[index].animation_object.currentMaxFrame = 3;
             monsters[index].animation_object.currentFrame = 0;
             monsters[index].animation_object.tick = 0;
-            monsters[index].animation_object.animations[0] = al_load_bitmap("arvore1.png");
-            monsters[index].animation_object.animations[1] = al_load_bitmap("arvore2.png");
-            monsters[index].animation_object.animations[2] = al_load_bitmap("arvore3.png");
+            monsters[index].animation_object.animations[0] = al_load_bitmap("monstros/arvore1.png");
+            monsters[index].animation_object.animations[1] = al_load_bitmap("monstros/arvore2.png");
+            monsters[index].animation_object.animations[2] = al_load_bitmap("monstros/arvore3.png");
             
             break;
         case 001:
             monsters[index].animation_object.currentMaxFrame = 3;
             monsters[index].animation_object.currentFrame = 0;
             monsters[index].animation_object.tick = 0;
-            monsters[index].animation_object.animations[0] = al_load_bitmap("cogumelo1.png");
-            monsters[index].animation_object.animations[1] = al_load_bitmap("cogumelo2.png");
-            monsters[index].animation_object.animations[2] = al_load_bitmap("cogumelo3.png");
+            monsters[index].animation_object.animations[0] = al_load_bitmap("monstros/cogumelo1.png");
+            monsters[index].animation_object.animations[1] = al_load_bitmap("monstros/cogumelo2.png");
+            monsters[index].animation_object.animations[2] = al_load_bitmap("monstros/cogumelo3.png");
             
             break;
         default:
@@ -1143,13 +1145,13 @@ void load_battle_background_at_stage(int stage) {
     
     switch (stage) {
         case 0:
-            background = al_load_bitmap("stage1.jpg");
+            background = al_load_bitmap("cenario/stage1.jpg");
             break;
         case 1:
-            background = al_load_bitmap("stage2.jpg");
+            background = al_load_bitmap("cenario/stage2.jpg");
             break;
         case 2:
-            background = al_load_bitmap("stage3.jpg");
+            background = al_load_bitmap("cenario/stage3.jpg");
             break;
         default:
             break;
@@ -1409,7 +1411,7 @@ void show_exit_screen() {
                     
                     quit_while = true;
                     break;
-            }
+ 	           }
         }
     }
     
@@ -3194,10 +3196,10 @@ void scenario() {
 
 
 //Comentado para trabalhar fora do Mac OS
-int main(int argc, char **argv) {
+//int main(int argc, char **argv) {
     
     //Comentado para trabalhar no Mac OS
-    //int main(void) {
+    int main() {
     
     
     // Init
@@ -3215,7 +3217,7 @@ int main(int argc, char **argv) {
     add_item_to_inventory(1);
     add_item_to_inventory(1);
     
-    //al_rest(1);
+   	//al_rest(1);
     show_text(0);
     scenario();
     
