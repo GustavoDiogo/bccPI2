@@ -11,7 +11,7 @@
 
 Interface
 
-Icones dos personagens
+~~Icones dos personagens~~
 
 +Função de balão de fala(Caio)
 
