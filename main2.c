@@ -42,7 +42,7 @@ int main(){
   
 
    
- 
+ //fodase
  
    display = al_create_display(640, 480);
  
