@@ -675,10 +675,8 @@ bool begin_allegro_init() {
         return false;
     }
     
-    if (!al_init_font_addon()) {
-        printf("Failed to init allegro font.");
-        return false;
-    }
+    al_init_font_addon();
+      
     
     if (!al_init_ttf_addon()) {
         printf("Failed to init allegro TFF.");

@@ -43,9 +43,13 @@ int main(){
    }
  
    /* Loop the sample until the display closes. */
+   int i;
+
    al_play_sample(sample, 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
  
-   al_rest(100.0);
+   al_rest(sample);
+
+   
  
    al_destroy_display(display);
    al_destroy_sample(sample);
