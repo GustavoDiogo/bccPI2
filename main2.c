@@ -22,7 +22,6 @@ void play(struct Playlist *playlist){
 
       int i;
       i = rand() % 7;
-      printf("O número aleatório gerado foi %d\n",i);
       al_play_sample(playlist->musica[i], 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
 
 }
