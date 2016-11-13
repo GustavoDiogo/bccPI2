@@ -5,6 +5,8 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <stdbool.h>
+#include <stdlib.h>
+
 #define tracks 8
    ALLEGRO_DISPLAY *display = NULL;
    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -14,6 +16,9 @@ struct Playlist{
    ALLEGRO_SAMPLE *musica[tracks];
 };
 void play(struct Playlist *playlist){
+      time_t t;
+      srand((unsigned)time(&t));
+      
       int i;
       i = rand() % 7;
       printf("O número aleatório gerado foi %d\n",i);
