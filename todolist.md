@@ -8,7 +8,7 @@
 
 ~~+Musicas~~
 
-~~+Função p/ músicas
+~~+Função p/ músicas~~
 
 Interface
 
