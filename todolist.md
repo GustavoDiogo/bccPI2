@@ -7,6 +7,7 @@
 +Tela de GameOver
 
 ~~+Musicas~~
+
 ~~+Função p/ músicas
 
 Interface
