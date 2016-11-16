@@ -1,4 +1,4 @@
--Remover stack de eventos na animação de ataque simples
+-Remover stack de eventos na animação de ataque simples DONE
 
 +SAVE and LOAD(Caio)
 
@@ -14,7 +14,7 @@ Interface
 
 ~~Icones dos personagens~~
 
-+Função de balão de fala(Caio)
++Função de balão de fala DONE
 
 NPCs e ~~Baús~~
 
@@ -34,3 +34,4 @@ Menu de pause
 
 Dados para RPG
 
+Fade in-out DONE
