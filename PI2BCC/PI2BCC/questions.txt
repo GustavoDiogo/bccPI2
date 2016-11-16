@@ -1,12 +1,21 @@
-2
-4
-Pergunta1
-Resposta
-Err1
-err2
-err3
 3
-pergunta2
+4
+Uma usina de reciclagem de plástico recebeu um lote de raspas de 2 tipos de plásticos, um deles com densidade 1,10 kg/L e outro com densidade 1,14 kg/L. Para efetuar a separação dos dois tipos de plásticos, foi necessário preparar 1000 L de uma solução de densidade apropriada, misturandoͲse volumes adequados de água (densidade = 1,00 kg/L) e de uma solução aquosa de NaCl,disponível no almoxarifado da usina, de densidade 1,25 kg/L. Esses volumes, em litros, podem ser:
+RespostaRespostaRespostaRespostaRespostaRespostaRespostaRespostaRespostaRespoosta
+Err1Err1Err1Err1Err1Err1Err1Err1Err1Err1Err1
+err2err2err2
+err3err3err3err3err3err3err3err3err3err3err3err3err3err3err3err3err3
+5
+Uma urna contém 3 bolas numeradas de 1 a 3 e outra urna com 5 bolas numeradas de 1 a 5. Ao retirar-se aleatoriamente uma bola de cada uma, a probabilidade da soma dos pontos ser maior do que 4 é:
 resposta2
-err1
-err2
+3/5
+2/5
+1/2
+1/3
+5
+Sabendo-se que a probabilidade de que um animal adquira certa enfermidade, no decurso de cada mês, é igual a 30%, a probabilidade de que um animal sadio venha a contrair a doença só no 3° mês é igual a:
+14,7%
+26%
+21%
+49%
+6,3%

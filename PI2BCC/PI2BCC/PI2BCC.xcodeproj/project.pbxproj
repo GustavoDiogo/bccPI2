@@ -74,6 +74,14 @@
 		FF384B571DD3F0550005BE03 /* cogumelo3.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B541DD3F0550005BE03 /* cogumelo3.png */; };
 		FF384B581DD3F0550005BE03 /* cogumelo2.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B551DD3F0550005BE03 /* cogumelo2.png */; };
 		FF384B591DD3F0550005BE03 /* cogumelo1.png in Resources */ = {isa = PBXBuildFile; fileRef = FF384B561DD3F0550005BE03 /* cogumelo1.png */; };
+		FF3D71C61DDC91AF006CB19A /* track01.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FF3D71BE1DDC91AF006CB19A /* track01.ogg */; };
+		FF3D71C71DDC91AF006CB19A /* track02.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FF3D71BF1DDC91AF006CB19A /* track02.ogg */; };
+		FF3D71C81DDC91AF006CB19A /* track03.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FF3D71C01DDC91AF006CB19A /* track03.ogg */; };
+		FF3D71C91DDC91AF006CB19A /* track04.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FF3D71C11DDC91AF006CB19A /* track04.ogg */; };
+		FF3D71CA1DDC91AF006CB19A /* track05.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FF3D71C21DDC91AF006CB19A /* track05.ogg */; };
+		FF3D71CB1DDC91AF006CB19A /* track06.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FF3D71C31DDC91AF006CB19A /* track06.ogg */; };
+		FF3D71CC1DDC91AF006CB19A /* track07.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FF3D71C41DDC91AF006CB19A /* track07.ogg */; };
+		FF3D71CD1DDC91AF006CB19A /* track08.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FF3D71C51DDC91AF006CB19A /* track08.ogg */; };
 		FF4A02131DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01EC1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */; };
 		FF4A02141DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01ED1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */; };
 		FF4A02151DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FF4A01EE1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */; };
@@ -195,6 +203,14 @@
 		FF384B541DD3F0550005BE03 /* cogumelo3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cogumelo3.png; sourceTree = "<group>"; };
 		FF384B551DD3F0550005BE03 /* cogumelo2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cogumelo2.png; sourceTree = "<group>"; };
 		FF384B561DD3F0550005BE03 /* cogumelo1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cogumelo1.png; sourceTree = "<group>"; };
+		FF3D71BE1DDC91AF006CB19A /* track01.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = track01.ogg; sourceTree = "<group>"; };
+		FF3D71BF1DDC91AF006CB19A /* track02.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = track02.ogg; sourceTree = "<group>"; };
+		FF3D71C01DDC91AF006CB19A /* track03.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = track03.ogg; sourceTree = "<group>"; };
+		FF3D71C11DDC91AF006CB19A /* track04.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = track04.ogg; sourceTree = "<group>"; };
+		FF3D71C21DDC91AF006CB19A /* track05.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = track05.ogg; sourceTree = "<group>"; };
+		FF3D71C31DDC91AF006CB19A /* track06.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = track06.ogg; sourceTree = "<group>"; };
+		FF3D71C41DDC91AF006CB19A /* track07.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = track07.ogg; sourceTree = "<group>"; };
+		FF3D71C51DDC91AF006CB19A /* track08.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = track08.ogg; sourceTree = "<group>"; };
 		FF4A01D81DB1A10C00F86B8C /* PI2BCC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PI2BCC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF4A01E61DB1A10C00F86B8C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF4A01EC1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_acodec.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_acodec.5.2.1.dylib; sourceTree = "<group>"; };
@@ -363,6 +379,21 @@
 			name = animations;
 			sourceTree = "<group>";
 		};
+		FF3D71BD1DDC91AF006CB19A /* batalha */ = {
+			isa = PBXGroup;
+			children = (
+				FF3D71BE1DDC91AF006CB19A /* track01.ogg */,
+				FF3D71BF1DDC91AF006CB19A /* track02.ogg */,
+				FF3D71C01DDC91AF006CB19A /* track03.ogg */,
+				FF3D71C11DDC91AF006CB19A /* track04.ogg */,
+				FF3D71C21DDC91AF006CB19A /* track05.ogg */,
+				FF3D71C31DDC91AF006CB19A /* track06.ogg */,
+				FF3D71C41DDC91AF006CB19A /* track07.ogg */,
+				FF3D71C51DDC91AF006CB19A /* track08.ogg */,
+			);
+			path = batalha;
+			sourceTree = "<group>";
+		};
 		FF4A01CF1DB1A10C00F86B8C = {
 			isa = PBXGroup;
 			children = (
@@ -429,6 +460,7 @@
 		FF4A01DA1DB1A10C00F86B8C /* PI2BCC */ = {
 			isa = PBXGroup;
 			children = (
+				FF3D71BD1DDC91AF006CB19A /* batalha */,
 				FF384AEF1DD341300005BE03 /* animations */,
 				FF4A02481DB1A64400F86B8C /* arial.ttf */,
 				FF4A02491DB1A64500F86B8C /* cenario */,
@@ -556,6 +588,7 @@
 			files = (
 				FF384B591DD3F0550005BE03 /* cogumelo1.png in Resources */,
 				FF384B4D1DD341E10005BE03 /* mana15.png in Resources */,
+				FF3D71CC1DDC91AF006CB19A /* track07.ogg in Resources */,
 				FF384B371DD341E10005BE03 /* fogo1.png in Resources */,
 				FF4A02571DB1A64500F86B8C /* arvore2.png in Resources */,
 				FF384AE11DCD3AF20005BE03 /* p1andando2.png in Resources */,
@@ -568,9 +601,12 @@
 				FF384B301DD341E10005BE03 /* cura15.png in Resources */,
 				FF350E981DB6E1B8000B1AB2 /* questions.rtf in Resources */,
 				FF384B281DD341E10005BE03 /* cura07.png in Resources */,
+				FF3D71C81DDC91AF006CB19A /* track03.ogg in Resources */,
 				FF384B581DD3F0550005BE03 /* cogumelo2.png in Resources */,
 				FF384AED1DD3361C0005BE03 /* rightarrow.png in Resources */,
 				FF384B291DD341E10005BE03 /* cura08.png in Resources */,
+				FF3D71CB1DDC91AF006CB19A /* track06.ogg in Resources */,
+				FF3D71C71DDC91AF006CB19A /* track02.ogg in Resources */,
 				FF384B421DD341E10005BE03 /* mana04.png in Resources */,
 				FF384B3A1DD341E10005BE03 /* fogo4.png in Resources */,
 				FF384B331DD341E10005BE03 /* cura18.png in Resources */,
@@ -579,8 +615,10 @@
 				FF384B2D1DD341E10005BE03 /* cura12.png in Resources */,
 				FF384B471DD341E10005BE03 /* mana09.png in Resources */,
 				FF384B501DD341E10005BE03 /* mana18.png in Resources */,
+				FF3D71CD1DDC91AF006CB19A /* track08.ogg in Resources */,
 				FF384B361DD341E10005BE03 /* cura21.png in Resources */,
 				FF4A02551DB1A64500F86B8C /* arrow.png in Resources */,
+				FF3D71C91DDC91AF006CB19A /* track04.ogg in Resources */,
 				FF384B2B1DD341E10005BE03 /* cura10.png in Resources */,
 				FF4A02561DB1A64500F86B8C /* arvore1.png in Resources */,
 				FF384B2F1DD341E10005BE03 /* cura14.png in Resources */,
@@ -595,6 +633,7 @@
 				FF384B3E1DD341E10005BE03 /* fogo8.png in Resources */,
 				FF384B341DD341E10005BE03 /* cura19.png in Resources */,
 				FF384B251DD341E10005BE03 /* cura04.png in Resources */,
+				FF3D71CA1DDC91AF006CB19A /* track05.ogg in Resources */,
 				FF384B3D1DD341E10005BE03 /* fogo7.png in Resources */,
 				FF384B491DD341E10005BE03 /* mana11.png in Resources */,
 				FF384B411DD341E10005BE03 /* mana03.png in Resources */,
@@ -612,6 +651,7 @@
 				FF384B221DD341E10005BE03 /* cura01.png in Resources */,
 				FF384AE21DCD3AF20005BE03 /* p1ataque1.png in Resources */,
 				FF384B431DD341E10005BE03 /* mana05.png in Resources */,
+				FF3D71C61DDC91AF006CB19A /* track01.ogg in Resources */,
 				FF384AE81DD301420005BE03 /* stage1.jpg in Resources */,
 				FF384B481DD341E10005BE03 /* mana10.png in Resources */,
 				FF384B3F1DD341E10005BE03 /* mana01.png in Resources */,

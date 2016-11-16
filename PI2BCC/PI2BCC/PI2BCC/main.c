@@ -3,15 +3,15 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-//#include "stdafx.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-//#include <allegro5\allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/events.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #define animarvore1frames 3
 #define animp1frame 1
 #define MAX_ITEMS 20
@@ -28,17 +28,18 @@
 #define WALK_SPEED_X 100
 #define WALK_SPEED_Y 80
 #define WORLD_TIMER 0.01
-#define BATTLE_TIMER 0.2
+#define BATTLE_TIMER 0.15
 #define STEPS_WALK_ANIM 20
 #define CHARACTER_HEIGHT 85
 #define CHARACTER_WIDTH 65
 #define CHAR_INTERACTION_SIZE 120
-#define WALK_MONSTER_MIN 700
-#define WALK_MONSTER_MAX 1100
+#define WALK_MONSTER_MIN 70
+#define WALK_MONSTER_MAX 110
 #define MAX_STAGES 3
 #define START_X_RIGHT 1100
 #define START_Y 550
 #define START_X_LEFT 180
+#define FADE_MAX 50
 
 const int window_height = 720;
 const int window_width = 1280;
@@ -48,7 +49,7 @@ int t_frameCount = 0;
 int t_frameDelay = 13;
 
 
-double questions_pos_y[5] = {430, 480, 530, 580, 630};
+double questions_pos_y[5] = {250, 350, 450, 550, 650};
 
 char item_list[MAX_ITEM_ID][100];
 int item_id_list[MAX_ITEM_ID];
@@ -58,6 +59,7 @@ int item_quantity = 0;
 int mon_quantity = 0;
 int char_quantity = 1;
 int current_stage = 0;
+int current_song = 0;
 int walk_interations = 0;
 int interations_to_monster = 0;
 int fx_count = 0;
@@ -65,14 +67,24 @@ bool monsters_on_walk = true;
 
 ALLEGRO_BITMAP *fxs[30];
 ALLEGRO_DISPLAY *window = NULL;
-ALLEGRO_FONT *font = NULL;
-ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+ALLEGRO_FONT *font = NULL, *question_font = NULL, *answer_font = NULL;
+ALLEGRO_EVENT_QUEUE *timer_queue = NULL;
+ALLEGRO_EVENT_QUEUE *keyboard_queue = NULL;
 ALLEGRO_TIMER *battle_timer, *world_timer;
 ALLEGRO_BITMAP *arrow = NULL;
 ALLEGRO_BITMAP *monster_arrow = NULL;
 ALLEGRO_BITMAP *background;
 
+#define tracks 8
+ALLEGRO_DISPLAY *display = NULL;
+ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+ALLEGRO_TIMER *timer;
+
 //MARK: Structs
+
+struct Playlist{
+    ALLEGRO_SAMPLE *musica[tracks];
+};
 
 enum ObjectType {
     NPC,
@@ -212,12 +224,12 @@ typedef struct monster{
 typedef struct question{
     
     int ans_num;
-    char question[100];
-    char answer[100];
-    char other1[100];
-    char other2[100];
-    char other3[100];
-    char other4[100];
+    char question[500];
+    char answer[300];
+    char other1[300];
+    char other2[300];
+    char other3[300];
+    char other4[300];
     struct question *next;
     
 }Question;
@@ -245,6 +257,7 @@ Question *current_queston;
 
 Inventory *inventory;
 
+struct Playlist Batalha;
 struct monster monsters[3];
 struct character characters[4];
 struct worldObject objects[20];
@@ -252,6 +265,26 @@ int objects_quantity = 0;
 
 
 //MARK: Database
+
+bool load_battle_tracks() {
+    
+    Batalha.musica[0] = al_load_sample( "track01.ogg" );
+    Batalha.musica[1] = al_load_sample( "track02.ogg" );
+    Batalha.musica[2] = al_load_sample( "track03.ogg" );
+    Batalha.musica[3] = al_load_sample( "track04.ogg" );
+    Batalha.musica[4] = al_load_sample( "track05.ogg" );
+    Batalha.musica[5] = al_load_sample( "track06.ogg" );
+    Batalha.musica[6] = al_load_sample( "track07.ogg" );
+    Batalha.musica[7] = al_load_sample( "track08.ogg" );
+    
+    for(int x = 0; x < tracks; x++) {
+        if(!Batalha.musica[x]) {
+            return false;
+        }
+    }
+    
+    return true;
+}
 
 const char *text_for_id(int txt_id) {
     
@@ -434,12 +467,26 @@ void load_character(int num) {
 
 //MARK: Convenience Funx
 
+void stop_tracks() {
+    //al_stop_sample(Batalha.musica[current_song]);
+    al_stop_samples();
+}
+
+void play_battle_track(){
+    time_t t;
+    srand((unsigned)time(&t));
+    
+    current_song = rand() % 7;
+    al_play_sample(Batalha.musica[current_song], 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
+    
+}
+
 
 void remove_final_character(char str[100]) {
     
     for(int x = 0; x < 100; x++) {
         if(str[x] == '\n') {
-            str[x] = ' ';
+            str[x] = '\0';
             return;
         }
     }
@@ -591,6 +638,16 @@ bool load_character_animations(int num) {
 }
 
 
+bool check_string_end(char str[], int n) {
+    
+    for(int x = n - 1; x > 0; x--) {
+        if(str[x] == '\n')
+            return true;
+    }
+    
+    return false;
+}
+
 void load_questions() {
     
     FILE *file = fopen("questions.txt", "r");
@@ -624,27 +681,54 @@ void load_questions() {
         
         new_question->ans_num = num;
         
-        fgets(new_question->question, 100, file);
-        fgets(new_question->answer, 100, file);
-        fgets(new_question->other1, 100, file);
+        fgets(new_question->question, 500, file);
         
+        if(!check_string_end(new_question->question, 500)) {
+            printf("Question exceeded the character limit.");
+        }
+        
+        fgets(new_question->answer, 300, file);
+        
+        if(!check_string_end(new_question->answer, 300)) {
+            printf("Answer exceeded the character limit.");
+        }
+        
+        fgets(new_question->other1, 300, file);
+        
+        if(!check_string_end(new_question->other1, 300)) {
+            printf("Answer exceeded the character limit.");
+        }
+        
+        //Removes \n characters
         remove_final_character(new_question->question);
         remove_final_character(new_question->answer);
         remove_final_character(new_question->other1);
         
         if(num > 2) {
             
-            fgets(new_question->other2, 100, file);
+            fgets(new_question->other2, 300, file);
+            
+            if(!check_string_end(new_question->other2, 300)) {
+                printf("Answer exceeded the character limit.");
+            }
             remove_final_character(new_question->other2);
             
             if(num > 3) {
                 
-                fgets(new_question->other3, 100, file);
+                fgets(new_question->other3, 300, file);
+                
+                if(!check_string_end(new_question->other3, 300)) {
+                    printf("Answer exceeded the character limit.");
+                }
                 remove_final_character(new_question->other3);
                 
                 if(num > 4){
                     
-                    fgets(new_question->other4, 100, file);
+                    fgets(new_question->other4, 300, file);
+                    
+                    if(!check_string_end(new_question->other4, 300)) {
+                        printf("Answer exceeded the character limit.");
+                    }
                     remove_final_character(new_question->other4);
                 }
             }
@@ -696,13 +780,31 @@ bool begin_allegro_init() {
         return false;
     }
     
+    if(!al_install_audio()){
+        fprintf(stderr, "failed to initialize audio!\n");
+        return -1;
+    }
+    
+    if(!al_init_acodec_addon()){
+        fprintf(stderr, "failed to initialize audio codecs!\n");
+        return -1;
+    }
+    
+    if (!al_reserve_samples(1)){
+        fprintf(stderr, "failed to reserve samples!\n");
+        return -1;
+    }
+    
     //inits of objects of allegro
     window = al_create_display(window_width, window_height);
     
     //Trade font for Windows/Linux
     //font = al_load_font("C:/Windows/Fonts/arial.ttf", 36, 0);
     font = al_load_font("/Library/Fonts/arial.ttf", 36, 0);
-    event_queue = al_create_event_queue();
+    question_font = al_load_font("/Library/Fonts/arial.ttf", 31, 0);
+    answer_font = al_load_font("/Library/Fonts/arial.ttf", 25, 0);
+    keyboard_queue = al_create_event_queue();
+    timer_queue = al_create_event_queue();
     battle_timer = al_create_timer(BATTLE_TIMER);
     world_timer = al_create_timer(WORLD_TIMER);
     
@@ -710,11 +812,23 @@ bool begin_allegro_init() {
         printf("Insert error here");
         return false;
     }
+    if(!question_font) {
+        printf("Insert error here");
+        return false;
+    }
+    if(!answer_font) {
+        printf("Insert error here");
+        return false;
+    }
     if (!font) {
         printf("Insert error here");
         return false;
     }
-    if (!event_queue) {
+    if (!keyboard_queue) {
+        printf("Insert error here");
+        return false;
+    }
+    if (!timer_queue) {
         printf("Insert error here");
         return false;
     }
@@ -748,6 +862,12 @@ bool begin_allegro_init() {
         return false;
     }
     if(!monster_arrow) {
+        return false;
+    }
+    
+    
+    if(!load_battle_tracks()) {
+        printf("Failed to load battle tracks.");
         return false;
     }
     
@@ -865,7 +985,9 @@ void destroy_allegro() {
     al_destroy_bitmap(arrow);
     al_destroy_display(window);
     al_destroy_font(font);
-    al_destroy_event_queue(event_queue);
+    al_destroy_font(question_font);
+    al_destroy_event_queue(keyboard_queue);
+    al_destroy_event_queue(timer_queue);
     al_destroy_timer(battle_timer);
     al_destroy_timer(world_timer);
 }
@@ -1397,7 +1519,7 @@ void show_exit_screen() {
     while (!quit_while) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
+        al_wait_for_event(keyboard_queue, &ev);
         
         if(ev.type == ALLEGRO_EVENT_KEY_DOWN) {
             switch (ev.keyboard.keycode) {
@@ -1488,33 +1610,133 @@ void draw_life_bars() {
 }
 
 
-void draw_question_box() {
+void clear_string_array(char str[7][80]) {
     
-    
-    al_draw_filled_rectangle(20, 270, 1260, 700, al_map_rgb(0, 0, 255));
-    
-    al_draw_text(font, al_map_rgb(255, 0, 0), 100, 290, ALLEGRO_ALIGN_LEFT, current_queston->question);
-    al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[0], ALLEGRO_ALIGN_LEFT, current_queston->answer);
-    al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[1], ALLEGRO_ALIGN_LEFT, current_queston->other1);
-    
-    int num = current_queston->ans_num;
-    
-    if(num > 2) {
-        
-        al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[2], ALLEGRO_ALIGN_LEFT, current_queston->other2);
-        
-        if(num > 3) {
-            
-            al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[3], ALLEGRO_ALIGN_LEFT, current_queston->other3);
-            
-            if(num > 4) {
-                
-                al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[4], ALLEGRO_ALIGN_LEFT, current_queston->other4);
-                
-            }
-            
+    for(int x = 0; x < 7; x++) {
+        for(int y = 0; y < 80; y++) {
+            str[x][y] = ' ';
         }
         
+        str[x][79] = '\0';
+    }
+    
+}
+
+//Type: 0 - question
+// 1 - answer 1...
+//...
+
+int get_string_array(char str[7][80], int lines, int type) {
+    
+    clear_string_array(str);
+    
+    int max_line = 80, index = 0, end_line = 0;
+    bool end = false;
+    
+    for(int x = 0; x < lines; x++) {
+        for(int y = 0; y < max_line - 2; y++) {
+            
+            switch (type) {
+                case 0:
+                    str[x][y] = current_queston->question[index];
+                    break;
+                case 1:
+                    str[x][y] = current_queston->answer[index];
+                    break;
+                case 2:
+                    str[x][y] = current_queston->other1[index];
+                    break;
+                case 3:
+                    str[x][y] = current_queston->other2[index];
+                    break;
+                case 4:
+                    str[x][y] = current_queston->other3[index];
+                    break;
+                case 5:
+                    str[x][y] = current_queston->other4[index];
+                    break;
+            }
+            
+            index++;
+            
+            if(str[x][y] == '\0') {
+                //str0[y][(y * max_line) + x] = ' ';
+                end_line = x;
+                end = true;
+                break;
+            }
+        }
+        
+        //Ignores auto adjust
+        //str[x][78] = '-';
+        //str[x][79] = '\0';
+        
+        //Auto adjust the entire word to the next array
+        for(int z = max_line - 1; z >= 0; z--) {
+            if(str[x][z] == ' ') {
+                
+                while(z < max_line - 1) {
+                    z++;
+                    str[x][z] = ' ';
+                }
+                
+                str[x][z] = '\0';
+                break;
+            }
+            
+            //else str[x][z] = ' ';
+            
+            index--;
+            
+            if(z == 0) {
+                index--;
+            }
+        }
+        
+        if(end) {
+            break;
+        }
+    }
+    
+    return end_line;
+}
+
+void draw_question_box() {
+    
+    //Draw the big box
+    al_draw_filled_rectangle(20, 20, 1260, 700, al_map_rgb(0, 0, 255));
+    
+    int end_line = 0;
+    
+    char str[7][80];
+    
+    //Drawing question text
+    end_line = get_string_array(str, 7, 0);
+    
+    al_draw_text(question_font, al_map_rgb(255, 0, 0), 90, 40, ALLEGRO_ALIGN_LEFT, str[0]);
+    
+    for(int x = 1; x <= end_line; x++) {
+        al_draw_text(question_font, al_map_rgb(255, 0, 0), 40, 40 + (x * 35), ALLEGRO_ALIGN_LEFT, str[x]);
+    }
+    
+    //Drawing answers text
+    int num = current_queston->ans_num;
+    
+    
+//    end_line = get_string_array(str, 2, 1);
+//    
+//    for(int x = 0; x <= end_line; x++) {
+//        al_draw_text(answer_font, al_map_rgb(255, 0, 0), 200, questions_pos_y[qst] + (x * 30), ALLEGRO_ALIGN_LEFT, str[x]);
+//    }
+    
+    for(int y = 0; y < num; y++) {
+        end_line = get_string_array(str, 2, y + 1);
+        
+        al_draw_text(answer_font, al_map_rgb(255, 0, 0), 200, questions_pos_y[y], ALLEGRO_ALIGN_LEFT, str[0]);
+        
+        for(int x = 1; x <= end_line; x++) {
+            al_draw_text(answer_font, al_map_rgb(255, 0, 0), 200, questions_pos_y[y] + (30 * x), ALLEGRO_ALIGN_LEFT, str[x]);
+        }
     }
 }
 
@@ -1677,29 +1899,8 @@ void draw_arrow_with(bool sel_x, bool sel_y) {
 
 void draw_question_arrow(int num) {
     
-    double x = 140, y;
-    
-    switch (num) {
-        case 0:
-            y = 430;
-            break;
-        case 1:
-            y = 480;
-            break;
-        case 2:
-            y = 530;
-            break;
-        case 3:
-            y = 580;
-            break;
-        case 4:
-            y = 630;
-            break;
-        default:
-            return;
-            break;
-    }
-    
+    double x = 140, y = 320 + (70 * num);
+
     al_draw_bitmap(arrow, x, y, 0);
     
 }
@@ -1797,6 +1998,34 @@ void show_dialogue_screen_with_id(int dialogue_id) {
 }
 
 //MARK: Animations
+
+void fade_in() {
+    
+    double radius = window_width * 1.7;
+    
+    for(int x = 0; x < FADE_MAX; x++) {
+        
+        al_draw_circle((double)window_width / 2, (double)window_height / 2, window_width / 2, al_map_rgb(0, 0, 0), (radius / FADE_MAX) * x);
+        al_flip_display();
+        al_rest(0.01);
+    }
+}
+
+void fade_out_for(void (*draw)() ) {
+    
+    double radius = window_width * 1.7;
+    
+    for(int x = FADE_MAX - 1; x >= 0; x--) {
+        
+        draw();
+        al_draw_circle((double)window_width / 2, (double)window_height / 2, window_width / 2, al_map_rgb(0, 0, 0), (radius / FADE_MAX) * x);
+        al_flip_display();
+        al_rest(0.01);
+    }
+    
+}
+
+
 
 
 void draw_character_stopped(int chara) {
@@ -1927,14 +2156,15 @@ void execute_fx_animation(double seconds, int fx_id, int idx, bool monster) {
     ALLEGRO_TIMER *ani_timer = al_create_timer(seconds / (double)fx_count);
     
     al_stop_timer(battle_timer);
-    al_register_event_source(event_queue, al_get_timer_event_source(ani_timer));
+    al_register_event_source(timer_queue, al_get_timer_event_source(ani_timer));
+    al_flush_event_queue(timer_queue);
     al_start_timer(ani_timer);
     
     
     while(1) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
+        al_wait_for_event(timer_queue, &ev);
         
         if(ev.type == ALLEGRO_EVENT_TIMER) {
             
@@ -1967,6 +2197,7 @@ void execute_fx_animation(double seconds, int fx_id, int idx, bool monster) {
         
     }
     
+    printf("End of FX\n");
     
     al_stop_timer(ani_timer);
     al_destroy_timer(ani_timer);
@@ -1997,13 +2228,18 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
     
     //Stops the timer from battle so it doesnt interfere with the animation
     al_stop_timer(battle_timer);
-    al_register_event_source(event_queue, al_get_timer_event_source(ani_timer));
+    al_flush_event_queue(timer_queue);
+    
+    ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+    al_register_event_source(queue, al_get_timer_event_source(ani_timer));
     al_start_timer(ani_timer);
     
     while(1) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
+        
+        al_wait_for_event(queue, &ev);
+        //al_wait_for_event_timed(timer_queue, &ev, 0.01);
         
         if(ev.type == ALLEGRO_EVENT_TIMER) {
             draw_background();
@@ -2030,8 +2266,6 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
             
             if(frame >= interactions) {
                 
-                al_stop_timer(ani_timer);
-                
                 if(backing) {
                     break;
                 }
@@ -2040,6 +2274,11 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
                     backing = true;
                     frame = 19;
                 }
+                
+                al_flush_event_queue(queue);
+                al_pause_event_queue(queue, true);
+                //al_stop_timer(ani_timer);
+                
                 
                 int z = 0;
                 
@@ -2064,13 +2303,19 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
                 change_x = -change_x;
                 change_y = -change_y;
                 
-                al_flush_event_queue(event_queue);
-                al_start_timer(ani_timer);
+                if(al_is_event_queue_empty(queue)) {
+                    printf("HOOOOOWWWW???/");
+                }
+                
+                //al_start_timer(ani_timer);
+                al_pause_event_queue(queue, false);
+                
             }
         }
     }
     
     //Destroy the timer and starts again the battle one
+    al_destroy_event_queue(queue);
     al_destroy_timer(ani_timer);
     al_start_timer(battle_timer);
 }
@@ -2086,7 +2331,7 @@ void random_question_positions(int answer_pos, int quantity) {
     int x;
     
     for(x = 0; x < quantity; x++) {
-        y_values[x] = 430 + (50 * x);
+        y_values[x] = 320 + (70 * x);
     }
     
     questions_pos_y[0] = y_values[answer_pos];
@@ -2135,7 +2380,7 @@ int show_question() {
         while(1) {
             
             ALLEGRO_EVENT ev;
-            al_wait_for_event(event_queue, &ev);
+            al_wait_for_event(keyboard_queue, &ev);
             
             if(ev.type == ALLEGRO_EVENT_KEY_DOWN) {
                 switch (ev.keyboard.keycode) {
@@ -2404,7 +2649,8 @@ int battle_selection_loop(int quantity, bool monster_selection) {
     while(!monster_selected) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
+        
+        al_wait_for_event(keyboard_queue, &ev);
         
         if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
             
@@ -2476,6 +2722,16 @@ int battle_selection_loop(int quantity, bool monster_selection) {
 }
 
 
+void draw_main_battle() {
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+    draw_background();
+    draw_character_info(0);
+    draw_arrow_with(0, 0);
+    draw_all_characters();
+    draw_all_monsters();
+    draw_life_bars();
+}
+
 // -1 -> ERROR
 // 1 -> VICTORY
 // 2 -> GAME OVER
@@ -2521,10 +2777,19 @@ int begin_battle(int mon_id, int mon_num) {
     bool selected_y = false;
     bool enter_pressed = false;
     
-    draw_arrow_with(selected_x, selected_y);
-    
     bool battle_on = true;
     
+    //Fade in
+    fade_in();
+    
+    //Start song
+    play_battle_track();
+    
+    //Fade out
+    fade_out_for(draw_main_battle);
+    
+    
+    draw_arrow_with(selected_x, selected_y);
     
     //MARK: Main loop battle
     while(battle_on) {
@@ -2537,52 +2802,63 @@ int begin_battle(int mon_id, int mon_num) {
         
         //Wait for command
         while (!enter_pressed) {
+            
             ALLEGRO_EVENT ev;
-            al_wait_for_event(event_queue, &ev);
             
-            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if(!al_event_queue_is_empty(keyboard_queue)) {
+                al_get_next_event(keyboard_queue, &ev);
                 
-                switch (ev.keyboard.keycode) {
-                        
-                    case ALLEGRO_KEY_UP:
-                        selected_y = !selected_y;
-                        draw_arrow_with(selected_x, selected_y);
-                        break;
-                    case ALLEGRO_KEY_DOWN:
-                        selected_y = !selected_y;
-                        draw_arrow_with(selected_x, selected_y);
-                        break;
-                    case ALLEGRO_KEY_LEFT:
-                        selected_x = !selected_x;
-                        draw_arrow_with(selected_x, selected_y);
-                        break;
-                    case ALLEGRO_KEY_RIGHT:
-                        selected_x = !selected_x;
-                        draw_arrow_with(selected_x, selected_y);
-                        break;
-                    case ALLEGRO_KEY_ENTER:
-                        enter_pressed = true;
-                        break;
-                    case ALLEGRO_KEY_ESCAPE:
-                        show_exit_screen();
-                        break;
+                if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                    
+                    switch (ev.keyboard.keycode) {
+                            
+                        case ALLEGRO_KEY_UP:
+                            selected_y = !selected_y;
+                            draw_arrow_with(selected_x, selected_y);
+                            break;
+                        case ALLEGRO_KEY_DOWN:
+                            selected_y = !selected_y;
+                            draw_arrow_with(selected_x, selected_y);
+                            break;
+                        case ALLEGRO_KEY_LEFT:
+                            selected_x = !selected_x;
+                            draw_arrow_with(selected_x, selected_y);
+                            break;
+                        case ALLEGRO_KEY_RIGHT:
+                            selected_x = !selected_x;
+                            draw_arrow_with(selected_x, selected_y);
+                            break;
+                        case ALLEGRO_KEY_ENTER:
+                            enter_pressed = true;
+                            break;
+                        case ALLEGRO_KEY_ESCAPE:
+                            show_exit_screen();
+                            break;
+                    }
+                    
+                    //printf("Flip key\n");
+                    //al_flip_display();
                 }
-                
-                al_flip_display();
             }
             
-            //Timer to animate monsters
-            else if (ev.type == ALLEGRO_EVENT_TIMER) {
-                al_clear_to_color(al_map_rgb(255, 255, 255));
-                draw_background();
-                draw_character_info(character_acting);
-                draw_arrow_with(selected_x, selected_y);
-                update_animation_character(character_acting);
-                update_animations_monsters();
-                draw_life_bars();
-                al_flip_display();
+            else if(!al_event_queue_is_empty(timer_queue)) {
+                al_get_next_event(timer_queue, &ev);
+                al_flush_event_queue(timer_queue);
                 
+                if (ev.type == ALLEGRO_EVENT_TIMER) {
+                    al_clear_to_color(al_map_rgb(255, 255, 255));
+                    draw_background();
+                    draw_character_info(character_acting);
+                    draw_arrow_with(selected_x, selected_y);
+                    update_animation_character(character_acting);
+                    update_animations_monsters();
+                    draw_life_bars();
+                    //printf("Flip timer\n");
+                    al_flip_display();
+                }
             }
+            
+            al_rest(0.005);
         }
         
         //BEGIN QUESTION
@@ -2641,7 +2917,7 @@ int begin_battle(int mon_id, int mon_num) {
                     while(!item_selected && !cancell) {
                         
                         ALLEGRO_EVENT ev;
-                        al_wait_for_event(event_queue, &ev);
+                        al_wait_for_event(keyboard_queue, &ev);
                         
                         if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
                             
@@ -2730,7 +3006,7 @@ int begin_battle(int mon_id, int mon_num) {
                     while(!skill_selected && !cancell) {
                         
                         ALLEGRO_EVENT ev;
-                        al_wait_for_event(event_queue, &ev);
+                        al_wait_for_event(keyboard_queue, &ev);
                         
                         if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
                             
@@ -2837,6 +3113,17 @@ int begin_battle(int mon_id, int mon_num) {
         }
     }
     
+    printf("Ending battle");
+    
+    draw_main_battle();
+    al_flip_display();
+    
+    //Fade in
+    fade_in();
+    
+    //Stop battle music
+    stop_tracks();
+    
     //Stops battle timer and restart world timer
     al_stop_timer(battle_timer);
     al_start_timer(world_timer);
@@ -2872,7 +3159,7 @@ void show_text(int text_id) {
     
     while (1) {
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
+        al_wait_for_event(keyboard_queue, &ev);
         
         if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
             
@@ -2910,8 +3197,9 @@ void execute_action_for_object(int obj) {
                 show_gameover_screen();
             }
             
-            else if(battle_result == 1) {
-                add_exp_to_characters();
+            else if(battle_result == 1 || battle_result == 3) {
+                //add_exp_to_characters();
+                fade_out_for(draw_main_character_on_position);
             }
             
             break;
@@ -3061,8 +3349,14 @@ int walk_character(bool up, bool down, bool left, bool right) {
             if(walk_interations >= interations_to_monster) {
                 walk_interations = 0;
                 set_new_interations_to_monster();
-                begin_battle(monster_id_on_stage(current_stage), rand_lim(MAX_MONSTERS));
-                al_flush_event_queue(event_queue);
+                
+                int num = rand_lim(MAX_MONSTERS);
+                if(num == 0)
+                    num = 1;
+                
+                begin_battle(monster_id_on_stage(current_stage), num);
+                
+                fade_out_for(draw_main_character_on_position);
                 
                 return 2;
             }
@@ -3095,97 +3389,100 @@ void scenario() {
     while (1) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
         
-        if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+        if(!al_event_queue_is_empty(keyboard_queue)) {
+            al_get_next_event(keyboard_queue, &ev);
             
-            switch (ev.keyboard.keycode) {
-                    
-                case ALLEGRO_KEY_UP:
-                    up = true;
-                    break;
-                case ALLEGRO_KEY_DOWN:
-                    down = true;
-                    break;
-                case ALLEGRO_KEY_LEFT:
-                    left = true;
-                    break;
-                case ALLEGRO_KEY_RIGHT:
-                    right = true;
-                    break;
-                case ALLEGRO_KEY_ENTER:
-                    check_character_interaction();
-                    break;
-                case ALLEGRO_KEY_ESCAPE:
-                    show_exit_screen();
-                    break;
+            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                
+                switch (ev.keyboard.keycode) {
+                        
+                    case ALLEGRO_KEY_UP:
+                        up = true;
+                        break;
+                    case ALLEGRO_KEY_DOWN:
+                        down = true;
+                        break;
+                    case ALLEGRO_KEY_LEFT:
+                        left = true;
+                        break;
+                    case ALLEGRO_KEY_RIGHT:
+                        right = true;
+                        break;
+                    case ALLEGRO_KEY_ENTER:
+                        check_character_interaction();
+                        break;
+                    case ALLEGRO_KEY_ESCAPE:
+                        show_exit_screen();
+                        break;
+                }
+                
             }
-
+            
+            else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
+                
+                switch (ev.keyboard.keycode) {
+                        
+                    case ALLEGRO_KEY_UP:
+                        up = false;
+                        break;
+                    case ALLEGRO_KEY_DOWN:
+                        down = false;
+                        break;
+                    case ALLEGRO_KEY_LEFT:
+                        left = false;
+                        break;
+                    case ALLEGRO_KEY_RIGHT:
+                        right = false;
+                        break;
+                }
+                
+            }
         }
         
-        else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
+        else if(!al_event_queue_is_empty(timer_queue)) {
+            al_get_next_event(timer_queue, &ev);
             
-            switch (ev.keyboard.keycode) {
-                    
-                case ALLEGRO_KEY_UP:
+            if (ev.type == ALLEGRO_EVENT_TIMER) {
+                int action = walk_character(up, down, left, right);
+                
+                //Reset keys after battle
+                if(action == 2) {
                     up = false;
-                    break;
-                case ALLEGRO_KEY_DOWN:
                     down = false;
-                    break;
-                case ALLEGRO_KEY_LEFT:
                     left = false;
-                    break;
-                case ALLEGRO_KEY_RIGHT:
                     right = false;
-                    break;
-                case ALLEGRO_KEY_ESCAPE:
-                    show_exit_screen();
-                    break;
-            }
-
-        }
-        
-        else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            
-            int action = walk_character(up, down, left, right);
-            
-            //Reset keys after battle
-            if(action == 2) {
-                up = false;
-                down = false;
-                left = false;
-                right = false;
-            }
-            
-            else if(action == 1) {
-                if(current_stage + 1 < MAX_STAGES) {
-                    current_stage++;
-                    characters[0].animation_object.x = START_X_RIGHT;
-                    characters[0].animation_object.y = START_Y;
-                    load_stage(current_stage);
-                    
-                    //INSERT TRANSICTION HERE!
-                }
-                //ENDING OF THE GAME
-                else {
-                
-                }
-            }
-            
-            else if(action == -1) {
-                if(current_stage - 1 >= 0) {
-                    current_stage--;
-                    characters[0].animation_object.x = START_X_LEFT;
-                    characters[0].animation_object.y = START_Y;
-                    load_stage(current_stage);
-                    
-                    //INSERT TRANSICTION HERE!
                 }
                 
-                //BEGINNING OF THE GAME
-                else {
+                else if(action == 1) {
+                    if(current_stage + 1 < MAX_STAGES) {
+                        current_stage++;
+                        characters[0].animation_object.x = START_X_RIGHT;
+                        characters[0].animation_object.y = START_Y;
+                        load_stage(current_stage);
+                        
+                        //INSERT TRANSICTION HERE!
+                    }
+                    //ENDING OF THE GAME
+                    else {
+                        
+                    }
+                }
+                
+                else if(action == -1) {
+                    if(current_stage - 1 >= 0) {
+                        current_stage--;
+                        characters[0].animation_object.x = START_X_LEFT;
+                        characters[0].animation_object.y = START_Y;
+                        load_stage(current_stage);
+                        
+                        //INSERT TRANSICTION HERE!
+                    }
                     
+                    //BEGINNING OF THE GAME
+                    else {
+                        
+                    }
                 }
             }
         }
@@ -3208,9 +3505,9 @@ int main(int argc, char **argv) {
         return -1;
     }
     
-    al_register_event_source(event_queue, al_get_timer_event_source(battle_timer));
-    al_register_event_source(event_queue, al_get_timer_event_source(world_timer));
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
+    al_register_event_source(timer_queue, al_get_timer_event_source(battle_timer));
+    al_register_event_source(timer_queue, al_get_timer_event_source(world_timer));
+    al_register_event_source(keyboard_queue, al_get_keyboard_event_source());
     
     add_skill_to_character(0, 1, 0);
     add_item_to_inventory(1);
