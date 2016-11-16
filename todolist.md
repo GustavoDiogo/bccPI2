@@ -6,6 +6,8 @@
 
 +Tela de GameOver
 
++Tela de loading
+
 ~~+Musicas~~
 
 ~~+Função p/ músicas~~
