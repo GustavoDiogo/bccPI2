@@ -6,21 +6,11 @@
 
 +Tela de GameOver
 
-+Tela de loading
-
-~~+Musicas~~
-
-~~+Função p/ músicas~~
+~~+Tela de loading~~
 
 Interface
 
-~~Icones dos personagens~~
-
-+Função de balão de fala DONE
-
-NPCs e ~~Baús~~
-
-~~Animação melhor e maior para fogo~~
+NPCs
 
 +BOSS
 
@@ -36,4 +26,3 @@ Menu de pause
 
 Dados para RPG
 
-Fade in-out DONE
