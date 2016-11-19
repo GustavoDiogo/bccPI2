@@ -1,7 +1,5 @@
 #To do
 
--Remover stack de eventos na animação de ataque simples DONE
-
 +SAVE and LOAD(Caio)
 
 +Menu Principal com Opções(Caio)
