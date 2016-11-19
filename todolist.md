@@ -12,8 +12,6 @@ Interface
 
 Flick da animação dos monstros ao mudar de seleção na batalha(Caio)
 
-+Mais monstros
-
 +Como introduzir novos personagens(Caio)
 
 Menu de pause
@@ -25,6 +23,8 @@ Dados para RPG
 +TELA DE LOADING(esta no cenario)
 
 +Bosses
+
++Mais monstros
 
 +NPCs(Já tem o segurança e o professor, creio que está de bom tamanho)
 
