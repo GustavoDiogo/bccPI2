@@ -4,8 +4,6 @@
 
 +Menu Principal com Opções(Caio)
 
-+Tela de GameOver
-
 Interface
 
 +Melhorar fotos para posicionar personagens e monstros (Area de movimento em baixo com paisagem no fundo)(Caio)
@@ -21,6 +19,7 @@ Dados para RPG
 #Recently Done
 
 +TELA DE LOADING(esta no cenario)
++Tela de GameOver(cenario)
 
 +Bosses
 
