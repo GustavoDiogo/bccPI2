@@ -1,5 +1,7 @@
 #To do
 
+-Testes, Testes e mais testes!
+
 -Opções (Opcional)
 
 +Como introduzir novos personagens(Caio)
