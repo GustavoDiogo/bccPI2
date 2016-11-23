@@ -3928,7 +3928,8 @@ int begin_battle(int mon_id, int mon_num) {
                     
                     animate_attack_on_monster(character_acting, selected, 1.5);
                     
-                    monsters[selected].hp -= characters[character_acting].atk - monsters[selected].def;
+                    if(characters[character_acting].atk - monsters[selected].def > 0)
+                        monsters[selected].hp -= characters[character_acting].atk - monsters[selected].def;
                     
                     draw_life_bars();
                 }
@@ -4122,7 +4123,7 @@ int begin_battle(int mon_id, int mon_num) {
                         else  {
                             target = battle_selection_loop(mon_num, false);
                             //MARK: NEED FUNCTION FOR HEALING
-                            //user_skill_on_character(target, character_acting, selected);
+                            //use_skill_on_character(target, character_acting, selected);
                         }
                         
                     }
@@ -4152,6 +4153,18 @@ int begin_battle(int mon_id, int mon_num) {
             if(boss_fight)
                 execute_fx_animation(1.5, 004, rand_lim(char_quantity - 1), false);
             else execute_fx_animation(1.5, 003, rand_lim(char_quantity - 1), false);
+            
+            if(monsters[0].atk > monsters[0].matak) {
+                if(monsters[0].atk - characters[character_acting].def > 0) {
+                    characters[character_acting].hp -= (monsters[0].atk - characters[character_acting].def);
+                }
+            }
+            
+            else {
+                if(monsters[0].matak - characters[character_acting].mdef > 0) {
+                    characters[character_acting].hp -= (monsters[0].matak - characters[character_acting].mdef);
+                }
+            }
             
             characters[character_acting].hp -= (monsters[0].atk - characters[character_acting].def);
             
