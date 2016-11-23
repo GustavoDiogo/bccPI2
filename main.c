@@ -1,16 +1,18 @@
+// ConsoleApplication2.cpp : Defines the entry point for the console application.
+//
+
 #include <stdio.h>
 #include <stdbool.h>
-//#include "stdafx.h"
+#include <math.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-//#include <allegro5\allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/events.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
-
-
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 #define animarvore1frames 3
 #define animp1frame 1
 #define MAX_ITEMS 20
@@ -22,22 +24,26 @@
 #define PER1_ANIM_ATACK 3
 #define PER1_ANIM_BLOCK 1
 #define PER1_ANIM_STOP 1
-#define MONSTER_ANIM_MAX 5
+#define MONSTER_ANIM_MAX 12
 #define MAX_WALK_Y 420
-#define WALK_SPEED_X 100
-#define WALK_SPEED_Y 80
+#define WALK_SPEED_X 110
+#define WALK_SPEED_Y 85
 #define WORLD_TIMER 0.01
-#define BATTLE_TIMER 0.2
+#define BATTLE_TIMER 0.01
+#define MONSTER_ANIM_DELAY 0.25
 #define STEPS_WALK_ANIM 20
 #define CHARACTER_HEIGHT 85
 #define CHARACTER_WIDTH 65
 #define CHAR_INTERACTION_SIZE 120
-#define WALK_MONSTER_MIN 700
-#define WALK_MONSTER_MAX 1100
-#define MAX_STAGES 3
+#define WALK_MONSTER_MIN 400
+#define WALK_MONSTER_MAX 600
+#define MAX_STAGES 18
 #define START_X_RIGHT 1100
 #define START_Y 550
 #define START_X_LEFT 180
+#define FADE_MAX 50
+#define ICON_WIDTH 100
+#define ICON_HEIGHT 100
 
 const int window_height = 720;
 const int window_width = 1280;
@@ -47,7 +53,7 @@ int t_frameCount = 0;
 int t_frameDelay = 13;
 
 
-double questions_pos_y[5] = {430, 480, 530, 580, 630};
+double questions_pos_y[5] = {250, 350, 450, 550, 650};
 
 char item_list[MAX_ITEM_ID][100];
 int item_id_list[MAX_ITEM_ID];
@@ -57,21 +63,44 @@ int item_quantity = 0;
 int mon_quantity = 0;
 int char_quantity = 1;
 int current_stage = 0;
+int current_song = 0;
+int char_icon_num = -1;
 int walk_interations = 0;
 int interations_to_monster = 0;
 int fx_count = 0;
+int loaded_battle_tracks = 0;
+int loaded_stage_tracks = 0;
 bool monsters_on_walk = true;
+bool is_on_battle = true;
+bool boss_fight = false;
+bool game_over = false;
+bool boss_defeated[3] = {false, false, false};
 
+
+ALLEGRO_COLOR interface_color, font_color;
+ALLEGRO_THREAD *monster_anim_thread = NULL, *load_songs = NULL;
 ALLEGRO_BITMAP *fxs[30];
 ALLEGRO_DISPLAY *window = NULL;
-ALLEGRO_FONT *font = NULL;
-ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+ALLEGRO_FONT *font = NULL, *question_font = NULL, *answer_font = NULL;
+ALLEGRO_EVENT_QUEUE *timer_queue = NULL;
+ALLEGRO_EVENT_QUEUE *keyboard_queue = NULL;
 ALLEGRO_TIMER *battle_timer, *world_timer;
-ALLEGRO_BITMAP *arrow = NULL;
+ALLEGRO_BITMAP *arrow = NULL, *main_arrow = NULL;
 ALLEGRO_BITMAP *monster_arrow = NULL;
-ALLEGRO_BITMAP *background;
+ALLEGRO_BITMAP *background, *sup_screen, *char_icon;
+
+#define btracks 8
+ALLEGRO_DISPLAY *display = NULL;
+ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+ALLEGRO_TIMER *timer;
+
+void add_skill_to_character(int chara, int skill_id, int index);
 
 //MARK: Structs
+
+struct Playlist{
+    ALLEGRO_SAMPLE *musica[btracks];
+};
 
 enum ObjectType {
     NPC,
@@ -211,12 +240,12 @@ typedef struct monster{
 typedef struct question{
     
     int ans_num;
-    char question[100];
-    char answer[100];
-    char other1[100];
-    char other2[100];
-    char other3[100];
-    char other4[100];
+    char question[500];
+    char answer[300];
+    char other1[300];
+    char other2[300];
+    char other3[300];
+    char other4[300];
     struct question *next;
     
 }Question;
@@ -244,19 +273,296 @@ Question *current_queston;
 
 Inventory *inventory;
 
+struct Playlist Batalha;
+struct Playlist Stage;
 struct monster monsters[3];
 struct character characters[4];
 struct worldObject objects[20];
 int objects_quantity = 0;
 
 
+//MARK: Convenience Funx
+
+
+void remove_final_character(char str[100]) {
+    
+    for(int x = 0; x < 100; x++) {
+        if(str[x] == '\n') {
+            str[x] = '\0';
+            return;
+        }
+    }
+    
+}
+
+int rand_lim(int limit) {
+    /* return a random number between 0 and limit inclusive.
+     */
+    
+    int divisor = RAND_MAX/(limit+1);
+    int retval;
+    
+    do {
+        retval = rand() / divisor;
+    } while (retval > limit);
+    
+    return retval;
+}
+
+
+ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h) {
+    
+    ALLEGRO_BITMAP *resized_bmp, *loaded_bmp, *prev_target;
+    
+    // 1. create a temporary bitmap of size we want
+    resized_bmp = al_create_bitmap(w, h);
+    if (!resized_bmp) return NULL;
+    
+    // 2. load the bitmap at the original size
+    loaded_bmp = al_load_bitmap(filename);
+    if (!loaded_bmp)
+    {
+        al_destroy_bitmap(resized_bmp);
+        return NULL;
+    }
+    
+    // 3. set the target bitmap to the resized bmp
+    prev_target = al_get_target_bitmap();
+    al_set_target_bitmap(resized_bmp);
+    
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+    //al_draw_filled_rectangle(0, 0, w, h, al_map_rgba_f(1, 1, 1, 0.5));
+    
+    // 4. copy the loaded bitmap to the resized bmp
+    al_draw_scaled_bitmap(loaded_bmp,
+                          0, 0,                                // source origin
+                          al_get_bitmap_width(loaded_bmp),     // source width
+                          al_get_bitmap_height(loaded_bmp),    // source height
+                          0, 0,                                // target origin
+                          w, h,                                // target dimensions
+                          0                                    // flags
+                          );
+    
+    // 5. restore the previous target and clean up
+    al_set_blender(ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_INVERSE_ALPHA);
+    al_set_target_bitmap(prev_target);
+    al_destroy_bitmap(loaded_bmp);
+    
+    return resized_bmp;
+}
+
 //MARK: Database
+
+
+void clear_all_objects() {
+    
+    objects_quantity = 0;
+    
+    for(int x = 0; x < 20; x++) {
+        objects[0].action_id = -1;
+    }
+    
+}
+
+void load_objects_on_stage(int stage) {
+  
+// Format of object
+//    ALLEGRO_BITMAP *bitmap;
+//    int x1;
+//    int y1;
+//    int x2;
+//    int y2;
+//    
+//    int action_id;
+//    int action_quantity;
+//    
+//    enum ObjectType object_type;
+    
+    
+    clear_all_objects();
+    
+    if(stage == 0) {
+        objects_quantity = 1;
+        objects[0].bitmap = al_load_bitmap("personagens/segurancaparado.png");
+        
+        if(!objects[0].bitmap) {
+            printf("Error on object");
+            return;
+        }
+        
+        double h = al_get_bitmap_height(objects[0].bitmap);
+        double w = al_get_bitmap_width(objects[0].bitmap);
+        objects[0].x1 = 800;
+        objects[0].x2 = 800 + w;
+        objects[0].y1 = 500;
+        objects[0].y2 = 500 + h;
+        
+        objects[0].object_type = NPC;
+        objects[0].action_id = 4;
+    }
+    
+    //BOSS 1
+    if(stage == 3) {
+        objects_quantity = 1;
+        objects[0].bitmap = al_load_bitmap("monstros/arvoreboss1.png");
+        
+        if(!objects[0].bitmap) {
+            printf("Error on object");
+            return;
+        }
+        
+        double h = al_get_bitmap_height(objects[0].bitmap);
+        double w = al_get_bitmap_width(objects[0].bitmap);
+        objects[0].x1 = 400;
+        objects[0].x2 = 400 + w;
+        objects[0].y1 = 300;
+        objects[0].y2 = 300 + h;
+        
+        objects[0].object_type = MONSTER;
+        objects[0].action_id = 100;
+        objects[0].action_quantity = 1;
+    }
+    
+    //BOSS 2
+    if(stage == 7) {
+        objects_quantity = 1;
+        objects[0].bitmap = al_load_bitmap("monstros/boloboss1.png");
+        
+        if(!objects[0].bitmap) {
+            printf("Error on object");
+            return;
+        }
+        
+        double h = al_get_bitmap_height(objects[0].bitmap);
+        double w = al_get_bitmap_width(objects[0].bitmap);
+        objects[0].x1 = 400;
+        objects[0].x2 = 400 + w;
+        objects[0].y1 = 300;
+        objects[0].y2 = 300 + h;
+        
+        objects[0].object_type = MONSTER;
+        objects[0].action_id = 200;
+        objects[0].action_quantity = 1;
+    }
+    
+    //BOSS 3
+    if(stage == 17) {
+        objects_quantity = 1;
+        objects[0].bitmap = al_load_bitmap("monstros/roboboss1.png");
+        
+        if(!objects[0].bitmap) {
+            printf("Error on object");
+            return;
+        }
+        
+        double h = al_get_bitmap_height(objects[0].bitmap);
+        double w = al_get_bitmap_width(objects[0].bitmap);
+        objects[0].x1 = 400;
+        objects[0].x2 = 400 + w;
+        objects[0].y1 = 400;
+        objects[0].y2 = 400 + h;
+        
+        objects[0].object_type = MONSTER;
+        objects[0].action_id = 300;
+        objects[0].action_quantity = 1;
+    }
+    
+}
+
+
+ALLEGRO_BITMAP *get_char_icon(int num) {
+    
+    switch (num) {
+        case 0:
+            return load_bitmap_at_size("icones/p1icone.png", ICON_WIDTH, ICON_HEIGHT);
+            break;
+        case 1:
+            return load_bitmap_at_size("icones/p2icone.png", ICON_WIDTH, ICON_HEIGHT);
+            break;
+            
+        default:
+            break;
+    }
+ 
+    return NULL;
+}
+
+bool load_stage_tracks() {
+    
+    Stage.musica[0] = al_load_sample( "musicas/trilhasonora/track01.ogg" );
+    loaded_stage_tracks++;
+    Stage.musica[1] = al_load_sample( "musicas/trilhasonora/track02.ogg" );
+    loaded_stage_tracks++;
+    Stage.musica[2] = al_load_sample( "musicas/trilhasonora/track03.ogg" );
+    loaded_stage_tracks++;
+    Stage.musica[3] = al_load_sample( "musicas/trilhasonora/track04.ogg" );
+    loaded_stage_tracks++;
+    Stage.musica[4] = al_load_sample( "musicas/trilhasonora/track05.ogg" );
+    loaded_stage_tracks++;
+    Stage.musica[5] = al_load_sample( "musicas/trilhasonora/track06.ogg" );
+    loaded_stage_tracks++;
+    Stage.musica[6] = al_load_sample( "musicas/trilhasonora/track07.ogg" );
+    loaded_stage_tracks++;
+    Stage.musica[7] = al_load_sample( "musicas/trilhasonora/track08.ogg" );
+    loaded_stage_tracks++;
+    
+    for(int x = 0; x < btracks; x++) {
+        if(!Stage.musica[x]) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+bool load_battle_tracks() {
+    
+    Batalha.musica[0] = al_load_sample( "musicas/batalha/track01.ogg" );
+    loaded_battle_tracks++;
+    Batalha.musica[1] = al_load_sample( "musicas/batalha/track02.ogg" );
+    loaded_battle_tracks++;
+    Batalha.musica[2] = al_load_sample( "musicas/batalha/track03.ogg" );
+    loaded_battle_tracks++;
+    Batalha.musica[3] = al_load_sample( "musicas/batalha/track04.ogg" );
+    loaded_battle_tracks++;
+    Batalha.musica[4] = al_load_sample( "musicas/batalha/track05.ogg" );
+    loaded_battle_tracks++;
+    Batalha.musica[5] = al_load_sample( "musicas/batalha/track06.ogg" );
+    loaded_battle_tracks++;
+    Batalha.musica[6] = al_load_sample( "musicas/batalha/track07.ogg" );
+    loaded_battle_tracks++;
+    Batalha.musica[7] = al_load_sample( "musicas/batalha/track08.ogg" );
+    loaded_battle_tracks++;
+    
+    for(int x = 0; x < btracks; x++) {
+        if(!Batalha.musica[x]) {
+            return false;
+        }
+    }
+    
+    return true;
+}
 
 const char *text_for_id(int txt_id) {
     
     switch (txt_id) {
-        case 0:
+        case 1:
+            return "Personagem não possui nenhuma habilidade!";
+            break;
+        case 2:
+            return "Você não possui nenhum item!";
+            break;
+        case 3:
+            return "Não há mana suficiente para usar a habilidade!";
+            break;
+        case 4:
             return "Ei, cuidado! O Senac está sendo invadido por monstros!";
+            break;
+        case 5:
+            return "Olá, vou te acompanhar nessa aventura!";
+            break;
+        case 6:
+            return "Você não pode fugir deste monstro!";
             break;
         default:
             return "";
@@ -343,7 +649,32 @@ void load_fx_animation(int ani_id) {
             fxs[19] = al_load_bitmap("efeitos/cura20.png");
             fxs[20] = al_load_bitmap("efeitos/cura21.png");
             break;
+            //Simple Tree attack
+        case 3:
+            fx_count = 8;
+            fxs[0] = load_bitmap_at_size("efeitos/ataquearvoreboss1.png", CHARACTER_HEIGHT, CHARACTER_HEIGHT);
+            fxs[1] = load_bitmap_at_size("efeitos/ataquearvoreboss2.png", CHARACTER_HEIGHT, CHARACTER_HEIGHT);
+            fxs[2] = load_bitmap_at_size("efeitos/ataquearvoreboss3.png", CHARACTER_HEIGHT, CHARACTER_HEIGHT);
+            fxs[3] = load_bitmap_at_size("efeitos/ataquearvoreboss4.png", CHARACTER_HEIGHT, CHARACTER_HEIGHT);
+            fxs[4] = load_bitmap_at_size("efeitos/ataquearvoreboss5.png", CHARACTER_HEIGHT, CHARACTER_HEIGHT);
+            fxs[5] = load_bitmap_at_size("efeitos/ataquearvoreboss6.png", CHARACTER_HEIGHT, CHARACTER_HEIGHT);
+            fxs[6] = load_bitmap_at_size("efeitos/ataquearvoreboss7.png", CHARACTER_HEIGHT, CHARACTER_HEIGHT);
+            fxs[7] = load_bitmap_at_size("efeitos/ataquearvoreboss8.png", CHARACTER_HEIGHT, CHARACTER_HEIGHT);
+
+            break;
+            //Boss Tree attack
+        case 4:
+            fx_count = 8;
+            fxs[0] = al_load_bitmap("efeitos/ataquearvoreboss1.png");
+            fxs[1] = al_load_bitmap("efeitos/ataquearvoreboss2.png");
+            fxs[2] = al_load_bitmap("efeitos/ataquearvoreboss3.png");
+            fxs[3] = al_load_bitmap("efeitos/ataquearvoreboss4.png");
+            fxs[4] = al_load_bitmap("efeitos/ataquearvoreboss5.png");
+            fxs[5] = al_load_bitmap("efeitos/ataquearvoreboss6.png");
+            fxs[6] = al_load_bitmap("efeitos/ataquearvoreboss7.png");
+            fxs[7] = al_load_bitmap("efeitos/ataquearvoreboss8.png");
             
+            break;
         default:
             fx_count = 0;
             break;
@@ -360,67 +691,88 @@ void load_fx_animation(int ani_id) {
 
 int monster_id_on_stage(int stage) {
     
-    switch (stage) {
-        case 0:
-            return 000;
-            break;
-        case 1:
-            return 000;
-            break;
-        case 2:
-            return 000;
-            break;
-        default:
-            return 0;
-            break;
-    }
+    return stage / 2;
 }
 
 int exp_needed_for_level(int level) {
     
-    return level * 100;
+    return 50 + (level * 50);
 }
 
 
 void load_stage(int stage) {
     
+    load_objects_on_stage(current_stage);
+    
     if(background) {
         al_destroy_bitmap(background);
     }
     
-    switch (stage) {
-        case 0:
-            background = al_load_bitmap("cenario/stage1.jpg");
-            break;
-        case 1:
-            background = al_load_bitmap("cenario/stage2.jpg");
-            break;
-        case 2:
-            background = al_load_bitmap("cenario/stage3.jpg");
-            break;
-        default:
-            break;
-    }
+    char string[20];
     
+    sprintf(string, "cenario/stage%d.jpg", stage+1);
+    
+    background = al_load_bitmap(string);
+    
+    if(!background) {
+        printf("Failed to load background");
+    }
 }
 
 
-void load_character(int num) {
+void set_char_values_for_level(int num, int level) {
     
     switch (num) {
         case 0:
             characters[0].id = 0;
+            characters[0].level = level;
             characters[0].name[0] = ' ';
-            characters[0].hp = 100;
-            characters[0].maxhp = 100;
-            characters[0].sp = 25;
-            characters[0].maxsp = 25;
-            characters[0].atk = 100;
-            characters[0].def = 70;
-            characters[0].matak = 5;
-            characters[0].mdef = 25;
-            characters[0].level = 1;
+            characters[0].hp = 65 + (level * 35);
+            characters[0].maxhp = 65 + (level * 35);
+            characters[0].sp = 20 + (level * 2);
+            characters[0].maxsp = 20 + (level * 2);
+            characters[0].atk = 90 + (level * 10);
+            characters[0].def = 67 + (level * 3);
+            characters[0].matak = 1 + (level * 1);
+            characters[0].mdef = 23 + (level * 2);
             characters[0].exp = 0;
+            
+            //Ataque triplo at level 10
+            if(level >= 10) {
+                if(characters[0].skills[0].id <= 0) {
+                    add_skill_to_character(0, 001, 0);
+                }
+            }
+            
+            
+            break;
+        case 1:
+            characters[1].id = 1;
+            characters[1].level = level;
+            characters[1].name[0] = ' ';
+            characters[1].hp = 55 + (level * 15);
+            characters[1].maxhp = 55 + (level * 15);
+            characters[1].sp = 50 + (level * 20);
+            characters[1].maxsp = 50 + (level * 20);
+            characters[1].atk = 5 + (level * 1);
+            characters[1].def = 20 + (level * 2);
+            characters[1].matak = 70 + (level * 10);
+            characters[1].mdef = 70 + (level * 2);
+            characters[1].exp = 0;
+            
+            //Bola de Fogo at level 2
+            if(level >= 2) {
+                if(characters[1].skills[0].id <= 0) {
+                    add_skill_to_character(1, 002, 0);
+                }
+            }
+            
+            //Cura at level 10
+            if(level >= 10) {
+                if(characters[1].skills[1].id <= 0) {
+                    add_skill_to_character(1, 003, 1);
+                }
+            }
             break;
             
         default:
@@ -430,71 +782,42 @@ void load_character(int num) {
 }
 
 
+//MARK: Soundtracks
 
-//MARK: Convenience Funx
+void stop_tracks() {
+    //al_stop_sample(Batalha.musica[current_song]);
+    al_stop_samples();
+}
 
-
-void remove_final_character(char str[100]) {
+void play_battle_track(){
     
-    for(int x = 0; x < 100; x++) {
-        if(str[x] == '\n') {
-            str[x] = ' ';
-            return;
-        }
-    }
+    current_song = rand_lim(loaded_battle_tracks - 1);
+    printf("song: %d\n", current_song);
+    
+    if(Batalha.musica[current_song])
+        al_play_sample(Batalha.musica[current_song], 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
     
 }
 
-int rand_lim(int limit) {
-    /* return a random number between 0 and limit inclusive.
-     */
+void play_stage_track(){
     
-    int divisor = RAND_MAX/(limit+1);
-    int retval;
+    current_song = rand_lim(loaded_stage_tracks - 1);
+    printf("song: %d\n", current_song);
     
-    do {
-        retval = rand() / divisor;
-    } while (retval > limit);
+    if(Stage.musica[current_song])
+        al_play_sample(Stage.musica[current_song], 1.0, 0.0,1.0,ALLEGRO_PLAYMODE_LOOP,NULL);
     
-    return retval;
 }
 
+//MARK: Load Musics Thread
 
-ALLEGRO_BITMAP *load_bitmap_at_size(const char *filename, int w, int h) {
+void *t_load_tracks(ALLEGRO_THREAD *thr, void *dados) {
     
-    ALLEGRO_BITMAP *resized_bmp, *loaded_bmp, *prev_target;
+    load_stage_tracks();
+    load_battle_tracks();
     
-    // 1. create a temporary bitmap of size we want
-    resized_bmp = al_create_bitmap(w, h);
-    if (!resized_bmp) return NULL;
-    
-    // 2. load the bitmap at the original size
-    loaded_bmp = al_load_bitmap(filename);
-    if (!loaded_bmp)
-    {
-        al_destroy_bitmap(resized_bmp);
-        return NULL;
-    }
-    
-    // 3. set the target bitmap to the resized bmp
-    prev_target = al_get_target_bitmap();
-    al_set_target_bitmap(resized_bmp);
-    
-    // 4. copy the loaded bitmap to the resized bmp
-    al_draw_scaled_bitmap(loaded_bmp,
-                          0, 0,                                // source origin
-                          al_get_bitmap_width(loaded_bmp),     // source width
-                          al_get_bitmap_height(loaded_bmp),    // source height
-                          0, 0,                                // target origin
-                          w, h,                                // target dimensions
-                          0                                    // flags
-                          );
-    
-    // 5. restore the previous target and clean up
-    al_set_target_bitmap(prev_target);
-    al_destroy_bitmap(loaded_bmp);
-    
-    return resized_bmp;
+    al_destroy_thread(load_songs);
+    return NULL;
 }
 
 //MARK: Inits
@@ -536,59 +859,51 @@ bool load_character_animations(int num) {
         
     }
     
-    if (!characters[num].animation_object.animAndar[0])
-    {
-        printf("Erro ao carregar Struct do Personagem! animAndar0\n");
-        al_destroy_display(window);
-        return false;
+    else if(num == 1) {
+        
+        characters[num].animation_object.x = START_X_RIGHT;
+        characters[num].animation_object.y = START_Y;
+        
+        characters[num].animation_object.tick = 0;
+        
+        characters[num].animation_object.currentFrame = 0;
+        characters[num].animation_object.frameRate = 10;
+        
+        characters[num].animation_object.animAndar[0] = al_load_bitmap("personagens/p2andando1.png");
+        characters[num].animation_object.animAndar[1] = al_load_bitmap("personagens/p2andando2.png");
+        
+        characters[num].animation_object.animAtaque[0] = al_load_bitmap("personagens/p2ataque1.png");
+        characters[num].animation_object.animAtaque[1] = al_load_bitmap("personagens/p2ataque2.png");
+        characters[num].animation_object.animAtaque[2] = al_load_bitmap("personagens/p2ataque3.png");
+        
+        characters[num].animation_object.animBloqueio[0] = al_load_bitmap("personagens/p2bloqueio.png");
+        characters[num].animation_object.animParado[0] = al_load_bitmap("personagens/p2parado.png");
+        
+        characters[num].animation_object.currentAnimState = STOP;
+        characters[num].animation_object.currentState = IDLE;
+        
+        characters[num].animation_object.invert = false;
+        
+        characters[num].animation_object.bAttackAnimController = false;
+        characters[num].animation_object.walkSpeed = 0;
+        
     }
     
-    if (!characters[num].animation_object.animAndar[1])
-    {
-        printf("Erro ao carregar Struct do Personagem! animAndar1\n");
-        al_destroy_display(window);
-        return false;
-    }
-    
-    if (!characters[num].animation_object.animAtaque[0])
-    {
-        printf("Erro ao carregar Struct do Personagem! animAtaque0\n");
-        al_destroy_display(window);
-        return false;
-    }
-    
-    if (!characters[num].animation_object.animAtaque[1])
-    {
-        printf("Erro ao carregar Struct do Personagem! animAtaque1\n");
-        al_destroy_display(window);
-        return false;
-    }
-    
-    if (!characters[num].animation_object.animAtaque[2])
-    {
-        printf("Erro ao carregar Struct do Personagem! animAtaque2\n");
-        al_destroy_display(window);
-        return false;
-    }
-    
-    if (!characters[num].animation_object.animBloqueio[0])
-    {
-        printf("Erro ao carregar Struct do Personagem! animBloqueio0\n");
-        al_destroy_display(window);
-        return false;
-    }
-    
-    if (!characters[num].animation_object.animParado[0])
-    {
-        printf("Erro ao carregar Struct do Personagem! animParado0\n");
-        al_destroy_display(window);
-        return false;
-    }
 
     return true;
     
 }
 
+
+bool check_string_end(char str[], int n) {
+    
+    for(int x = n - 1; x > 0; x--) {
+        if(str[x] == '\n' || str[x] == '\0')
+            return true;
+    }
+    
+    return false;
+}
 
 void load_questions() {
     
@@ -623,27 +938,54 @@ void load_questions() {
         
         new_question->ans_num = num;
         
-        fgets(new_question->question, 100, file);
-        fgets(new_question->answer, 100, file);
-        fgets(new_question->other1, 100, file);
+        fgets(new_question->question, 500, file);
         
+        if(!check_string_end(new_question->question, 500)) {
+            printf("Question exceeded the character limit.");
+        }
+        
+        fgets(new_question->answer, 300, file);
+        
+        if(!check_string_end(new_question->answer, 300)) {
+            printf("Answer exceeded the character limit.");
+        }
+        
+        fgets(new_question->other1, 300, file);
+        
+        if(!check_string_end(new_question->other1, 300)) {
+            printf("Answer exceeded the character limit.");
+        }
+        
+        //Removes \n characters
         remove_final_character(new_question->question);
         remove_final_character(new_question->answer);
         remove_final_character(new_question->other1);
         
         if(num > 2) {
             
-            fgets(new_question->other2, 100, file);
+            fgets(new_question->other2, 300, file);
+            
+            if(!check_string_end(new_question->other2, 300)) {
+                printf("Answer exceeded the character limit.");
+            }
             remove_final_character(new_question->other2);
             
             if(num > 3) {
                 
-                fgets(new_question->other3, 100, file);
+                fgets(new_question->other3, 300, file);
+                
+                if(!check_string_end(new_question->other3, 300)) {
+                    printf("Answer exceeded the character limit.");
+                }
                 remove_final_character(new_question->other3);
                 
                 if(num > 4){
                     
-                    fgets(new_question->other4, 100, file);
+                    fgets(new_question->other4, 300, file);
+                    
+                    if(!check_string_end(new_question->other4, 300)) {
+                        printf("Answer exceeded the character limit.");
+                    }
                     remove_final_character(new_question->other4);
                 }
             }
@@ -675,8 +1017,10 @@ bool begin_allegro_init() {
         return false;
     }
     
-    al_init_font_addon();
-      
+    if (!al_init_font_addon()) {
+        printf("Failed to init allegro font.");
+        return false;
+    }
     
     if (!al_init_ttf_addon()) {
         printf("Failed to init allegro TFF.");
@@ -693,17 +1037,46 @@ bool begin_allegro_init() {
         return false;
     }
     
+    if(!al_install_audio()){
+        fprintf(stderr, "failed to initialize audio!\n");
+        return -1;
+    }
+    
+    if(!al_init_acodec_addon()){
+        fprintf(stderr, "failed to initialize audio codecs!\n");
+        return -1;
+    }
+    
+    if (!al_reserve_samples(1)){
+        fprintf(stderr, "failed to reserve samples!\n");
+        return -1;
+    }
+    
     //inits of objects of allegro
     window = al_create_display(window_width, window_height);
     
     //Trade font for Windows/Linux
     //font = al_load_font("C:/Windows/Fonts/arial.ttf", 36, 0);
     font = al_load_font("fonts/arial.ttf", 36, 0);
-    event_queue = al_create_event_queue();
+    question_font = al_load_font("fonts/arial.ttf", 31, 0);
+    answer_font = al_load_font("fonts/arial.ttf", 25, 0);
+    keyboard_queue = al_create_event_queue();
+    timer_queue = al_create_event_queue();
     battle_timer = al_create_timer(BATTLE_TIMER);
     world_timer = al_create_timer(WORLD_TIMER);
+    interface_color = al_map_rgba(113, 24, 52, 200);
+    font_color = al_map_rgba(255, 255, 255, 255);
+    
     
     if (!window) {
+        printf("Insert error here");
+        return false;
+    }
+    if(!question_font) {
+        printf("Insert error here");
+        return false;
+    }
+    if(!answer_font) {
         printf("Insert error here");
         return false;
     }
@@ -711,7 +1084,11 @@ bool begin_allegro_init() {
         printf("Insert error here");
         return false;
     }
-    if (!event_queue) {
+    if (!keyboard_queue) {
+        printf("Insert error here");
+        return false;
+    }
+    if (!timer_queue) {
         printf("Insert error here");
         return false;
     }
@@ -734,10 +1111,23 @@ bool begin_allegro_init() {
     //    animarvore1[2] = al_load_bitmap("monstros/arvore3.png");
     //    animp1[0] = al_load_bitmap("personagens/p1parado.png");
     
+    //Load loading screen
+    sup_screen = al_load_bitmap("cenario/Loading.jpg");
+    
+    if(!sup_screen) {
+        return false;
+    }
+    al_draw_bitmap(sup_screen, 0, 0, 0);
+    al_flip_display();
+    
     arrow = load_bitmap_at_size("icones/indicadordireita.png", 35, 35);
+    main_arrow = load_bitmap_at_size("icones/indicadordireita.png", 55, 55);
     monster_arrow = load_bitmap_at_size("icones/indicadorbaixo.png", 80, 80);
     load_stage(current_stage);
     
+    if(!main_arrow) {
+        return false;
+    }
     if (!arrow) {
         return false;
     }
@@ -747,6 +1137,9 @@ bool begin_allegro_init() {
     if(!monster_arrow) {
         return false;
     }
+    
+    load_songs = al_create_thread(t_load_tracks, NULL);
+    al_start_thread(load_songs);
     
     al_clear_to_color(al_map_rgb(255, 255, 255));
     al_flip_display();
@@ -774,7 +1167,7 @@ bool begin_allegro_init() {
         }
     }
     
-    load_character(0);
+    set_char_values_for_level(0, 1);
     
     //Check animations loading
     if(!load_character_animations(0)) {
@@ -860,11 +1253,16 @@ void destroy_allegro() {
     al_destroy_bitmap(monster_arrow);
     al_destroy_bitmap(background);
     al_destroy_bitmap(arrow);
+    al_destroy_bitmap(main_arrow);
     al_destroy_display(window);
     al_destroy_font(font);
-    al_destroy_event_queue(event_queue);
+    al_destroy_font(question_font);
+    al_destroy_event_queue(keyboard_queue);
+    al_destroy_event_queue(timer_queue);
     al_destroy_timer(battle_timer);
     al_destroy_timer(world_timer);
+
+    exit(0);
 }
 
 //MARK: Create Objects Identifier
@@ -879,20 +1277,141 @@ void create_monster_animations(int index) {
             
             monsters[index].animation_object.currentMaxFrame = 3;
             monsters[index].animation_object.currentFrame = 0;
-            monsters[index].animation_object.tick = 0;
+            
             monsters[index].animation_object.animations[0] = al_load_bitmap("monstros/arvore1.png");
             monsters[index].animation_object.animations[1] = al_load_bitmap("monstros/arvore2.png");
             monsters[index].animation_object.animations[2] = al_load_bitmap("monstros/arvore3.png");
-            
             break;
+            
+            //Cogumelo
         case 001:
             monsters[index].animation_object.currentMaxFrame = 3;
             monsters[index].animation_object.currentFrame = 0;
-            monsters[index].animation_object.tick = 0;
+            
             monsters[index].animation_object.animations[0] = al_load_bitmap("monstros/cogumelo1.png");
             monsters[index].animation_object.animations[1] = al_load_bitmap("monstros/cogumelo2.png");
             monsters[index].animation_object.animations[2] = al_load_bitmap("monstros/cogumelo3.png");
             
+            //Arvore BOSS
+        case 100:
+            monsters[index].animation_object.currentMaxFrame = 12;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 12; x++) {
+                char str[30];
+                sprintf(str, "monstros/arvoreboss%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Melancia
+        case 002:
+            monsters[index].animation_object.currentMaxFrame = 4;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 4; x++) {
+                char str[30];
+                sprintf(str, "monstros/melancia%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Biscoito
+        case 003:
+            monsters[index].animation_object.currentMaxFrame = 8;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 8; x++) {
+                char str[30];
+                sprintf(str, "monstros/biscoito%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Bolo BOSS
+        case 200:
+            monsters[index].animation_object.currentMaxFrame = 4;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 4; x++) {
+                char str[30];
+                sprintf(str, "monstros/boloboss%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Caveira
+        case 004:
+            monsters[index].animation_object.currentMaxFrame = 4;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 4; x++) {
+                char str[30];
+                sprintf(str, "monstros/caveira%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Fantasma
+        case 005:
+            monsters[index].animation_object.currentMaxFrame = 6;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 6; x++) {
+                char str[30];
+                sprintf(str, "monstros/fantasma%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Caveira
+        case 006:
+            monsters[index].animation_object.currentMaxFrame = 4;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 4; x++) {
+                char str[30];
+                sprintf(str, "monstros/caveira%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Robo
+        case 007:
+            monsters[index].animation_object.currentMaxFrame = 6;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 6; x++) {
+                char str[30];
+                sprintf(str, "monstros/robo%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Robo
+        case 8:
+            monsters[index].animation_object.currentMaxFrame = 6;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 6; x++) {
+                char str[30];
+                sprintf(str, "monstros/robo%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Robo
+        case 9:
+            monsters[index].animation_object.currentMaxFrame = 6;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 6; x++) {
+                char str[30];
+                sprintf(str, "monstros/robo%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
+            break;
+            //Robo BOSS
+        case 300:
+            monsters[index].animation_object.currentMaxFrame = 6;
+            monsters[index].animation_object.currentFrame = 0;
+            
+            for(int x = 1; x <= 6; x++) {
+                char str[30];
+                sprintf(str, "monstros/roboboss%d.png", x);
+                monsters[index].animation_object.animations[x-1] = al_load_bitmap(str);
+            }
             break;
         default:
             printf("No monster ID found.");
@@ -909,7 +1428,6 @@ void create_monster_animations(int index) {
 
 
 void create_monster(int mon_id, int index) {
-    
     
     switch (mon_id) {
             
@@ -931,7 +1449,6 @@ void create_monster(int mon_id, int index) {
             monsters[index].mdef = 10;
             monsters[index].exp = 50;
             
-            create_monster_animations(index);
             break;
             
             //Cogumelo
@@ -954,13 +1471,135 @@ void create_monster(int mon_id, int index) {
             monsters[index].mdef = 5;
             monsters[index].exp = 20;
             
-            create_monster_animations(index);
             break;
-            
+            //Arvore BOSS
+        case 100:
+            monsters[index].id = 100;
+            monsters[index].hp = 1000;
+            monsters[index].maxhp = 1000;
+            monsters[index].atk = 180;
+            monsters[index].def = 60;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 20;
+            monsters[index].exp = 500;
+            break;
+            //Melancia
+        case 002:
+            monsters[index].id = 2;
+            monsters[index].hp = 200;
+            monsters[index].maxhp = 200;
+            monsters[index].atk = 130;
+            monsters[index].def = 60;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 40;
+            monsters[index].exp = 90;
+            break;
+            //Biscoito
+        case 003:
+            monsters[index].id = 3;
+            monsters[index].hp = 280;
+            monsters[index].maxhp = 280;
+            monsters[index].atk = 0;
+            monsters[index].def = 40;
+            monsters[index].matak = 150;
+            monsters[index].mdef = 100;
+            monsters[index].exp = 120;
+            break;
+            //Bolo BOSS
+        case 200:
+            monsters[index].id = 200;
+            monsters[index].hp = 2500;
+            monsters[index].maxhp = 2500;
+            monsters[index].atk = 0;
+            monsters[index].def = 200;
+            monsters[index].matak = 250;
+            monsters[index].mdef = 200;
+            monsters[index].exp = 1000;
+            break;
+            //Caveira
+        case 004:
+            monsters[index].id = 4;
+            monsters[index].hp = 530;
+            monsters[index].maxhp = 530;
+            monsters[index].atk = 200;
+            monsters[index].def = 110;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 110;
+            monsters[index].exp = 256;
+            break;
+            //Fantasma
+        case 005:
+            monsters[index].id = 5;
+            monsters[index].hp = 280;
+            monsters[index].maxhp = 695;
+            monsters[index].atk = 0;
+            monsters[index].def = 999;
+            monsters[index].matak = 280;
+            monsters[index].mdef = 50;
+            monsters[index].exp = 190;
+            break;
+            //Caveira
+        case 006:
+            monsters[index].id = 6;
+            monsters[index].hp = 890;
+            monsters[index].maxhp = 890;
+            monsters[index].atk = 250;
+            monsters[index].def = 130;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 130;
+            monsters[index].exp = 314;
+            break;
+            //Robo
+        case 007:
+            monsters[index].id = 7;
+            monsters[index].hp = 1240;
+            monsters[index].maxhp = 1240;
+            monsters[index].atk = 350;
+            monsters[index].def = 200;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 200;
+            monsters[index].exp = 555;
+            break;
+            //Robo
+        case 8:
+            monsters[index].id = 8;
+            monsters[index].hp = 1599;
+            monsters[index].maxhp = 1599;
+            monsters[index].atk = 380;
+            monsters[index].def = 240;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 240;
+            monsters[index].exp = 777;
+            break;
+            //Robo
+        case 9:
+            monsters[index].id = 9;
+            monsters[index].hp = 2060;
+            monsters[index].maxhp = 2060;
+            monsters[index].atk = 410;
+            monsters[index].def = 280;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 280;
+            monsters[index].exp = 999;
+            break;
+            //Robo BOSS
+        case 300:
+            monsters[index].id = 300;
+            monsters[index].hp = 10985;
+            monsters[index].maxhp = 10985;
+            monsters[index].atk = 700;
+            monsters[index].def = 390;
+            monsters[index].matak = 0;
+            monsters[index].mdef = 9999;
+            monsters[index].exp = 9999;
+            break;
         default:
             printf("No monster ID found.");
             break;
     }
+    
+    
+    create_monster_animations(index);
     
     switch (index) {
         case 0:
@@ -984,6 +1623,7 @@ void create_monster(int mon_id, int index) {
 
 
 void set_item_name(int item_index) {
+
     
     switch (inventory->items[item_index].id) {
             
@@ -993,54 +1633,36 @@ void set_item_name(int item_index) {
             
             //Poção de HP
         case 1:
-            inventory->items[item_index].name[0] = 'P';
-            inventory->items[item_index].name[1] = 'o';
-            inventory->items[item_index].name[2] = 'c';
-            inventory->items[item_index].name[3] = 'a';
-            inventory->items[item_index].name[4] = 'o';
-            inventory->items[item_index].name[5] = ' ';
-            inventory->items[item_index].name[6] = 'd';
-            inventory->items[item_index].name[7] = 'e';
-            inventory->items[item_index].name[8] = ' ';
-            inventory->items[item_index].name[9] = 'H';
-            inventory->items[item_index].name[10] = 'P';
-            inventory->items[item_index].name[11] = '\n';
+            
+            sprintf(inventory->items[item_index].name, "Poção de HP\n");
             inventory->items[item_index].hp = 70;
             inventory->items[item_index].sp = 0;
             break;
             //Poção de SP
         case 2:
-            inventory->items[item_index].name[0] = 'P';
-            inventory->items[item_index].name[1] = 'o';
-            inventory->items[item_index].name[2] = 'c';
-            inventory->items[item_index].name[3] = 'a';
-            inventory->items[item_index].name[4] = 'o';
-            inventory->items[item_index].name[5] = ' ';
-            inventory->items[item_index].name[6] = 'd';
-            inventory->items[item_index].name[7] = 'e';
-            inventory->items[item_index].name[8] = ' ';
-            inventory->items[item_index].name[9] = 'S';
-            inventory->items[item_index].name[10] = 'P';
-            inventory->items[item_index].name[11] = '\n';
+            
+            sprintf(inventory->items[item_index].name, "Poção de SP\n");
             inventory->items[item_index].hp = 0;
-            inventory->items[item_index].sp = 30;
+            inventory->items[item_index].sp = 100;
             break;
             //Poção de HP & SP
         case 3:
-            inventory->items[item_index].name[0] = 'P';
-            inventory->items[item_index].name[1] = 'o';
-            inventory->items[item_index].name[2] = 'c';
-            inventory->items[item_index].name[3] = 'a';
-            inventory->items[item_index].name[4] = 'o';
-            inventory->items[item_index].name[5] = ' ';
-            inventory->items[item_index].name[6] = 'M';
-            inventory->items[item_index].name[7] = 'i';
-            inventory->items[item_index].name[8] = 's';
-            inventory->items[item_index].name[9] = 't';
-            inventory->items[item_index].name[10] = 'a';
-            inventory->items[item_index].name[11] = '\n';
-            inventory->items[item_index].hp = 30;
-            inventory->items[item_index].sp = 12;
+            
+            sprintf(inventory->items[item_index].name, "Poção Mista\n");
+            inventory->items[item_index].hp = 35;
+            inventory->items[item_index].sp = 50;
+            break;
+        case 4:
+            
+            sprintf(inventory->items[item_index].name, "Super Poção de HP\n");
+            inventory->items[item_index].hp = 500;
+            inventory->items[item_index].sp = 0;
+            break;
+        case 5:
+            
+            sprintf(inventory->items[item_index].name, "Super Poção de SP\n");
+            inventory->items[item_index].hp = 0;
+            inventory->items[item_index].sp = 500;
             break;
     }
     
@@ -1141,19 +1763,10 @@ void load_battle_background_at_stage(int stage) {
         al_destroy_bitmap(background);
     }
     
-    switch (stage) {
-        case 0:
-            background = al_load_bitmap("cenario/stage1.jpg");
-            break;
-        case 1:
-            background = al_load_bitmap("cenario/stage2.jpg");
-            break;
-        case 2:
-            background = al_load_bitmap("cenario/stage3.jpg");
-            break;
-        default:
-            break;
-    }
+    char str[20];
+    
+    sprintf(str, "cenario/stage%d.jpg", stage + 1);
+    background = al_load_bitmap(str);
     
     if(!background) {
         printf("Problem loading the battle background.\n");
@@ -1233,26 +1846,32 @@ void load_skill(int chara, int index) {
             
             //Ataque Triplo
         case 1:
-            characters[chara].skills[index].name[0] = 'A';
-            characters[chara].skills[index].name[1] = 't';
-            characters[chara].skills[index].name[2] = 'a';
-            characters[chara].skills[index].name[3] = 'q';
-            characters[chara].skills[index].name[4] = 'u';
-            characters[chara].skills[index].name[5] = 'e';
-            characters[chara].skills[index].name[6] = ' ';
-            characters[chara].skills[index].name[7] = 'T';
-            characters[chara].skills[index].name[8] = 'r';
-            characters[chara].skills[index].name[9] = 'i';
-            characters[chara].skills[index].name[10] = 'p';
-            characters[chara].skills[index].name[11] = 'l';
-            characters[chara].skills[index].name[12] = 'o';
-            characters[chara].skills[index].name[13] = '\n';
+            sprintf(characters[chara].skills[index].name, "Ataque Triplo");
             
             characters[chara].skills[index].atk = 1.3;
             characters[chara].skills[index].matak = 0.0;
             characters[chara].skills[index].mana_cost = 10;
+            characters[chara].skills[index].fx_id = -1;
+            characters[chara].skills[index].target_monster = true;
+            //Bola de Fogo
+        case 2:
+            
+            sprintf(characters[chara].skills[index].name, "Bola de Fogo");
+            
+            characters[chara].skills[index].atk = 0.0;
+            characters[chara].skills[index].matak = 1.5;
+            characters[chara].skills[index].mana_cost = 50;
             characters[chara].skills[index].fx_id = 0;
             characters[chara].skills[index].target_monster = true;
+            //Cura
+        case 3:
+            sprintf(characters[chara].skills[index].name, "Curar");
+            
+            characters[chara].skills[index].atk = 0.0;
+            characters[chara].skills[index].matak = 1.0;
+            characters[chara].skills[index].mana_cost = 70;
+            characters[chara].skills[index].fx_id = 2;
+            characters[chara].skills[index].target_monster = false;
             
             break;
     }
@@ -1335,36 +1954,417 @@ void load_skill_list(int index) {
 
 //MARK: Exit Screen and Saves
 
+bool char_is_not_number(char c) {
+    
+    if(c == '0' ||c == '1' ||c == '2' ||c == '3' ||c == '4' ||c == '5' ||c == '6' ||c == '7' ||c == '8' ||c == '9') {
+        return false;
+    }
+    
+    else return true;
+    
+}
+
+void fill_array_with_letter(char array[70]) {
+    
+    for(int x = 0;x < 70; x++) {
+        array[x] = 'e';
+    }
+}
+
 void load_saved_game() {
     
-    add_item_to_inventory(0);
-    add_item_to_inventory(0);
-    add_item_to_inventory(0);
+    FILE *file = fopen("save1.txt", "r");
     
-    current_stage = 1;
-    char_quantity = 2;
+    if(!file) {
+        printf("No save file found.");
+        fclose(file);
+        return;
+    }
     
-    characters[0].level = 3;
-    characters[1].level = 5;
-    characters[0].hp = 30;
-    characters[1].hp = 50;
-    characters[0].sp = 30;
-    characters[1].sp = 50;
-    characters[0].exp = 300;
-    characters[1].exp = 500;
-    add_skill_to_character(0, 1, 0);
-    add_skill_to_character(1, 1, 0);
+    int x = 0;
+    
+    char read[70];
+    
+    //Load Items
+    fill_array_with_letter(read);
+    fgets(read, 70, file);
+    
+    while(1) {
+        
+        if(char_is_not_number(read[x])) {
+            break;
+        }
+        
+        int mult = 1, id = 0;
+        
+        for(int y = 0; y < 3; y++) {
+            id += (read[x + y] - '0') * mult;
+            mult = mult * 10;
+        }
+        
+        add_item_to_inventory(id);
+        x += 3;
+    }
+    
+    //Load Stage
+    x = 0;
+    fill_array_with_letter(read);
+    fgets(read, 70, file);
+    
+    int mult = 1, stage = 0;
+    
+    for(int y = 0; y < 3; y++) {
+        stage += (read[x + y] - '0') * mult;
+        mult = mult * 10;
+    }
+    
+    current_stage = stage;
+    
+    //Load Character count
+    fgets(read, 70, file);
+    char_quantity = read[0] - '0';
+    
+    //Load Level
+    int chara = 0;
+    x = 0;
+    fill_array_with_letter(read);
+    fgets(read, 70, file);
+    
+    while(1) {
+        
+        if(char_is_not_number(read[x])) {
+            break;
+        }
+        
+        int mult = 1, lvl = 0;
+        
+        for(int y = 0; y < 3; y++) {
+            lvl += (read[x + y] - '0') * mult;
+            mult = mult * 10;
+        }
+        
+        set_char_values_for_level(chara, lvl);
+        chara++;
+        x += 3;
+    }
+    
+    //Load Hp
+    chara = 0;
+    x = 0;
+    fill_array_with_letter(read);
+    fgets(read, 70, file);
+    
+    while(1) {
+        
+        if(char_is_not_number(read[x])) {
+            break;
+        }
+        
+        int mult = 1, value = 0;
+        
+        for(int y = 0; y < 5; y++) {
+            value += (read[x + y] - '0') * mult;
+            mult = mult * 10;
+        }
+        
+        characters[chara].hp = value;
+        chara++;
+        x += 5;
+    }
+    
+    //Load Sp
+    chara = 0;
+    x = 0;
+    fill_array_with_letter(read);
+    fgets(read, 70, file);
+    
+    while(1) {
+        
+        if(char_is_not_number(read[x])) {
+            break;
+        }
+        
+        int mult = 1, value = 0;
+        
+        for(int y = 0; y < 5; y++) {
+            value += (read[x + y] - '0') * mult;
+            mult = mult * 10;
+        }
+        
+        characters[chara].sp = value;
+        chara++;
+        x += 5;
+    }
+    
+    //Load Exp
+    chara = 0;
+    x = 0;
+    fill_array_with_letter(read);
+    fgets(read, 70, file);
+    
+    while(1) {
+        
+        if(char_is_not_number(read[x])) {
+            break;
+        }
+        
+        int mult = 1, value = 0;
+        
+        for(int y = 0; y < 5; y++) {
+            value += (read[x + y] - '0') * mult;
+            mult = mult * 10;
+        }
+        
+        characters[chara].exp = value;
+        chara++;
+        x += 5;
+    }
+    
+    //Load Skills
+    x = 0;
+    fill_array_with_letter(read);
+    fgets(read, 70, file);
+    
+    while(1) {
+        
+        if(char_is_not_number(read[x])) {
+            break;
+        }
+        
+        int mult = 1, value = 0;
+        
+        for(int y = 0; y < 3; y++) {
+            value += (read[x + y] - '0') * mult;
+            mult = mult * 10;
+        }
+        
+        add_skill_to_character(read[x+3] - '0', value, read[x+4] - '0');
+        x += 5;
+    }
+    
+    fclose(file);
+//    
+//    add_item_to_inventory(0);
+//    add_item_to_inventory(0);
+//    add_item_to_inventory(0);
+//    
+//    current_stage = 1;
+//    char_quantity = 2;
+//    
+//    characters[0].level = 3;
+//    characters[1].level = 5;
+//    characters[0].hp = 30;
+//    characters[1].hp = 50;
+//    characters[0].sp = 30;
+//    characters[1].sp = 50;
+//    characters[0].exp = 300;
+//    characters[1].exp = 500;
+//    add_skill_to_character(0, 1, 0);
+//    add_skill_to_character(1, 1, 0);
 }
 
 void save_game() {
+    
+    FILE *file = fopen("save1.txt", "w");
+    int x = 0, num, n;
+    char newline[] = "\r\n";
+    size_t size = sizeof(newline) - sizeof(char);
+    
+    //Saving all items
+    char item[3];
+    while(x < MAX_ITEMS) {
+        item[0] = '0';
+        item[1] = '0';
+        item[2] = '0';
+        
+        if(inventory->items[x].id <= 0)
+            break;
+        
+        num = inventory->items[x].id;
+        n = log10(num) + 1;
+        
+        for (int i = 0; i < n; ++i, num /= 10 ) {
+            item[i] = num % 10 + '0';
+        }
+        
+        x++;
+        
+        fwrite(item, sizeof(item), 1, file);
+    }
+    
+    fwrite(newline, size, 1, file);
+    
+    //Saving current stage
+    char stage[3] = {'0', '0', '0'};
+    num = current_stage;
+    n = log10(num) + 1;
+    
+    for (int i = 0; i < n; ++i, num /= 10 ) {
+        stage[i] = num % 10 + '0';
+    }
+    
+    fwrite(stage, sizeof(stage), 1, file);
+    fwrite(newline, size, 1, file);
+    
+    //Saving character count
+    char charas[1];
+    charas[0] = char_quantity + '0';
+    fwrite(charas, sizeof(charas), 1, file);
+    fwrite(newline, size, 1, file);
+    
+    //Saving characters level
+    char level[3];
+    x = 0;
+    
+    while(x < char_quantity) {
+        level[0] = '0';
+        level[1] = '0';
+        level[2] = '0';
+        
+        num = characters[x].level;
+        n = log10(num) + 1;
+        
+        for (int i = 0; i < n; ++i, num /= 10 ) {
+            level[i] = num % 10 + '0';
+        }
+        
+        x++;
+        
+        fwrite(level, sizeof(level), 1, file);
+    }
+    
+    fwrite(newline, size, 1, file);
+    
+    //Saving characters HP
+    char value[5];
+    x = 0;
+    
+    while(x < char_quantity) {
+        value[0] = '0';
+        value[1] = '0';
+        value[2] = '0';
+        value[3] = '0';
+        value[4] = '0';
+        
+        num = characters[x].hp;
+        n = log10(num) + 1;
+        
+        for (int i = 0; i < n; ++i, num /= 10 ) {
+            value[i] = num % 10 + '0';
+        }
+        
+        x++;
+        
+        fwrite(value, sizeof(value), 1, file);
+    }
+    fwrite(newline, size, 1, file);
+    
+    
+    //Saving characters SP
+    x = 0;
+    
+    while(x < char_quantity) {
+        value[0] = '0';
+        value[1] = '0';
+        value[2] = '0';
+        value[3] = '0';
+        value[4] = '0';
+        
+        num = characters[x].sp;
+        n = log10(num) + 1;
+        
+        for (int i = 0; i < n; ++i, num /= 10 ) {
+            value[i] = num % 10 + '0';
+        }
+        
+        x++;
+        
+        fwrite(value, sizeof(value), 1, file);
+    }
+    fwrite(newline, size, 1, file);
+    
+    //Saving characters EXP
+    x = 0;
+    
+    while(x < char_quantity) {
+        value[0] = '0';
+        value[1] = '0';
+        value[2] = '0';
+        value[3] = '0';
+        value[4] = '0';
+        
+        num = characters[x].exp;
+        n = log10(num) + 1;
+        
+        for (int i = 0; i < n; ++i, num /= 10 ) {
+            value[i] = num % 10 + '0';
+        }
+        
+        x++;
+        
+        fwrite(value, sizeof(value), 1, file);
+    }
+    fwrite(newline, size, 1, file);
+    
+    //Saving characters skills
+    x = 0;
+    
+    while(x < char_quantity) {
+        
+        int y = 0;
+        while(characters[x].skills[y].id > 0) {
+            
+            value[0] = '0';
+            value[1] = '0';
+            value[2] = '0';
+            value[3] = x + '0';
+            value[4] = y + '0';
+            
+            num = characters[x].exp;
+            n = log10(num) + 1;
+            
+            for (int i = 0; i < n; ++i, num /= 10 ) {
+                value[i] = num % 10 + '0';
+            }
+            
+            fwrite(value, sizeof(value), 1, file);
+            
+            y++;
+        }
+        
+        x++;
+    }
+    
+    fwrite(newline, size, 1, file);
+    
+    fclose(file);
     
 }
 
 void show_gameover_screen() {
     
+    //PLAY GAMEOVER SONG**
+    game_over = true;
+    
+    al_clear_to_color(al_map_rgb_f(0, 0, 0));
+    al_flip_display();
+    al_destroy_bitmap(sup_screen);
+    sup_screen = al_load_bitmap("cenario/gameover.jpg");
+    al_draw_bitmap(sup_screen, 0, 0, 0);
+    
+    for(double x = 0.0; x < 1.0; x = x + 0.05) {
+        al_clear_to_color(al_map_rgb_f(0, 0, 0));
+        al_draw_tinted_bitmap(sup_screen, al_map_rgba_f(x, x, x, x), 0, 0, 0);
+        al_rest(0.05);
+        al_flip_display();
+    }
+    
+    al_rest(5);
+    
+    stop_tracks();
 }
 
-void show_exit_screen() {
+void show_exit_screen(bool save) {
     
     double w = window_width / 3.0;
     double h = window_height / 3.0;
@@ -1374,16 +2374,16 @@ void show_exit_screen() {
     double y2 = (window_height / 2.0) + (h / 2.0);
     
     //
-    al_draw_filled_rectangle(0, 0, window_width, window_height, al_map_rgba(0, 0, 0, 150));
+    al_draw_filled_rectangle(0, 0, window_width, window_height, al_map_rgba_f(0, 0, 0, 0.5));
     
     //Text box
-    al_draw_filled_rectangle(x1, y1, x2, y2, al_map_rgb(0, 0, 255));
+    al_draw_filled_rectangle(x1, y1, x2, y2, interface_color);
     
     
-    al_draw_text(font, al_map_rgb(255, 0, 0), window_width / 2, y1 + 15.0, ALLEGRO_ALIGN_CENTER, "Deseja sair?");
+    al_draw_text(font, font_color, window_width / 2, y1 + 15.0, ALLEGRO_ALIGN_CENTER, "Deseja sair?");
     
-    al_draw_text(font, al_map_rgb(255, 0, 0), window_width / 2, y1 + (h / 2.8), ALLEGRO_ALIGN_CENTER, "ENTER - Sim");
-    al_draw_text(font, al_map_rgb(255, 0, 0), window_width / 2, y1 + (h / 1.5), ALLEGRO_ALIGN_CENTER, "ESC - Nao");
+    al_draw_text(font, font_color, window_width / 2, y1 + (h / 2.8), ALLEGRO_ALIGN_CENTER, "ENTER - Sim");
+    al_draw_text(font, font_color, window_width / 2, y1 + (h / 1.5), ALLEGRO_ALIGN_CENTER, "ESC - Nao");
     
     al_flip_display();
     
@@ -1394,23 +2394,33 @@ void show_exit_screen() {
     while (!quit_while) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
         
-        if(ev.type == ALLEGRO_EVENT_KEY_DOWN) {
-            switch (ev.keyboard.keycode) {
-                    
-                case ALLEGRO_KEY_ENTER:
-                    
-                    //NEED TO SAVE GAME
-                    destroy_allegro();
-                    break;
-                    
-                case ALLEGRO_KEY_ESCAPE:
-                    
-                    quit_while = true;
-                    break;
- 	           }
+        if(!al_event_queue_is_empty(keyboard_queue)) {
+            
+            al_get_next_event(keyboard_queue, &ev);
+            
+            if(ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                switch (ev.keyboard.keycode) {
+                        
+                    case ALLEGRO_KEY_ENTER:
+                        
+                        if(save) {
+                            save_game();
+                        }
+                        
+                        destroy_allegro();
+                        return;
+                        break;
+                        
+                    case ALLEGRO_KEY_ESCAPE:
+                        
+                        quit_while = true;
+                        break;
+                }
+            }
         }
+        
+        al_rest(0.01);
     }
     
 }
@@ -1426,19 +2436,19 @@ void draw_background() {
 void draw_battle_menu() {
     
     //Text box
-    al_draw_filled_rectangle(320, 540, 960, 700, al_map_rgb(0, 0, 255));
+    al_draw_filled_rectangle(320, 540, 960, 700, interface_color);
     
     //Ataque normal text
-    al_draw_text(font, al_map_rgb(255, 0, 0), 362.66, 550.66, ALLEGRO_ALIGN_LEFT, "Ataque normal");
+    al_draw_text(font, font_color, 362.66, 550.66, ALLEGRO_ALIGN_LEFT, "Ataque normal");
     
     //Items text
-    al_draw_text(font, al_map_rgb(255, 0, 0), 917.33, 550.66, ALLEGRO_ALIGN_RIGHT, "Items");
+    al_draw_text(font, font_color, 917.33, 550.66, ALLEGRO_ALIGN_RIGHT, "Items");
     
     //Habilidades
-    al_draw_text(font, al_map_rgb(255, 0, 0), 362.66, 660, ALLEGRO_ALIGN_LEFT, "Habilidades");
+    al_draw_text(font, font_color, 362.66, 660, ALLEGRO_ALIGN_LEFT, "Habilidades");
     
     //Fugir
-    al_draw_text(font, al_map_rgb(255, 0, 0), 917.33, 660, ALLEGRO_ALIGN_RIGHT, "Fugir");
+    al_draw_text(font, font_color, 917.33, 660, ALLEGRO_ALIGN_RIGHT, "Fugir");
     
 }
 
@@ -1485,33 +2495,165 @@ void draw_life_bars() {
 }
 
 
-void draw_question_box() {
+void clear_string_array(char str[7][100], int lines, int chars) {
     
-    
-    al_draw_filled_rectangle(20, 270, 1260, 700, al_map_rgb(0, 0, 255));
-    
-    al_draw_text(font, al_map_rgb(255, 0, 0), 100, 290, ALLEGRO_ALIGN_LEFT, current_queston->question);
-    al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[0], ALLEGRO_ALIGN_LEFT, current_queston->answer);
-    al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[1], ALLEGRO_ALIGN_LEFT, current_queston->other1);
-    
-    int num = current_queston->ans_num;
-    
-    if(num > 2) {
-        
-        al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[2], ALLEGRO_ALIGN_LEFT, current_queston->other2);
-        
-        if(num > 3) {
-            
-            al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[3], ALLEGRO_ALIGN_LEFT, current_queston->other3);
-            
-            if(num > 4) {
-                
-                al_draw_text(font, al_map_rgb(255, 0, 0), 200, questions_pos_y[4], ALLEGRO_ALIGN_LEFT, current_queston->other4);
-                
-            }
-            
+    for(int x = 0; x < lines; x++) {
+        for(int y = 0; y < chars; y++) {
+            str[x][y] = ' ';
         }
         
+        str[x][79] = '\0';
+    }
+    
+}
+
+//Type: 0 - question
+// 1 - answer 1...
+//...
+
+int get_string_array(char str[7][100], int lines, int chars, int type) {
+    
+    clear_string_array(str, lines, chars);
+    
+    int max_line = chars, index = 0, end_line = 0;
+    bool end = false;
+    
+    
+    for(int x = 0; x < lines; x++) {
+        
+        str[x][max_line - 2] = 'a';
+        str[x][max_line - 1] = '\0';
+        
+        for(int y = 0; y < max_line - 2; y++) {
+            
+            switch (type) {
+                case 0:
+                    str[x][y] = current_queston->question[index];
+                    break;
+                case 1:
+                    str[x][y] = current_queston->answer[index];
+                    break;
+                case 2:
+                    str[x][y] = current_queston->other1[index];
+                    break;
+                case 3:
+                    str[x][y] = current_queston->other2[index];
+                    break;
+                case 4:
+                    str[x][y] = current_queston->other3[index];
+                    break;
+                case 5:
+                    str[x][y] = current_queston->other4[index];
+                    break;
+            }
+            
+            index++;
+            
+            if(str[x][y] == '\0' || str[x][y] == '\n') {
+                str[x][y] = '\0';
+                end_line = x;
+                end = true;
+                break;
+            }
+        }
+        
+        //Ignores auto adjust
+        //str[x][78] = '-';
+        //str[x][79] = '\0';
+        
+        //Auto adjust the entire word to the next array
+        for(int z = max_line - 1; z >= 0; z--) {
+            if(str[x][z] == ' ') {
+                
+                //Word too big to go next line
+                if(z < (max_line / 2) - 3) {
+                    index += ((max_line - 1) - z);
+                    
+                    break;
+                }
+                
+                //Clear all characters to a blank char
+                while(z < max_line - 1) {
+                    z++;
+                    str[x][z] = ' ';
+                }
+                
+                //Add \0 to define the end of the string and breaks FOR
+                str[x][z] = '\0';
+                index++;
+                break;
+            }
+            
+            //else str[x][z] = ' ';
+            
+            index--;
+            
+            //single word with all chars
+            if(z == 0) {
+                str[x][max_line - 2] = ' ';
+                index += max_line;
+            }
+        }
+        
+        if(end) {
+            break;
+        }
+    }
+    
+    return end_line;
+}
+
+void copy_string_from_to(char from[100], char to[100]) {
+    
+    for(int x = 0; x < 100; x++) {
+        to[x] = from[x];
+        if(from[x] == '\0' || from[x] == '\n')
+            to[x] = ' ';
+    }
+    
+    to[99] = '\0';
+}
+
+void draw_question_box() {
+    
+    double a = interface_color.a;
+    interface_color.a = 1;
+    
+    //Draw the big box
+    al_draw_filled_rectangle(20, 20, 1260, 710, interface_color);
+    
+    interface_color.a = a;
+    
+    int end_line = 0;
+    
+    char str[7][100];
+    
+    //Drawing question text
+    end_line = get_string_array(str, 7, 85, 0);
+    
+    al_draw_justified_text(question_font, font_color, 90, 1240, 40, 1000, ALLEGRO_ALIGN_LEFT, str[0]);
+    
+    for(int x = 1; x <= end_line; x++) {
+        al_draw_justified_text(question_font, font_color, 40, 1240, 40+ (x * 35), 1000, ALLEGRO_ALIGN_LEFT, str[x]);
+    }
+    
+    //Drawing answers text
+    int num = current_queston->ans_num;
+    
+    char str2[100];
+    
+    for(int y = 0; y < num; y++) {
+        end_line = get_string_array(str, 3, 100, y + 1);
+        
+        copy_string_from_to(str[0], str2);
+        al_draw_justified_text(answer_font, font_color, 100, 1240, questions_pos_y[y], 900, ALLEGRO_ALIGN_LEFT, str2);
+        
+        for(int x = 1; x <= end_line; x++) {
+            copy_string_from_to(str[x], str2);
+            al_draw_justified_text(answer_font, font_color, 100, 1240, questions_pos_y[y] + (25 * x), 900, ALLEGRO_ALIGN_LEFT, str2);
+        }
+        
+        al_draw_line(90, questions_pos_y[y] - 3, 1250, questions_pos_y[y] - 3, font_color, 1.0);
     }
 }
 
@@ -1520,18 +2662,18 @@ void draw_question_box() {
 void draw_items_box() {
     
     //Text box
-    al_draw_filled_rectangle(320, 540, 960, 700, al_map_rgb(0, 0, 255));
+    al_draw_filled_rectangle(320, 540, 960, 700, interface_color);
     
-    al_draw_text(font, al_map_rgb(255, 0, 0), 363, 550, ALLEGRO_ALIGN_LEFT, item_list[0]);
+    al_draw_text(font, font_color, 363, 550, ALLEGRO_ALIGN_LEFT, item_list[0]);
     
     if(item_quantity > 1) {
-        al_draw_text(font, al_map_rgb(255, 0, 0), 363, 600, ALLEGRO_ALIGN_LEFT, item_list[1]);
+        al_draw_text(font, font_color, 363, 600, ALLEGRO_ALIGN_LEFT, item_list[1]);
         
         if(item_quantity > 2) {
-            al_draw_text(font, al_map_rgb(255, 0, 0), 363, 650, ALLEGRO_ALIGN_LEFT, item_list[2]);
+            al_draw_text(font, font_color, 363, 650, ALLEGRO_ALIGN_LEFT, item_list[2]);
             
             if(item_quantity > 3) {
-                //al_draw_text(font, al_map_rgb(255, 0, 0), 363, 700, ALLEGRO_ALIGN_LEFT, item_list[3]);
+                //al_draw_text(font, font_color, 363, 700, ALLEGRO_ALIGN_LEFT, item_list[3]);
                 
             }
         }
@@ -1541,18 +2683,18 @@ void draw_items_box() {
 void draw_skills_box() {
     
     //Text box
-    al_draw_filled_rectangle(320, 540, 960, 700, al_map_rgb(0, 0, 255));
+    al_draw_filled_rectangle(320, 540, 960, 700, interface_color);
     
-    al_draw_text(font, al_map_rgb(255, 0, 0), 363, 550, ALLEGRO_ALIGN_LEFT, skill_list[0]);
+    al_draw_text(font, font_color, 363, 550, ALLEGRO_ALIGN_LEFT, skill_list[0]);
     
     if(skill_quantity > 1) {
-        al_draw_text(font, al_map_rgb(255, 0, 0), 363, 600, ALLEGRO_ALIGN_LEFT, skill_list[1]);
+        al_draw_text(font, font_color, 363, 600, ALLEGRO_ALIGN_LEFT, skill_list[1]);
         
         if(skill_quantity > 2) {
-            al_draw_text(font, al_map_rgb(255, 0, 0), 363, 650, ALLEGRO_ALIGN_LEFT, skill_list[2]);
+            al_draw_text(font, font_color, 363, 650, ALLEGRO_ALIGN_LEFT, skill_list[2]);
             
             if(skill_quantity > 3) {
-                al_draw_text(font, al_map_rgb(255, 0, 0), 363, 700, ALLEGRO_ALIGN_LEFT, skill_list[3]);
+                al_draw_text(font, font_color, 363, 700, ALLEGRO_ALIGN_LEFT, skill_list[3]);
                 
             }
         }
@@ -1563,14 +2705,38 @@ void draw_skills_box() {
 void draw_world_objects() {
     
     for(int x = 0; x < objects_quantity; x++) {
-        al_draw_bitmap(objects[x].bitmap, objects[x].x1, objects[x].y1, 0);
+        if(objects[x].action_id >= 0)
+            al_draw_bitmap(objects[x].bitmap, objects[x].x1, objects[x].y1, 0);
     }
 }
 
 void draw_character_info(int chara) {
     
+    //Character Icon
+    if(char_icon_num != chara) {
+        char_icon_num = chara;
+        
+        if(char_icon) {
+            al_destroy_bitmap(char_icon);
+        }
+        
+        char_icon = get_char_icon(chara);
+        
+        if(!char_icon) {
+            printf("Error loading char icon.\n");
+            char_icon_num = -1;
+        }
+    }
+    
+    if(char_icon) {
+        al_draw_bitmap(char_icon, 80 - (ICON_WIDTH / 2), 80 - (ICON_HEIGHT / 2), ALLEGRO_FLIP_HORIZONTAL);
+    }
+    
+    //Circle for chara icon
     al_draw_circle(80, 80, 70, al_map_rgba(100, 100, 100, 0.5), 10.0);
     
+    
+    //Life bar
     double y_fator = (double)characters[chara].hp / characters[chara].maxhp;
     
     al_draw_filled_circle(190, 40, 20, al_map_rgb(255, 0, 0));
@@ -1582,7 +2748,9 @@ void draw_character_info(int chara) {
     al_draw_filled_circle(190, 40, 18, al_map_rgb(0, 255, 0));
     al_draw_filled_circle(190 + (y_fator * 398), 40, 18, al_map_rgb(0, 255, 0));
     
+    al_draw_textf(question_font, al_map_rgb(0, 0, 0), 390, 23, ALLEGRO_ALIGN_CENTER, "%d / %d", characters[chara].hp,characters[chara].maxhp);
     
+    //Mana bar
     y_fator = (double)characters[chara].sp / characters[chara].maxsp;
     
     al_draw_filled_circle(190, 100, 20, al_map_rgb(255, 0, 0));
@@ -1595,6 +2763,8 @@ void draw_character_info(int chara) {
     al_draw_filled_circle(190 + (y_fator * 398), 100, 18, al_map_rgb(0, 0, 255));
 
     
+    al_draw_textf(question_font, al_map_rgb(255, 255, 255), 390, 83, ALLEGRO_ALIGN_CENTER, "%d / %d", characters[chara].sp,characters[chara].maxsp);
+    
     y_fator = (double)characters[chara].exp / exp_needed_for_level(characters[chara].level);
     
     al_draw_filled_circle(180, 150, 10, al_map_rgb(200, 200, 0));
@@ -1606,20 +2776,7 @@ void draw_character_info(int chara) {
     al_draw_filled_circle(180, 150, 8, al_map_rgb(255, 255, 0));
     al_draw_filled_circle(180 + (y_fator * 298), 150, 8, al_map_rgb(255, 255, 0));
     
-    
-    char str[9] = {'L','e','v','e','l',' ',' ',' ','\0'};
-    
-    if(characters[chara].level > 9) {
-        int s = characters[chara].level / 10;
-        str[6] = s + 48;
-        str[7] = (characters[chara].level - (s * 10)) + 48;
-    }
-    
-    else {
-        str[6] = characters[chara].level + 48;
-    }
-    
-    al_draw_text(font, al_map_rgb(255, 255, 0), 25, 170, ALLEGRO_ALIGN_LEFT, str);
+    al_draw_textf(font, al_map_rgb(255, 255, 0), 25, 170, ALLEGRO_ALIGN_LEFT, "Level %d", characters[chara].level);
     
 }
 
@@ -1654,6 +2811,27 @@ void draw_main_character_on_position() {
 //MARK: Drawing arrows
 
 
+void draw_main_menu_arrow(int selected) {
+    
+    double x = 420, y = 400 + (73 * selected);
+    
+    if(selected == 0 || selected == 1) {
+        x = 420;
+    }
+    
+    if(selected == 2) {
+        x = 480;
+    }
+    
+    else if(selected == 3) {
+        x = 520;
+    }
+    
+    al_draw_bitmap(main_arrow, x, y, 0);
+    
+}
+
+
 void draw_arrow_with(bool sel_x, bool sel_y) {
     
     double x, y;
@@ -1674,30 +2852,9 @@ void draw_arrow_with(bool sel_x, bool sel_y) {
 
 void draw_question_arrow(int num) {
     
-    double x = 140, y;
-    
-    switch (num) {
-        case 0:
-            y = 430;
-            break;
-        case 1:
-            y = 480;
-            break;
-        case 2:
-            y = 530;
-            break;
-        case 3:
-            y = 580;
-            break;
-        case 4:
-            y = 630;
-            break;
-        default:
-            return;
-            break;
-    }
-    
-    al_draw_bitmap(arrow, x, y, 0);
+    double x = 30, y = 300 + (85 * num);
+
+    al_draw_bitmap(main_arrow, x, y, 0);
     
 }
 
@@ -1785,15 +2942,85 @@ void draw_arrow_skills(int selected) {
 
 //MARK: NPCs
 
-void draw_dialogue_screen(char dialogue[300]) {
+void show_text(int text_id, bool on_battle) {
     
-}
-
-void show_dialogue_screen_with_id(int dialogue_id) {
+    for(int x = 0; x < 255; x+=10) {
+        
+        if(on_battle)
+            draw_background();
+        else draw_main_character_on_position();
+        
+        al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, x));
+        al_draw_text(font, al_map_rgba(255, 255, 255, x), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
+        al_flip_display();
+        al_rest(0.01);
+    }
     
+    if(on_battle)
+        draw_background();
+    else draw_main_character_on_position();
+    
+    al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, 255));
+    al_draw_text(font, al_map_rgba(255, 255, 255, 255), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
+    al_flip_display();
+    
+    while (1) {
+        ALLEGRO_EVENT ev;
+        
+        if(!al_event_queue_is_empty(keyboard_queue)) {
+            
+            al_get_next_event(keyboard_queue, &ev);
+            
+            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                
+                for(int x = 255; x > 0; x-=10) {
+                    
+                    if(on_battle)
+                        draw_background();
+                    else draw_main_character_on_position();
+                    
+                    al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, 255));
+                    al_draw_text(font, al_map_rgba(255, 255, 255, x), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
+                    al_flip_display();
+                    al_rest(0.01);
+                }
+                break;
+            }
+        }
+        
+        al_rest(0.01);
+    }
 }
 
 //MARK: Animations
+
+void fade_in() {
+    
+    double radius = window_width * 2;
+    
+    for(int x = 0; x < FADE_MAX; x++) {
+        
+        al_draw_circle((double)window_width / 2, (double)window_height / 2, window_width / 2, al_map_rgb(0, 0, 0), (radius / FADE_MAX) * x);
+        al_flip_display();
+        al_rest(0.01);
+    }
+}
+
+void fade_out_for(void (*draw)() ) {
+    
+    double radius = window_width * 2;
+    
+    for(int x = FADE_MAX - 1; x >= 0; x--) {
+        
+        draw();
+        al_draw_circle((double)window_width / 2, (double)window_height / 2, window_width / 2, al_map_rgb(0, 0, 0), (radius / FADE_MAX) * x);
+        al_flip_display();
+        al_rest(0.01);
+    }
+    
+}
+
+
 
 
 void draw_character_stopped(int chara) {
@@ -1884,7 +3111,7 @@ void update_animations_on_monster(int mon) {
     
     if(monsters[mon].id >= 0) {
         
-        draw_monster(mon);
+        //draw_monster(mon);
         
         monsters[mon].animation_object.currentFrame++;
         
@@ -1902,7 +3129,7 @@ void update_animations_monsters() {
         if(monsters[x].id >= 0) {
             //printf("Monster %d with frame %d", x, monsters[x].animation_object.currentFrame);
             
-            draw_monster(x);
+            //draw_monster(x);
             
             monsters[x].animation_object.currentFrame++;
             
@@ -1924,14 +3151,15 @@ void execute_fx_animation(double seconds, int fx_id, int idx, bool monster) {
     ALLEGRO_TIMER *ani_timer = al_create_timer(seconds / (double)fx_count);
     
     al_stop_timer(battle_timer);
-    al_register_event_source(event_queue, al_get_timer_event_source(ani_timer));
+    al_register_event_source(timer_queue, al_get_timer_event_source(ani_timer));
+    al_flush_event_queue(timer_queue);
     al_start_timer(ani_timer);
     
     
     while(1) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
+        al_wait_for_event(timer_queue, &ev);
         
         if(ev.type == ALLEGRO_EVENT_TIMER) {
             
@@ -1964,6 +3192,7 @@ void execute_fx_animation(double seconds, int fx_id, int idx, bool monster) {
         
     }
     
+    printf("End of FX\n");
     
     al_stop_timer(ani_timer);
     al_destroy_timer(ani_timer);
@@ -1994,19 +3223,22 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
     
     //Stops the timer from battle so it doesnt interfere with the animation
     al_stop_timer(battle_timer);
-    al_register_event_source(event_queue, al_get_timer_event_source(ani_timer));
+    al_flush_event_queue(timer_queue);
+    
+    ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+    al_register_event_source(queue, al_get_timer_event_source(ani_timer));
     al_start_timer(ani_timer);
     
     while(1) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
+        
+        al_wait_for_event(queue, &ev);
         
         if(ev.type == ALLEGRO_EVENT_TIMER) {
             draw_background();
             
             frame++;
-            printf("%d\n", frame);
             
             al_draw_bitmap(characters[chara].animation_object.animAndar[anim_index], x, y, ALLEGRO_FLIP_HORIZONTAL);
             draw_monster(mon);
@@ -2020,14 +3252,11 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
                 if(anim_index >= PER1_ANIM_WALK) {
                     anim_index = 0;
                 }
-                update_animations_on_monster(mon);
             }
             
             al_flip_display();
             
             if(frame >= interactions) {
-                
-                al_stop_timer(ani_timer);
                 
                 if(backing) {
                     break;
@@ -2038,14 +3267,19 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
                     frame = 19;
                 }
                 
+                al_flush_event_queue(queue);
+                al_pause_event_queue(queue, true);
+                //al_stop_timer(ani_timer);
+                
+                
                 int z = 0;
                 
                 for(z = 0; z < PER1_ANIM_ATACK; z++) {
                     draw_background();
                     al_draw_bitmap(characters[chara].animation_object.animAtaque[z], x, y, ALLEGRO_FLIP_HORIZONTAL);
-                    update_animations_on_monster(mon);
+                    draw_monster(mon);
                     al_flip_display();
-                    al_rest(0.15);
+                    al_rest(0.1);
                 }
                 
                 z--;
@@ -2053,21 +3287,27 @@ void animate_attack_on_monster(int chara, int mon, double seconds) {
                 for( ; z >= 0; z--) {
                     draw_background();
                     al_draw_bitmap(characters[chara].animation_object.animAtaque[z], x, y, ALLEGRO_FLIP_HORIZONTAL);
-                    update_animations_on_monster(mon);
+                    draw_monster(mon);
                     al_flip_display();
-                    al_rest(0.15);
+                    al_rest(0.1);
                 }
                 
                 change_x = -change_x;
                 change_y = -change_y;
                 
-                al_flush_event_queue(event_queue);
-                al_start_timer(ani_timer);
+                if(!al_is_event_queue_empty(queue)) {
+                    printf("HOOOOOWWWW???\n");
+                }
+                
+                //al_start_timer(ani_timer);
+                al_pause_event_queue(queue, false);
+                
             }
         }
     }
     
     //Destroy the timer and starts again the battle one
+    al_destroy_event_queue(queue);
     al_destroy_timer(ani_timer);
     al_start_timer(battle_timer);
 }
@@ -2083,7 +3323,7 @@ void random_question_positions(int answer_pos, int quantity) {
     int x;
     
     for(x = 0; x < quantity; x++) {
-        y_values[x] = 430 + (50 * x);
+        y_values[x] = 290 + (85 * x);
     }
     
     questions_pos_y[0] = y_values[answer_pos];
@@ -2132,44 +3372,52 @@ int show_question() {
         while(1) {
             
             ALLEGRO_EVENT ev;
-            al_wait_for_event(event_queue, &ev);
             
-            if(ev.type == ALLEGRO_EVENT_KEY_DOWN) {
-                switch (ev.keyboard.keycode) {
-                        
-                    case ALLEGRO_KEY_UP:
-                        arrow_pos--;
-                        if(arrow_pos < 0) {
-                            arrow_pos = the_question->ans_num - 1;
-                        }
-                        break;
-                    case ALLEGRO_KEY_DOWN:
-                        arrow_pos++;
-                        if(arrow_pos >= the_question->ans_num) {
-                            arrow_pos = 0;
-                        }
-                        break;
-                    case ALLEGRO_KEY_ESCAPE:
-                        return 3;
-                        break;
-                    case ALLEGRO_KEY_ENTER:
-                        if(arrow_pos == answer_pos) {
-                            current_queston = current_queston->next;
-                            return 1;
-                        }
-                        
-                        else {
-                            current_queston = current_queston->next;
-                            return 2;
-                        }
-                        break;
+            if(!al_event_queue_is_empty(keyboard_queue)) {
+                
+                al_get_next_event(keyboard_queue, &ev);
+                
+                
+                if(ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                    switch (ev.keyboard.keycode) {
+                            
+                        case ALLEGRO_KEY_UP:
+                            arrow_pos--;
+                            if(arrow_pos < 0) {
+                                arrow_pos = the_question->ans_num - 1;
+                            }
+                            break;
+                        case ALLEGRO_KEY_DOWN:
+                            arrow_pos++;
+                            if(arrow_pos >= the_question->ans_num) {
+                                arrow_pos = 0;
+                            }
+                            break;
+                        case ALLEGRO_KEY_ESCAPE:
+                            return 3;
+                            break;
+                        case ALLEGRO_KEY_ENTER:
+                            if(arrow_pos == answer_pos) {
+                                current_queston = current_queston->next;
+                                return 1;
+                            }
+                            
+                            else {
+                                current_queston = current_queston->next;
+                                return 2;
+                            }
+                            break;
+                    }
+                    
+                    draw_question_box();
+                    draw_question_arrow(arrow_pos);
+                    al_flush_event_queue(keyboard_queue);
+                    al_flip_display();
                 }
                 
-                draw_question_box();
-                draw_question_arrow(arrow_pos);
-                al_flip_display();
             }
-            
+          
+            al_rest(0.02);
         }
         
     }
@@ -2192,6 +3440,21 @@ int show_question() {
 }
 
 
+//MARK: Monster Thread
+
+void *t_monster_animations(ALLEGRO_THREAD *thr, void *dados) {
+    
+    while(is_on_battle) {
+        
+        update_animations_monsters();
+        al_rest(MONSTER_ANIM_DELAY);
+        
+    }
+    
+    
+    return NULL;
+}
+
 //MARK: Battle
 
 
@@ -2201,6 +3464,8 @@ void level_up_characters_if_needed() {
         if(characters[x].exp >= exp_needed_for_level(characters[x].level)) {
             characters[x].exp = characters[x].exp - exp_needed_for_level(characters[x].level);
             characters[x].level++;
+            
+            set_char_values_for_level(x, characters[x].level);
         }
     }
 }
@@ -2345,7 +3610,7 @@ void use_skill_on_monster(int monster, int chara, int skill_idx) {
 
 bool check_characters_death() {
     
-    for(int x = 0; x < MAX_MONSTERS; x++) {
+    for(int x = 0; x < char_quantity; x++) {
         if(characters[x].hp > 0 && characters[x].id >= 0) {
             return false;
         }
@@ -2357,7 +3622,7 @@ bool check_characters_death() {
 
 bool check_monsters_death() {
     
-    for(int x = 0; x < MAX_MONSTERS; x++) {
+    for(int x = 0; x < mon_quantity; x++) {
         if(monsters[x].hp > 0 && monsters[x].id >= 0) {
             return false;
         }
@@ -2401,58 +3666,79 @@ int battle_selection_loop(int quantity, bool monster_selection) {
     while(!monster_selected) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
         
-        if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+        if(!al_event_queue_is_empty(keyboard_queue)) {
             
-            switch (ev.keyboard.keycode) {
-                    
-                case ALLEGRO_KEY_LEFT:
-                    
-                    selected++;
-                    
-                    if(selected >= quantity) {
-                        selected = 0;
-                    }
-                    
-                    while(monsters[selected].hp <= 0 && monster_selection) {
+            al_get_next_event(keyboard_queue, &ev);
+            
+            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                
+                switch (ev.keyboard.keycode) {
+                        
+                    case ALLEGRO_KEY_LEFT:
                         
                         selected++;
                         
                         if(selected >= quantity) {
                             selected = 0;
-                            break;
                         }
-                    }
-                    
-                    break;
-                case ALLEGRO_KEY_RIGHT:
-                    selected--;
-                    
-                    if(selected < 0) {
-                        selected = quantity - 1;
-                    }
-                    
-                    while(monsters[selected].hp <= 0 && monster_selection) {
                         
+                        while(monsters[selected].hp <= 0 && monster_selection) {
+                            
+                            selected++;
+                            
+                            if(selected >= quantity) {
+                                selected = 0;
+                                break;
+                            }
+                        }
+                        
+                        break;
+                    case ALLEGRO_KEY_RIGHT:
                         selected--;
                         
                         if(selected < 0) {
                             selected = quantity - 1;
                         }
-                    }
-                    
-                    break;
-                case ALLEGRO_KEY_ENTER:
-                    monster_selected = true;
-                    break;
-                case ALLEGRO_KEY_ESCAPE:
-                    return -1;
-                    //voltar? ele terá que responder denovo se voltar?
-                    break;
+                        
+                        while(monsters[selected].hp <= 0 && monster_selection) {
+                            
+                            selected--;
+                            
+                            if(selected < 0) {
+                                selected = quantity - 1;
+                            }
+                        }
+                        
+                        break;
+                    case ALLEGRO_KEY_ENTER:
+                        monster_selected = true;
+                        break;
+                    case ALLEGRO_KEY_ESCAPE:
+                        return -1;
+                        //voltar? ele terá que responder denovo se voltar?
+                        break;
+                }
+                
+                //UPDATE VISUAL OF SELECT MONSTER ARROW
+                draw_background();
+                draw_all_characters();
+                draw_all_monsters();
+                draw_life_bars();
+                
+                if(monster_selection)
+                    draw_arrow_monster(selected);
+                else draw_arrow_character(selected);
+                al_flip_display();
             }
             
-            //UPDATE VISUAL OF SELECT MONSTER ARROW
+        }
+            
+            
+        else if(!al_event_queue_is_empty(timer_queue)) {
+            
+            al_get_next_event(timer_queue, &ev);
+            
             draw_background();
             draw_all_characters();
             draw_all_monsters();
@@ -2464,14 +3750,22 @@ int battle_selection_loop(int quantity, bool monster_selection) {
             al_flip_display();
         }
         
-        else if(ev.type == ALLEGRO_EVENT_TIMER) {
-            
-        }
+        al_rest(0.01);
     }
     
     return selected;
 }
 
+
+void draw_main_battle() {
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+    draw_background();
+    draw_character_info(0);
+    draw_arrow_with(0, 0);
+    draw_all_characters();
+    draw_all_monsters();
+    draw_life_bars();
+}
 
 // -1 -> ERROR
 // 1 -> VICTORY
@@ -2480,7 +3774,14 @@ int battle_selection_loop(int quantity, bool monster_selection) {
 
 int begin_battle(int mon_id, int mon_num) {
     
+    //SEt this boolean so the thread knows when the battle ended.
+    is_on_battle = true;
+    
+    //Thread to update monster animations
+    monster_anim_thread = al_create_thread(t_monster_animations, NULL);
+    
     int return_result = 0;
+    bool char_invert = characters[0].animation_object.invert;
     double prev_x = characters[0].animation_object.x, prev_y = characters[0].animation_object.y;
     
     al_stop_timer(world_timer);
@@ -2518,10 +3819,22 @@ int begin_battle(int mon_id, int mon_num) {
     bool selected_y = false;
     bool enter_pressed = false;
     
-    draw_arrow_with(selected_x, selected_y);
-    
     bool battle_on = true;
     
+    //Fade in
+    fade_in();
+    
+    //Start song
+    stop_tracks();
+    play_battle_track();
+    
+    //Fade out
+    fade_out_for(draw_main_battle);
+    
+    //Start thread
+    al_start_thread(monster_anim_thread);
+    
+    draw_arrow_with(selected_x, selected_y);
     
     //MARK: Main loop battle
     while(battle_on) {
@@ -2534,52 +3847,64 @@ int begin_battle(int mon_id, int mon_num) {
         
         //Wait for command
         while (!enter_pressed) {
+            
             ALLEGRO_EVENT ev;
-            al_wait_for_event(event_queue, &ev);
             
-            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if(!al_event_queue_is_empty(keyboard_queue)) {
+                al_get_next_event(keyboard_queue, &ev);
                 
-                switch (ev.keyboard.keycode) {
-                        
-                    case ALLEGRO_KEY_UP:
-                        selected_y = !selected_y;
-                        draw_arrow_with(selected_x, selected_y);
-                        break;
-                    case ALLEGRO_KEY_DOWN:
-                        selected_y = !selected_y;
-                        draw_arrow_with(selected_x, selected_y);
-                        break;
-                    case ALLEGRO_KEY_LEFT:
-                        selected_x = !selected_x;
-                        draw_arrow_with(selected_x, selected_y);
-                        break;
-                    case ALLEGRO_KEY_RIGHT:
-                        selected_x = !selected_x;
-                        draw_arrow_with(selected_x, selected_y);
-                        break;
-                    case ALLEGRO_KEY_ENTER:
-                        enter_pressed = true;
-                        break;
-                    case ALLEGRO_KEY_ESCAPE:
-                        show_exit_screen();
-                        break;
+                if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                    
+                    switch (ev.keyboard.keycode) {
+                            
+                        case ALLEGRO_KEY_UP:
+                            selected_y = !selected_y;
+                            draw_arrow_with(selected_x, selected_y);
+                            break;
+                        case ALLEGRO_KEY_DOWN:
+                            selected_y = !selected_y;
+                            draw_arrow_with(selected_x, selected_y);
+                            break;
+                        case ALLEGRO_KEY_LEFT:
+                            selected_x = !selected_x;
+                            draw_arrow_with(selected_x, selected_y);
+                            break;
+                        case ALLEGRO_KEY_RIGHT:
+                            selected_x = !selected_x;
+                            draw_arrow_with(selected_x, selected_y);
+                            break;
+                        case ALLEGRO_KEY_ENTER:
+                            enter_pressed = true;
+                            break;
+                        case ALLEGRO_KEY_ESCAPE:
+                            show_exit_screen(true);
+                            break;
+                    }
+                    
+                    //printf("Flip key\n");
+                    //al_flip_display();
                 }
-                
-                al_flip_display();
             }
             
-            //Timer to animate monsters
-            else if (ev.type == ALLEGRO_EVENT_TIMER) {
-                al_clear_to_color(al_map_rgb(255, 255, 255));
-                draw_background();
-                draw_character_info(character_acting);
-                draw_arrow_with(selected_x, selected_y);
-                update_animation_character(character_acting);
-                update_animations_monsters();
-                draw_life_bars();
-                al_flip_display();
+            else if(!al_event_queue_is_empty(timer_queue)) {
+                al_get_next_event(timer_queue, &ev);
+                al_flush_event_queue(timer_queue);
                 
+                if (ev.type == ALLEGRO_EVENT_TIMER) {
+                    al_clear_to_color(al_map_rgb(255, 255, 255));
+                    draw_background();
+                    draw_character_info(character_acting);
+                    draw_arrow_with(selected_x, selected_y);
+                    update_animation_character(character_acting);
+                    draw_all_monsters();
+                    //update_animations_monsters();
+                    draw_life_bars();
+                    //printf("Flip timer\n");
+                    al_flip_display();
+                }
             }
+            
+            al_rest(0.01);
         }
         
         //BEGIN QUESTION
@@ -2616,6 +3941,7 @@ int begin_battle(int mon_id, int mon_num) {
                 if(inventory->items[0].id == 0) {
                     //NENHUM ITEM NO INVENTARIO
                     printf("No items\n.");
+                    show_text(2, true);
                 }
                 
                 else {
@@ -2638,45 +3964,47 @@ int begin_battle(int mon_id, int mon_num) {
                     while(!item_selected && !cancell) {
                         
                         ALLEGRO_EVENT ev;
-                        al_wait_for_event(event_queue, &ev);
-                        
-                        if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                        if(!al_event_queue_is_empty(keyboard_queue)) {
                             
-                            switch (ev.keyboard.keycode) {
-                                    
-                                case ALLEGRO_KEY_UP:
-                                    selected--;
-                                    
-                                    if(selected < 0) {
-                                        selected = item_quantity - 1;
-                                    }
-                                    break;
-                                case ALLEGRO_KEY_DOWN:
-                                    selected++;
-                                    
-                                    if(selected >= item_quantity) {
-                                        selected = 0;
-                                    }
-                                    break;
-                                case ALLEGRO_KEY_ENTER:
-                                    item_selected = true;
-                                    break;
-                                case ALLEGRO_KEY_ESCAPE:
-                                    cancell = true;
-                                    //voltar? ele terá que responder denovo se voltar?
-                                    break;
+                            al_get_next_event(keyboard_queue, &ev);
+                            
+                            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                                
+                                switch (ev.keyboard.keycode) {
+                                        
+                                    case ALLEGRO_KEY_UP:
+                                        selected--;
+                                        
+                                        if(selected < 0) {
+                                            selected = item_quantity - 1;
+                                        }
+                                        break;
+                                    case ALLEGRO_KEY_DOWN:
+                                        selected++;
+                                        
+                                        if(selected >= item_quantity) {
+                                            selected = 0;
+                                        }
+                                        break;
+                                    case ALLEGRO_KEY_ENTER:
+                                        item_selected = true;
+                                        break;
+                                    case ALLEGRO_KEY_ESCAPE:
+                                        cancell = true;
+                                        //voltar? ele terá que responder denovo se voltar?
+                                        break;
+                                }
+                                
+                                //UPDATE VISUAL OF SELECT ITEM ARROW
+                                draw_background();
+                                draw_all_characters();
+                                draw_all_monsters();
+                                draw_life_bars();
+                                draw_character_info(character_acting);
+                                draw_arrow_items(selected);
+                                al_flip_display();
                             }
-                            
-                            //UPDATE VISUAL OF SELECT ITEM ARROW
-                            draw_background();
-                            draw_all_characters();
-                            draw_all_monsters();
-                            draw_life_bars();
-                            draw_character_info(character_acting);
-                            draw_arrow_items(selected);
-                            al_flip_display();
                         }
-                        
                     }
                     
                     if(!cancell) {
@@ -2705,6 +4033,7 @@ int begin_battle(int mon_id, int mon_num) {
                 if(characters[character_acting].skills[0].id == 0) {
                     //NENHUMA SKILL DISPONIVEL
                     printf("No skills\n.");
+                    show_text(1, true);
                 }
                 
                 else {
@@ -2727,50 +4056,55 @@ int begin_battle(int mon_id, int mon_num) {
                     while(!skill_selected && !cancell) {
                         
                         ALLEGRO_EVENT ev;
-                        al_wait_for_event(event_queue, &ev);
-                        
-                        if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                        if(!al_event_queue_is_empty(keyboard_queue)) {
                             
-                            switch (ev.keyboard.keycode) {
-                                    
-                                case ALLEGRO_KEY_UP:
-                                    selected--;
-                                    
-                                    if(selected < 0) {
-                                        selected = skill_quantity - 1;
-                                    }
-                                    break;
-                                case ALLEGRO_KEY_DOWN:
-                                    selected++;
-                                    
-                                    if(selected >= skill_quantity) {
-                                        selected = 0;
-                                    }
-                                    break;
-                                case ALLEGRO_KEY_ENTER:
-                                    if(character_can_use_skill(character_acting, selected))
-                                        skill_selected = true;
-                                    else {
-                                        printf("%d", characters[character_acting].sp);
-                                        printf("Not enough mana to use skill!\n");
-                                        //No mana for skill!
-                                    }
-                                    
-                                    break;
-                                case ALLEGRO_KEY_ESCAPE:
-                                    cancell = true;
-                                    //voltar? ele terá que responder denovo se voltar?
-                                    break;
+                            al_get_next_event(keyboard_queue, &ev);
+                            
+                            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                                
+                                switch (ev.keyboard.keycode) {
+                                        
+                                    case ALLEGRO_KEY_UP:
+                                        selected--;
+                                        
+                                        if(selected < 0) {
+                                            selected = skill_quantity - 1;
+                                        }
+                                        break;
+                                    case ALLEGRO_KEY_DOWN:
+                                        selected++;
+                                        
+                                        if(selected >= skill_quantity) {
+                                            selected = 0;
+                                        }
+                                        break;
+                                    case ALLEGRO_KEY_ENTER:
+                                        if(character_can_use_skill(character_acting, selected))
+                                            skill_selected = true;
+                                        else {
+                                            printf("%d", characters[character_acting].sp);
+                                            printf("Not enough mana to use skill!\n");
+                                            
+                                            show_text(3, true);
+                                            //No mana for skill!
+                                        }
+                                        
+                                        break;
+                                    case ALLEGRO_KEY_ESCAPE:
+                                        cancell = true;
+                                        //voltar? ele terá que responder denovo se voltar?
+                                        break;
+                                }
+                                
+                                //UPDATE VISUAL OF SELECT ITEM ARROW
+                                draw_background();
+                                draw_all_characters();
+                                draw_all_monsters();
+                                draw_life_bars();
+                                draw_character_info(character_acting);
+                                draw_arrow_skills(selected);
+                                al_flip_display();
                             }
-                            
-                            //UPDATE VISUAL OF SELECT ITEM ARROW
-                            draw_background();
-                            draw_all_characters();
-                            draw_all_monsters();
-                            draw_life_bars();
-                            draw_character_info(character_acting);
-                            draw_arrow_skills(selected);
-                            al_flip_display();
                         }
                     }
                     
@@ -2798,16 +4132,29 @@ int begin_battle(int mon_id, int mon_num) {
             
             //MARK:Action: escape fight
             else if(selected_x && selected_y) {
-                //FUGIR
-                battle_on = false;
-                return_result = 2;
+                
+                if(!boss_fight) {
+                    
+                    //FUGIR
+                    battle_on = false;
+                    return_result = 3;
+                }
+                
+                else {
+                    show_text(6, true);
+                }
             }
         }
         
         //MARK:Answer wrong: suffer attack
         else if(result == 2) {
             //SOFRER ATAQUE
+            if(boss_fight)
+                execute_fx_animation(1.5, 004, rand_lim(char_quantity - 1), false);
+            else execute_fx_animation(1.5, 003, rand_lim(char_quantity - 1), false);
+            
             characters[character_acting].hp -= (monsters[0].atk - characters[character_acting].def);
+            
         }
         
         //MARK:Cancell action
@@ -2834,13 +4181,45 @@ int begin_battle(int mon_id, int mon_num) {
         }
     }
     
+    //Stops the thread
+    is_on_battle = false;
+    
+    characters[0].animation_object.invert = char_invert;
+    
+    printf("Ending battle");
+    
+    al_flush_event_queue(timer_queue);
+    draw_main_battle();
+    al_flip_display();
+    
     //Stops battle timer and restart world timer
     al_stop_timer(battle_timer);
     al_start_timer(world_timer);
     
+    //Fade in
+    double radius = window_width * 2;
+    
+    for(int x = 0; x < FADE_MAX; x++) {
+        
+        draw_background();
+        al_draw_circle((double)window_width / 2, (double)window_height / 2, window_width / 2, al_map_rgb(0, 0, 0), (radius / FADE_MAX) * x);
+        al_flip_display();
+        al_rest(0.01);
+    }
+    
+    //Stop battle music
+    stop_tracks();
+    play_stage_track();
+    
+    //In case it was a boss fight
+    boss_fight = false;
+    
     //Set original position of character before the battle
     characters[0].animation_object.x = prev_x;
     characters[0].animation_object.y = prev_y;
+    
+    //Destroy thread
+    al_destroy_thread(monster_anim_thread);
     
     //battle return result
     return return_result;
@@ -2850,56 +4229,25 @@ int begin_battle(int mon_id, int mon_num) {
 //MARK: Outside
 
 
-void show_text(int text_id) {
-    
-    for(int x = 0; x < 255; x+=20) {
-        //al_clear_to_color(al_map_rgba(255, 255, 255, 255));
-        draw_main_character_on_position();
-        al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, x));
-        al_draw_text(font, al_map_rgba(255, 255, 255, x), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
-        al_flip_display();
-        al_rest(0.01);
-    }
-    
-    //al_clear_to_color(al_map_rgba(255, 255, 255, 255));
-    draw_main_character_on_position();
-    al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, 255));
-    al_draw_text(font, al_map_rgba(255, 255, 255, 255), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
-    al_flip_display();
-    
-    while (1) {
-        ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
-        
-        if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
-            
-            for(int x = 255; x > 0; x-=20) {
-                printf("%d\n", x);
-                //al_clear_to_color(al_map_rgba(255, 255, 255, 255));
-                draw_main_character_on_position();
-                al_draw_filled_rectangle(20, 570, 1260, 700, al_map_rgba(0, 0, 255, x));
-                al_draw_text(font, al_map_rgba(255, 255, 255, x), 50, 580, ALLEGRO_ALIGN_LEFT, text_for_id(text_id));
-                al_flip_display();
-                al_rest(0.01);
-            }
-            break;
-        }
-    }
-}
-
-
 void execute_action_for_object(int obj) {
     
     int battle_result;
     
     switch (objects[obj].object_type) {
         case NPC:
-            show_dialogue_screen_with_id(objects[obj].action_id);
+            show_text(objects[obj].action_id, false);
             break;
         case CHEST:
             add_item_to_inventory(objects[obj].action_id);
+            
+            //CHANGE CHEST BITMAP TO OPEN AND DEACTIVATES ITEM!
+            
             break;
         case MONSTER:
+            
+            if(objects[obj].action_id > 99) {
+                boss_fight = true;
+            }
             
             battle_result = begin_battle(objects[obj].action_id, objects[obj].action_quantity);
             
@@ -2907,8 +4255,11 @@ void execute_action_for_object(int obj) {
                 show_gameover_screen();
             }
             
-            else if(battle_result == 1) {
-                add_exp_to_characters();
+            else if(battle_result == 1 || battle_result == 3) {
+                //add_exp_to_characters();
+                boss_defeated[(objects[obj].action_id / 100) - 1] = true;
+                clear_all_objects();
+                fade_out_for(draw_main_character_on_position);
             }
             
             break;
@@ -2989,6 +4340,7 @@ void check_character_interaction() {
 //Returns 1 to advance stage
 //Returns -1 to regress stage
 //Returns 2 to reset keys after battle
+//Returns 3 for gameover
 //Returns 0 for nothing
 int walk_character(bool up, bool down, bool left, bool right) {
     
@@ -3058,8 +4410,19 @@ int walk_character(bool up, bool down, bool left, bool right) {
             if(walk_interations >= interations_to_monster) {
                 walk_interations = 0;
                 set_new_interations_to_monster();
-                begin_battle(monster_id_on_stage(current_stage), rand_lim(MAX_MONSTERS));
-                al_flush_event_queue(event_queue);
+                
+                int num = rand_lim(MAX_MONSTERS);
+                if(num == 0)
+                    num = 1;
+                
+                int result = begin_battle(monster_id_on_stage(current_stage), num);
+                
+                if(result == 2) {
+                    show_gameover_screen();
+                    return 3;
+                }
+                
+                fade_out_for(draw_main_character_on_position);
                 
                 return 2;
             }
@@ -3078,6 +4441,7 @@ int walk_character(bool up, bool down, bool left, bool right) {
     
     //Perform the drawing
     draw_main_character_on_position();
+    draw_world_objects();
     al_flip_display();
     
     return 0;
@@ -3085,110 +4449,236 @@ int walk_character(bool up, bool down, bool left, bool right) {
 
 void scenario() {
     
+    play_stage_track();
+    
+    load_objects_on_stage(current_stage);
+    load_stage(current_stage);
+    
+    //Initial animation
+    fade_out_for(draw_main_character_on_position);
+    
+    //Start timer for world
     al_start_timer(world_timer);
     
     bool up = false, down = false, left = false, right = false;
     
-    while (1) {
+    while (!game_over) {
         
         ALLEGRO_EVENT ev;
-        al_wait_for_event(event_queue, &ev);
         
-        if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+        if(!al_event_queue_is_empty(keyboard_queue)) {
+            al_get_next_event(keyboard_queue, &ev);
             
-            switch (ev.keyboard.keycode) {
-                    
-                case ALLEGRO_KEY_UP:
-                    up = true;
-                    break;
-                case ALLEGRO_KEY_DOWN:
-                    down = true;
-                    break;
-                case ALLEGRO_KEY_LEFT:
-                    left = true;
-                    break;
-                case ALLEGRO_KEY_RIGHT:
-                    right = true;
-                    break;
-                case ALLEGRO_KEY_ENTER:
-                    check_character_interaction();
-                    break;
-                case ALLEGRO_KEY_ESCAPE:
-                    show_exit_screen();
-                    break;
+            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                
+                switch (ev.keyboard.keycode) {
+                        
+                    case ALLEGRO_KEY_UP:
+                        up = true;
+                        break;
+                    case ALLEGRO_KEY_DOWN:
+                        down = true;
+                        break;
+                    case ALLEGRO_KEY_LEFT:
+                        left = true;
+                        break;
+                    case ALLEGRO_KEY_RIGHT:
+                        right = true;
+                        break;
+                    case ALLEGRO_KEY_ENTER:
+                        check_character_interaction();
+                        break;
+                    case ALLEGRO_KEY_ESCAPE:
+                        show_exit_screen(true);
+                        break;
+                }
+                
             }
-
+            
+            else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
+                
+                switch (ev.keyboard.keycode) {
+                        
+                    case ALLEGRO_KEY_UP:
+                        up = false;
+                        break;
+                    case ALLEGRO_KEY_DOWN:
+                        down = false;
+                        break;
+                    case ALLEGRO_KEY_LEFT:
+                        left = false;
+                        break;
+                    case ALLEGRO_KEY_RIGHT:
+                        right = false;
+                        break;
+                }
+                
+            }
         }
         
-        else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
+        else if(!al_event_queue_is_empty(timer_queue)) {
+            al_get_next_event(timer_queue, &ev);
             
-            switch (ev.keyboard.keycode) {
-                    
-                case ALLEGRO_KEY_UP:
+            if (ev.type == ALLEGRO_EVENT_TIMER) {
+                int action = walk_character(up, down, left, right);
+                
+                //Reset keys after battle
+                if(action == 2) {
                     up = false;
-                    break;
-                case ALLEGRO_KEY_DOWN:
                     down = false;
-                    break;
-                case ALLEGRO_KEY_LEFT:
                     left = false;
-                    break;
-                case ALLEGRO_KEY_RIGHT:
                     right = false;
-                    break;
-                case ALLEGRO_KEY_ESCAPE:
-                    show_exit_screen();
-                    break;
+                }
+                
+                else if(action == 1) {
+                    if(current_stage + 1 < MAX_STAGES) {
+                        current_stage++;
+                        characters[0].animation_object.x = START_X_RIGHT;
+                        characters[0].animation_object.y = START_Y;
+                        load_stage(current_stage);
+                        
+                        //INSERT TRANSICTION HERE!
+                    }
+                    //ENDING OF THE GAME
+                    else {
+                        
+                    }
+                }
+                
+                else if(action == -1) {
+                    if(current_stage - 1 >= 0) {
+                        current_stage--;
+                        characters[0].animation_object.x = START_X_LEFT;
+                        characters[0].animation_object.y = START_Y;
+                        load_stage(current_stage);
+                        
+                        //INSERT TRANSICTION HERE!
+                    }
+                    
+                    //BEGINNING OF THE GAME
+                    else {
+                        
+                    }
+                }
+                
+                //GAME OVER
+                else if(action == 3) {
+                    return;
+                }
             }
-
         }
         
-        else if (ev.type == ALLEGRO_EVENT_TIMER) {
-            
-            int action = walk_character(up, down, left, right);
-            
-            //Reset keys after battle
-            if(action == 2) {
-                up = false;
-                down = false;
-                left = false;
-                right = false;
-            }
-            
-            else if(action == 1) {
-                if(current_stage + 1 < MAX_STAGES) {
-                    current_stage++;
-                    characters[0].animation_object.x = START_X_RIGHT;
-                    characters[0].animation_object.y = START_Y;
-                    load_stage(current_stage);
-                    
-                    //INSERT TRANSICTION HERE!
-                }
-                //ENDING OF THE GAME
-                else {
-                
-                }
-            }
-            
-            else if(action == -1) {
-                if(current_stage - 1 >= 0) {
-                    current_stage--;
-                    characters[0].animation_object.x = START_X_LEFT;
-                    characters[0].animation_object.y = START_Y;
-                    load_stage(current_stage);
-                    
-                    //INSERT TRANSICTION HERE!
-                }
-                
-                //BEGINNING OF THE GAME
-                else {
-                    
-                }
-            }
-        }
+        //Rest to not force CPU with infinite processes
+        al_rest(0.01);
     }
     
 }
+
+//MARK: Main menu
+
+
+void fade_in_main_menu() {
+    
+    for(double f = 1.0; f > 0.0; f = f - 0.05) {
+        
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        al_draw_tinted_bitmap(sup_screen, al_map_rgba_f(f, f, f, f), 0, 0, 0);
+        al_rest(0.05);
+        al_flip_display();
+    }
+    
+    al_rest(0.03);
+    al_clear_to_color(al_map_rgb(0, 0, 0));
+    al_flip_display();
+    al_rest(0.5);
+}
+
+
+// 0 - NEW GAME
+// 1 - CONTINUE
+// 2 - OPTIONS
+// 3 - EXIT
+
+int show_main_menu() {
+    
+    int selected = 0, max = 4;
+    
+    for(double f = 1.0; f > 0.0; f = f - 0.05) {
+        
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        al_draw_tinted_bitmap(sup_screen, al_map_rgba_f(f, f, f, f), 0, 0, 0);
+        al_rest(0.02);
+        al_flip_display();
+    }
+    
+    al_destroy_bitmap(sup_screen);
+    sup_screen = al_load_bitmap("cenario/telainicial.jpg");
+    
+    if(!sup_screen) {
+        printf("Failed to load main menu bitmap.");
+        return 3;
+    }
+    
+    for(double f = .0; f < 1.0; f = f + 0.05) {
+        
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        al_draw_tinted_bitmap(sup_screen, al_map_rgba_f(f, f, f, f), 0, 0, 0);
+        al_rest(0.02);
+        al_flip_display();
+    }
+    
+    al_rest(0.05);
+    al_draw_bitmap(sup_screen, 0, 0, 0);
+    draw_main_menu_arrow(selected);
+    al_flip_display();
+    
+    while(1) {
+        
+        if(!al_event_queue_is_empty(keyboard_queue)) {
+           
+            ALLEGRO_EVENT ev;
+            al_get_next_event(keyboard_queue, &ev);
+            
+            if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+                
+                switch (ev.keyboard.keycode) {
+                        
+                    case ALLEGRO_KEY_UP:
+                        selected--;
+                        
+                        if(selected < 0)
+                            selected = max - 1;
+                        
+                        break;
+                    case ALLEGRO_KEY_DOWN:
+                        selected++;
+                        
+                        if(selected >= max)
+                            selected = 0;
+                        break;
+                    case ALLEGRO_KEY_ENTER:
+                        
+                        return selected;
+                        break;
+                    case ALLEGRO_KEY_ESCAPE:
+                        show_exit_screen(false);
+                        break;
+                }
+                
+                al_draw_bitmap(sup_screen, 0, 0, 0);
+                draw_main_menu_arrow(selected);
+                al_flip_display();
+            }
+            
+        }
+        
+        al_rest(0.01);
+    }
+    
+    
+}
+
+
 
 //MARK: Main
 
@@ -3197,28 +4687,51 @@ void scenario() {
 //int main(int argc, char **argv) {
     
     //Comentado para trabalhar no Mac OS
-    int main() {
-    
+    int main(void) {
     
     // Init
     if (!begin_allegro_init()) {
         return -1;
     }
     
-    al_register_event_source(event_queue, al_get_timer_event_source(battle_timer));
-    al_register_event_source(event_queue, al_get_timer_event_source(world_timer));
-    al_register_event_source(event_queue, al_get_keyboard_event_source());
+    //Register event sources
+    al_register_event_source(timer_queue, al_get_timer_event_source(battle_timer));
+    al_register_event_source(timer_queue, al_get_timer_event_source(world_timer));
+    al_register_event_source(keyboard_queue, al_get_keyboard_event_source());
     
-    add_skill_to_character(0, 1, 0);
-    add_item_to_inventory(1);
-    add_item_to_inventory(2);
-    add_item_to_inventory(1);
-    add_item_to_inventory(1);
     
-   	//al_rest(1);
-    show_text(0);
-    scenario();
-    
+    // Main loop
+    while(1) {
+        
+        //Show main screen and wait for selection
+        int res = show_main_menu();
+        
+        //New game
+        if(res == 0) {
+            fade_in_main_menu();
+            scenario();
+        }
+        
+        //Continue game
+        else if(res == 1) {
+            fade_in_main_menu();
+            load_saved_game();
+            scenario();
+        }
+        
+        //Options
+        else if(res == 2) {
+            //OPTIONS
+        }
+        
+        //Exit
+        else if(res == 3) {
+            fade_in_main_menu();
+            destroy_allegro();
+            return 0;
+        }
+        
+    }
     return 0;
     
 }
