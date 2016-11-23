@@ -26,7 +26,7 @@
 #define PER1_ANIM_STOP 1
 #define MONSTER_ANIM_MAX 12
 #define MAX_WALK_Y 420
-#define WALK_SPEED_X 110
+#define WALK_SPEED_X 1100
 #define WALK_SPEED_Y 85
 #define WORLD_TIMER 0.01
 #define BATTLE_TIMER 0.01
@@ -691,6 +691,7 @@ void load_fx_animation(int ani_id) {
 
 int monster_id_on_stage(int stage) {
     
+    printf("monid= %d", stage / 2);
     return stage / 2;
 }
 
@@ -1291,7 +1292,7 @@ void create_monster_animations(int index) {
             monsters[index].animation_object.animations[0] = al_load_bitmap("cogumelo1.png");
             monsters[index].animation_object.animations[1] = al_load_bitmap("cogumelo2.png");
             monsters[index].animation_object.animations[2] = al_load_bitmap("cogumelo3.png");
-            
+            break;
             //Arvore BOSS
         case 100:
             monsters[index].animation_object.currentMaxFrame = 12;
@@ -1531,7 +1532,7 @@ void create_monster(int mon_id, int index) {
         case 005:
             monsters[index].id = 5;
             monsters[index].hp = 280;
-            monsters[index].maxhp = 695;
+            monsters[index].maxhp = 280;
             monsters[index].atk = 0;
             monsters[index].def = 999;
             monsters[index].matak = 280;
@@ -2631,10 +2632,10 @@ void draw_question_box() {
     //Drawing question text
     end_line = get_string_array(str, 7, 85, 0);
     
-    al_draw_justified_text(question_font, font_color, 90, 1240, 40, 1000, ALLEGRO_ALIGN_LEFT, str[0]);
+    al_draw_justified_text(question_font, font_color, 90, 1240, 40, 40, ALLEGRO_ALIGN_LEFT, str[0]);
     
     for(int x = 1; x <= end_line; x++) {
-        al_draw_justified_text(question_font, font_color, 40, 1240, 40+ (x * 35), 1000, ALLEGRO_ALIGN_LEFT, str[x]);
+        al_draw_justified_text(question_font, font_color, 40, 1240, 40+ (x * 35), 40, ALLEGRO_ALIGN_LEFT, str[x]);
     }
     
     //Drawing answers text
@@ -2646,11 +2647,11 @@ void draw_question_box() {
         end_line = get_string_array(str, 3, 100, y + 1);
         
         copy_string_from_to(str[0], str2);
-        al_draw_justified_text(answer_font, font_color, 100, 1240, questions_pos_y[y], 900, ALLEGRO_ALIGN_LEFT, str2);
+        al_draw_justified_text(answer_font, font_color, 100, 1240, questions_pos_y[y], 40, ALLEGRO_ALIGN_LEFT, str2);
         
         for(int x = 1; x <= end_line; x++) {
             copy_string_from_to(str[x], str2);
-            al_draw_justified_text(answer_font, font_color, 100, 1240, questions_pos_y[y] + (25 * x), 900, ALLEGRO_ALIGN_LEFT, str2);
+            al_draw_justified_text(answer_font, font_color, 100, 1240, questions_pos_y[y] + (25 * x), 40, ALLEGRO_ALIGN_LEFT, str2);
         }
         
         al_draw_line(90, questions_pos_y[y] - 3, 1250, questions_pos_y[y] - 3, font_color, 1.0);
@@ -3774,6 +3775,12 @@ void draw_main_battle() {
 
 int begin_battle(int mon_id, int mon_num) {
     
+    if(mon_id > 99) {
+        boss_fight = true;
+    }
+    
+    else boss_fight = false;
+    
     //SEt this boolean so the thread knows when the battle ended.
     is_on_battle = true;
     
@@ -4547,6 +4554,7 @@ void scenario() {
                         characters[0].animation_object.x = START_X_RIGHT;
                         characters[0].animation_object.y = START_Y;
                         load_stage(current_stage);
+                        save_game();
                         
                         //INSERT TRANSICTION HERE!
                     }
@@ -4562,6 +4570,7 @@ void scenario() {
                         characters[0].animation_object.x = START_X_LEFT;
                         characters[0].animation_object.y = START_Y;
                         load_stage(current_stage);
+                        save_game();
                         
                         //INSERT TRANSICTION HERE!
                     }
@@ -4713,6 +4722,8 @@ int main(int argc, char **argv) {
     
     // Main loop
     while(1) {
+        
+        game_over = false;
         
         //Show main screen and wait for selection
         int res = show_main_menu();
