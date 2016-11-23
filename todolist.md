@@ -1,22 +1,28 @@
 #To do
 
-+SAVE and LOAD(Caio)
-
-+Menu Principal com Opções(Caio)
-
-Interface
-
-+Melhorar fotos para posicionar personagens e monstros (Area de movimento em baixo com paisagem no fundo)(Caio)
-
-Flick da animação dos monstros ao mudar de seleção na batalha(Caio)
+-Opções (Opcional)
 
 +Como introduzir novos personagens(Caio)
 
-Menu de pause
++++Problema nas musicas das fases(As de batalhas estão normais)
+
+-Menu de pause (Opcional)
+
+++Balanceamento e Baús
+
+#Recently Done
 
 Dados para RPG
 
-#Recently Done
+Flick da animação dos monstros ao mudar de seleção na batalha
+
++Melhorar fotos para posicionar personagens e monstros (Area de movimento em baixo com paisagem no fundo)
+
+Interface
+
++Menu Principal
+
++SAVE and LOAD
 
 +TELA DE LOADING(esta no cenario)
 +Tela de GameOver(cenario)
