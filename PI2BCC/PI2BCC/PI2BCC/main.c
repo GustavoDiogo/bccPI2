@@ -4166,8 +4166,6 @@ int begin_battle(int mon_id, int mon_num) {
                 }
             }
             
-            characters[character_acting].hp -= (monsters[0].atk - characters[character_acting].def);
-            
         }
         
         //MARK:Cancell action
