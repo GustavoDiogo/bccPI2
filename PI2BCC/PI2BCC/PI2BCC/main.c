@@ -4714,6 +4714,7 @@ int main(int argc, char **argv) {
     // Main loop
     while(1) {
         
+        game_over = false;
         //Show main screen and wait for selection
         int res = show_main_menu();
         
