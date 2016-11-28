@@ -963,7 +963,11 @@ void load_questions() {
         return;
     }
     
+    
     for(x = 0; x < quantity; x++) {
+        
+        bool can_create = true;
+        
         Question *new_question = (Question *) malloc(sizeof(Question));
         
         char nstr[100];
@@ -975,19 +979,22 @@ void load_questions() {
         
         fgets(new_question->question, 500, file);
         
-        if(!check_string_end(new_question->question, 500)) {
+        if(!check_string_end(new_question->question, 480)) {
+            can_create = false;
             printf("Question exceeded the character limit.");
         }
         
         fgets(new_question->answer, 300, file);
         
-        if(!check_string_end(new_question->answer, 300)) {
+        if(!check_string_end(new_question->answer, 220)) {
+            can_create = false;
             printf("Answer exceeded the character limit.");
         }
         
         fgets(new_question->other1, 300, file);
         
-        if(!check_string_end(new_question->other1, 300)) {
+        if(!check_string_end(new_question->other1, 220)) {
+            can_create = false;
             printf("Answer exceeded the character limit.");
         }
         
@@ -1000,7 +1007,8 @@ void load_questions() {
             
             fgets(new_question->other2, 300, file);
             
-            if(!check_string_end(new_question->other2, 300)) {
+            if(!check_string_end(new_question->other2, 220)) {
+                can_create = false;
                 printf("Answer exceeded the character limit.");
             }
             remove_final_character(new_question->other2);
@@ -1009,7 +1017,8 @@ void load_questions() {
                 
                 fgets(new_question->other3, 300, file);
                 
-                if(!check_string_end(new_question->other3, 300)) {
+                if(!check_string_end(new_question->other3, 220)) {
+                    can_create = false;
                     printf("Answer exceeded the character limit.");
                 }
                 remove_final_character(new_question->other3);
@@ -1018,7 +1027,8 @@ void load_questions() {
                     
                     fgets(new_question->other4, 300, file);
                     
-                    if(!check_string_end(new_question->other4, 300)) {
+                    if(!check_string_end(new_question->other4, 220)) {
+                        can_create = false;
                         printf("Answer exceeded the character limit.");
                     }
                     remove_final_character(new_question->other4);
@@ -1026,8 +1036,10 @@ void load_questions() {
             }
         }
         
-        current_queston->next = new_question;
-        current_queston = new_question;
+        if(can_create) {
+            current_queston->next = new_question;
+            current_queston = new_question;
+        }
     }
     
     if(current_queston->next) {
