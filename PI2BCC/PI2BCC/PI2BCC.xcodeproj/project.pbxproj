@@ -227,6 +227,14 @@
 		FFDA33181DE50AEE00E46AE4 /* melancia2.png in Resources */ = {isa = PBXBuildFile; fileRef = FFDA33141DE50AEE00E46AE4 /* melancia2.png */; };
 		FFDA33191DE50AEE00E46AE4 /* melancia3.png in Resources */ = {isa = PBXBuildFile; fileRef = FFDA33151DE50AEE00E46AE4 /* melancia3.png */; };
 		FFDA331A1DE50AEE00E46AE4 /* melancia4.png in Resources */ = {isa = PBXBuildFile; fileRef = FFDA33161DE50AEE00E46AE4 /* melancia4.png */; };
+		FFEDF1951DE64FD600EE69A7 /* stages1.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FFEDF18D1DE64FD600EE69A7 /* stages1.ogg */; };
+		FFEDF1961DE64FD600EE69A7 /* stages2.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FFEDF18E1DE64FD600EE69A7 /* stages2.ogg */; };
+		FFEDF1971DE64FD600EE69A7 /* stages3.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FFEDF18F1DE64FD600EE69A7 /* stages3.ogg */; };
+		FFEDF1981DE64FD600EE69A7 /* stages4.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FFEDF1901DE64FD600EE69A7 /* stages4.ogg */; };
+		FFEDF1991DE64FD600EE69A7 /* stages5.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FFEDF1911DE64FD600EE69A7 /* stages5.ogg */; };
+		FFEDF19A1DE64FD600EE69A7 /* stages6.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FFEDF1921DE64FD600EE69A7 /* stages6.ogg */; };
+		FFEDF19B1DE64FD600EE69A7 /* stages7.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FFEDF1931DE64FD600EE69A7 /* stages7.ogg */; };
+		FFEDF19C1DE64FD600EE69A7 /* stages8.ogg in Resources */ = {isa = PBXBuildFile; fileRef = FFEDF1941DE64FD600EE69A7 /* stages8.ogg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -346,14 +354,6 @@
 		FF3D72381DE4CE54006CB19A /* p1icone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p1icone.png; sourceTree = "<group>"; };
 		FF3D72391DE4CE54006CB19A /* p2icone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = p2icone.png; sourceTree = "<group>"; };
 		FF3D723C1DE4DDA8006CB19A /* startscreen.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = startscreen.jpg; sourceTree = "<group>"; };
-		FF3D72471DE4E8C0006CB19A /* stage1.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stage1.ogg; sourceTree = "<group>"; };
-		FF3D72481DE4E8C0006CB19A /* stage2.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stage2.ogg; sourceTree = "<group>"; };
-		FF3D72491DE4E8C0006CB19A /* stage3.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stage3.ogg; sourceTree = "<group>"; };
-		FF3D724A1DE4E8C0006CB19A /* stage4.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stage4.ogg; sourceTree = "<group>"; };
-		FF3D724B1DE4E8C0006CB19A /* stage5.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stage5.ogg; sourceTree = "<group>"; };
-		FF3D724C1DE4E8C0006CB19A /* stage6.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stage6.ogg; sourceTree = "<group>"; };
-		FF3D724D1DE4E8C0006CB19A /* stage7.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stage7.ogg; sourceTree = "<group>"; };
-		FF3D724E1DE4E8C0006CB19A /* stage8.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stage8.ogg; sourceTree = "<group>"; };
 		FF4A01D81DB1A10C00F86B8C /* PI2BCC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PI2BCC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF4A01E61DB1A10C00F86B8C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF4A01EC1DB1A1C700F86B8C /* liballegro_acodec.5.2.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liballegro_acodec.5.2.1.dylib; path = ../../../../../../usr/local/Cellar/allegro/5.2.1.1/lib/liballegro_acodec.5.2.1.dylib; sourceTree = "<group>"; };
@@ -461,6 +461,14 @@
 		FFDA33141DE50AEE00E46AE4 /* melancia2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = melancia2.png; sourceTree = "<group>"; };
 		FFDA33151DE50AEE00E46AE4 /* melancia3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = melancia3.png; sourceTree = "<group>"; };
 		FFDA33161DE50AEE00E46AE4 /* melancia4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = melancia4.png; sourceTree = "<group>"; };
+		FFEDF18D1DE64FD600EE69A7 /* stages1.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stages1.ogg; sourceTree = "<group>"; };
+		FFEDF18E1DE64FD600EE69A7 /* stages2.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stages2.ogg; sourceTree = "<group>"; };
+		FFEDF18F1DE64FD600EE69A7 /* stages3.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stages3.ogg; sourceTree = "<group>"; };
+		FFEDF1901DE64FD600EE69A7 /* stages4.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stages4.ogg; sourceTree = "<group>"; };
+		FFEDF1911DE64FD600EE69A7 /* stages5.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stages5.ogg; sourceTree = "<group>"; };
+		FFEDF1921DE64FD600EE69A7 /* stages6.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stages6.ogg; sourceTree = "<group>"; };
+		FFEDF1931DE64FD600EE69A7 /* stages7.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stages7.ogg; sourceTree = "<group>"; };
+		FFEDF1941DE64FD600EE69A7 /* stages8.ogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = stages8.ogg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -601,14 +609,14 @@
 		FF3D723E1DE4E842006CB19A /* stage */ = {
 			isa = PBXGroup;
 			children = (
-				FF3D72471DE4E8C0006CB19A /* stage1.ogg */,
-				FF3D72481DE4E8C0006CB19A /* stage2.ogg */,
-				FF3D72491DE4E8C0006CB19A /* stage3.ogg */,
-				FF3D724A1DE4E8C0006CB19A /* stage4.ogg */,
-				FF3D724B1DE4E8C0006CB19A /* stage5.ogg */,
-				FF3D724C1DE4E8C0006CB19A /* stage6.ogg */,
-				FF3D724D1DE4E8C0006CB19A /* stage7.ogg */,
-				FF3D724E1DE4E8C0006CB19A /* stage8.ogg */,
+				FFEDF18D1DE64FD600EE69A7 /* stages1.ogg */,
+				FFEDF18E1DE64FD600EE69A7 /* stages2.ogg */,
+				FFEDF18F1DE64FD600EE69A7 /* stages3.ogg */,
+				FFEDF1901DE64FD600EE69A7 /* stages4.ogg */,
+				FFEDF1911DE64FD600EE69A7 /* stages5.ogg */,
+				FFEDF1921DE64FD600EE69A7 /* stages6.ogg */,
+				FFEDF1931DE64FD600EE69A7 /* stages7.ogg */,
+				FFEDF1941DE64FD600EE69A7 /* stages8.ogg */,
 			);
 			name = stage;
 			sourceTree = "<group>";
@@ -900,6 +908,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FFDA32E11DE50A6C00E46AE4 /* p2ataque3.png in Resources */,
+				FFEDF1961DE64FD600EE69A7 /* stages2.ogg in Resources */,
 				FF384B4D1DD341E10005BE03 /* mana15.png in Resources */,
 				FFDA32D11DE509F600E46AE4 /* stage18.jpg in Resources */,
 				FFDA33081DE50AC300E46AE4 /* boloboss2.png in Resources */,
@@ -938,6 +947,7 @@
 				FF3D71C81DDC91AF006CB19A /* track03.ogg in Resources */,
 				FFDA32CE1DE509F600E46AE4 /* stage15.jpg in Resources */,
 				FFDA32D01DE509F600E46AE4 /* stage17.jpg in Resources */,
+				FFEDF19C1DE64FD600EE69A7 /* stages8.ogg in Resources */,
 				FFDA32CB1DE509F600E46AE4 /* stage12.jpg in Resources */,
 				FF3D722F1DDFBD68006CB19A /* arvoreboss12.png in Resources */,
 				FF3D72161DDFBD52006CB19A /* roboboss5.png in Resources */,
@@ -977,6 +987,7 @@
 				FF4A02551DB1A64500F86B8C /* arrow.png in Resources */,
 				FFDA33101DE50ADC00E46AE4 /* caveira2.png in Resources */,
 				FF3D720B1DDFBD3D006CB19A /* robo6.png in Resources */,
+				FFEDF1981DE64FD600EE69A7 /* stages4.ogg in Resources */,
 				FF3D71C91DDC91AF006CB19A /* track04.ogg in Resources */,
 				FF384B2B1DD341E10005BE03 /* cura10.png in Resources */,
 				FF3D72281DDFBD68006CB19A /* arvoreboss5.png in Resources */,
@@ -1022,12 +1033,15 @@
 				FF3D723A1DE4CE54006CB19A /* p1icone.png in Resources */,
 				FF3D71F31DDFBD13006CB19A /* cogumelo3.png in Resources */,
 				FF3D722C1DDFBD68006CB19A /* arvoreboss9.png in Resources */,
+				FFEDF1971DE64FD600EE69A7 /* stages3.ogg in Resources */,
 				FF3D71E51DDFBB97006CB19A /* ataquearvoreboss8.png in Resources */,
 				FF384B351DD341E10005BE03 /* cura20.png in Resources */,
 				FF384B4B1DD341E10005BE03 /* mana13.png in Resources */,
+				FFEDF1951DE64FD600EE69A7 /* stages1.ogg in Resources */,
 				FFDA331A1DE50AEE00E46AE4 /* melancia4.png in Resources */,
 				FFDA33071DE50AC300E46AE4 /* boloboss1.png in Resources */,
 				FFDA32FF1DE50AB600E46AE4 /* biscoito5.png in Resources */,
+				FFEDF19A1DE64FD600EE69A7 /* stages6.ogg in Resources */,
 				FF3D71E61DDFBB97006CB19A /* fogo1.png in Resources */,
 				FF3D72061DDFBD3D006CB19A /* robo1.png in Resources */,
 				FF3D72121DDFBD52006CB19A /* roboboss1.png in Resources */,
@@ -1049,6 +1063,7 @@
 				FF3D71DE1DDFBB97006CB19A /* ataquearvoreboss1.png in Resources */,
 				FF384B221DD341E10005BE03 /* cura01.png in Resources */,
 				FF384AE21DCD3AF20005BE03 /* p1ataque1.png in Resources */,
+				FFEDF1991DE64FD600EE69A7 /* stages5.ogg in Resources */,
 				FF384B431DD341E10005BE03 /* mana05.png in Resources */,
 				FFDA32E41DE50A6C00E46AE4 /* professorparado.png in Resources */,
 				FF3D71C61DDC91AF006CB19A /* track01.ogg in Resources */,
@@ -1067,6 +1082,7 @@
 				FF384B2A1DD341E10005BE03 /* cura09.png in Resources */,
 				FF3D71E81DDFBB97006CB19A /* fogo3.png in Resources */,
 				FF384B4F1DD341E10005BE03 /* mana17.png in Resources */,
+				FFEDF19B1DE64FD600EE69A7 /* stages7.ogg in Resources */,
 				FF384B4A1DD341E10005BE03 /* mana12.png in Resources */,
 				FF384B231DD341E10005BE03 /* cura02.png in Resources */,
 				FF3D71E91DDFBB97006CB19A /* fogo4.png in Resources */,

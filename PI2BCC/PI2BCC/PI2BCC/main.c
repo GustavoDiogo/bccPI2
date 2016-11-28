@@ -26,8 +26,8 @@
 #define PER1_ANIM_STOP 1
 #define MONSTER_ANIM_MAX 12
 #define MAX_WALK_Y 420
-#define WALK_SPEED_X 1100
-#define WALK_SPEED_Y 85
+#define WALK_SPEED_X 200
+#define WALK_SPEED_Y 100
 #define WORLD_TIMER 0.01
 #define BATTLE_TIMER 0.01
 #define MONSTER_ANIM_DELAY 0.25
@@ -35,8 +35,8 @@
 #define CHARACTER_HEIGHT 85
 #define CHARACTER_WIDTH 65
 #define CHAR_INTERACTION_SIZE 120
-#define WALK_MONSTER_MIN 400
-#define WALK_MONSTER_MAX 600
+#define WALK_MONSTER_MIN 300
+#define WALK_MONSTER_MAX 500
 #define MAX_STAGES 18
 #define START_X_RIGHT 1100
 #define START_Y 550
@@ -95,6 +95,8 @@ ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 ALLEGRO_TIMER *timer;
 
 void add_skill_to_character(int chara, int skill_id, int index);
+bool add_item_to_inventory(int item_id);
+bool load_character_animations(int num);
 
 //MARK: Structs
 
@@ -423,10 +425,10 @@ void load_objects_on_stage(int stage) {
         objects[0].action_quantity = 1;
     }
     
-    //BOSS 2
-    if(stage == 7) {
+    //Char 2
+    if(stage == 4 && char_quantity < 2) {
         objects_quantity = 1;
-        objects[0].bitmap = al_load_bitmap("boloboss1.png");
+        objects[0].bitmap = al_load_bitmap("p2parado.png");
         
         if(!objects[0].bitmap) {
             printf("Error on object");
@@ -437,16 +439,17 @@ void load_objects_on_stage(int stage) {
         double w = al_get_bitmap_width(objects[0].bitmap);
         objects[0].x1 = 400;
         objects[0].x2 = 400 + w;
-        objects[0].y1 = 300;
-        objects[0].y2 = 300 + h;
+        objects[0].y1 = 500;
+        objects[0].y2 = 500 + h;
         
-        objects[0].object_type = MONSTER;
-        objects[0].action_id = 200;
+        objects[0].object_type = NPC;
+        objects[0].action_id = 1005;
         objects[0].action_quantity = 1;
+        
     }
     
-    //BOSS 3
-    if(stage == 17) {
+    //BOSS 2
+    if(stage == 7) {
         objects_quantity = 1;
         objects[0].bitmap = al_load_bitmap("roboboss1.png");
         
@@ -461,6 +464,28 @@ void load_objects_on_stage(int stage) {
         objects[0].x2 = 400 + w;
         objects[0].y1 = 400;
         objects[0].y2 = 400 + h;
+        
+        objects[0].object_type = MONSTER;
+        objects[0].action_id = 200;
+        objects[0].action_quantity = 1;
+    }
+    
+    //BOSS 3
+    if(stage == 17) {
+        objects_quantity = 1;
+        objects[0].bitmap = al_load_bitmap("boloboss1.png");
+        
+        if(!objects[0].bitmap) {
+            printf("Error on object");
+            return;
+        }
+        
+        double h = al_get_bitmap_height(objects[0].bitmap);
+        double w = al_get_bitmap_width(objects[0].bitmap);
+        objects[0].x1 = 400;
+        objects[0].x2 = 400 + w;
+        objects[0].y1 = 300;
+        objects[0].y2 = 300 + h;
         
         objects[0].object_type = MONSTER;
         objects[0].action_id = 300;
@@ -489,21 +514,21 @@ ALLEGRO_BITMAP *get_char_icon(int num) {
 
 bool load_stage_tracks() {
     
-    Stage.musica[0] = al_load_sample( "stage1.ogg" );
+    Stage.musica[0] = al_load_sample( "stages1.ogg" );
     loaded_stage_tracks++;
-    Stage.musica[1] = al_load_sample( "stage2.ogg" );
+    Stage.musica[1] = al_load_sample( "stages2.ogg" );
     loaded_stage_tracks++;
-    Stage.musica[2] = al_load_sample( "stage3.ogg" );
+    Stage.musica[2] = al_load_sample( "stages3.ogg" );
     loaded_stage_tracks++;
-    Stage.musica[3] = al_load_sample( "stage4.ogg" );
+    Stage.musica[3] = al_load_sample( "stages4.ogg" );
     loaded_stage_tracks++;
-    Stage.musica[4] = al_load_sample( "stage5.ogg" );
+    Stage.musica[4] = al_load_sample( "stages5.ogg" );
     loaded_stage_tracks++;
-    Stage.musica[5] = al_load_sample( "stage6.ogg" );
+    Stage.musica[5] = al_load_sample( "stages6.ogg" );
     loaded_stage_tracks++;
-    Stage.musica[6] = al_load_sample( "stage7.ogg" );
+    Stage.musica[6] = al_load_sample( "stages7.ogg" );
     loaded_stage_tracks++;
-    Stage.musica[7] = al_load_sample( "stage8.ogg" );
+    Stage.musica[7] = al_load_sample( "stages8.ogg" );
     loaded_stage_tracks++;
     
     for(int x = 0; x < btracks; x++) {
@@ -574,7 +599,7 @@ const char *text_for_id(int txt_id) {
 void destroy_fx() {
     
     for(int x = 0; x < 30; x++) {
-        if(fxs[x]) {
+        if(fxs[x] != NULL) {
             al_destroy_bitmap(fxs[x]);
         }
     }
@@ -697,7 +722,7 @@ int monster_id_on_stage(int stage) {
 
 int exp_needed_for_level(int level) {
     
-    return 50 + (level * 50);
+    return 30 + (level * 30);
 }
 
 
@@ -780,6 +805,7 @@ void set_char_values_for_level(int num, int level) {
             break;
     }
     
+    load_character_animations(num);
 }
 
 
@@ -792,6 +818,10 @@ void stop_tracks() {
 
 void play_battle_track(){
     
+    if(loaded_battle_tracks <= 0) {
+        return;
+    }
+    
     current_song = rand_lim(loaded_battle_tracks - 1);
     printf("song: %d\n", current_song);
     
@@ -801,6 +831,10 @@ void play_battle_track(){
 }
 
 void play_stage_track(){
+    
+    if(loaded_stage_tracks <= 0) {
+        return;
+    }
     
     current_song = rand_lim(loaded_stage_tracks - 1);
     printf("song: %d\n", current_song);
@@ -1005,6 +1039,52 @@ void load_questions() {
 }
 
 
+bool set_up_new_game() {
+    
+    game_over = false;
+    
+    //Set all items id to zero, meaning a empty inventory
+    for(int x = 0; x < MAX_ITEMS; x++) {
+        inventory->items[x].id = 0;
+    }
+    
+    //Set all skills id to zero, meaning no skills
+    for(int x = 0; x < MAX_SKILLS; x++) {
+        for(int y = 0; y < MAX_CHARA; y++) {
+            characters[y].skills[x].id = 0;
+            characters[y].id = -1;
+        }
+    }
+    
+    set_char_values_for_level(0, 1);
+    
+    //Check animations loading
+    if(!load_character_animations(0)) {
+        return false;
+    }
+    
+    //For testing
+    add_item_to_inventory(1);
+    add_item_to_inventory(2);
+    add_item_to_inventory(1);
+    add_item_to_inventory(2);
+    add_item_to_inventory(1);
+    add_item_to_inventory(2);
+    add_item_to_inventory(1);
+    add_item_to_inventory(2);
+    add_item_to_inventory(1);
+    add_item_to_inventory(2);
+    add_item_to_inventory(1);
+    add_item_to_inventory(2);
+    add_item_to_inventory(1);
+    add_item_to_inventory(2);
+    add_item_to_inventory(1);
+    add_item_to_inventory(2);
+    
+    return true;
+}
+
+
 bool begin_allegro_init() {
     
     //Inits of allegro
@@ -1155,23 +1235,7 @@ bool begin_allegro_init() {
     //main_char = (Character *) malloc(sizeof(Character));
     inventory = (Inventory *) malloc(sizeof(Inventory));
     
-    //Set all items id to zero, meaning a empty inventory
-    for(int x = 0; x < MAX_ITEMS; x++) {
-        inventory->items[x].id = 0;
-    }
-    
-    //Set all skills id to zero, meaning no skills
-    for(int x = 0; x < MAX_SKILLS; x++) {
-        for(int y = 0; y < MAX_CHARA; y++) {
-            characters[y].skills[x].id = 0;
-            characters[y].id = -1;
-        }
-    }
-    
-    set_char_values_for_level(0, 1);
-    
-    //Check animations loading
-    if(!load_character_animations(0)) {
+    if(!set_up_new_game()) {
         return false;
     }
     
@@ -1327,7 +1391,7 @@ void create_monster_animations(int index) {
             }
             break;
             //Bolo BOSS
-        case 200:
+        case 300:
             monsters[index].animation_object.currentMaxFrame = 4;
             monsters[index].animation_object.currentFrame = 0;
             
@@ -1404,7 +1468,7 @@ void create_monster_animations(int index) {
             }
             break;
             //Robo BOSS
-        case 300:
+        case 200:
             monsters[index].animation_object.currentMaxFrame = 6;
             monsters[index].animation_object.currentFrame = 0;
             
@@ -1506,7 +1570,7 @@ void create_monster(int mon_id, int index) {
             monsters[index].mdef = 100;
             monsters[index].exp = 120;
             break;
-            //Bolo BOSS
+            //Robo BOSS
         case 200:
             monsters[index].id = 200;
             monsters[index].hp = 2500;
@@ -1583,7 +1647,7 @@ void create_monster(int mon_id, int index) {
             monsters[index].mdef = 280;
             monsters[index].exp = 999;
             break;
-            //Robo BOSS
+            //Bolo BOSS
         case 300:
             monsters[index].id = 300;
             monsters[index].hp = 10985;
@@ -1854,6 +1918,7 @@ void load_skill(int chara, int index) {
             characters[chara].skills[index].mana_cost = 10;
             characters[chara].skills[index].fx_id = -1;
             characters[chara].skills[index].target_monster = true;
+            break;
             //Bola de Fogo
         case 2:
             
@@ -1864,12 +1929,13 @@ void load_skill(int chara, int index) {
             characters[chara].skills[index].mana_cost = 50;
             characters[chara].skills[index].fx_id = 0;
             characters[chara].skills[index].target_monster = true;
+            break;
             //Cura
         case 3:
             sprintf(characters[chara].skills[index].name, "Curar");
             
             characters[chara].skills[index].atk = 0.0;
-            characters[chara].skills[index].matak = 1.0;
+            characters[chara].skills[index].matak = 200.0;
             characters[chara].skills[index].mana_cost = 70;
             characters[chara].skills[index].fx_id = 2;
             characters[chara].skills[index].target_monster = false;
@@ -2321,7 +2387,7 @@ void save_game() {
             value[3] = x + '0';
             value[4] = y + '0';
             
-            num = characters[x].exp;
+            num = characters[x].skills[y].id;
             n = log10(num) + 1;
             
             for (int i = 0; i < n; ++i, num /= 10 ) {
@@ -2345,6 +2411,10 @@ void save_game() {
 void show_gameover_screen() {
     
     //PLAY GAMEOVER SONG**
+    
+    //Clean keyboard commands
+    al_flush_event_queue(keyboard_queue);
+    
     game_over = true;
     
     al_clear_to_color(al_map_rgb_f(0, 0, 0));
@@ -2460,16 +2530,28 @@ void draw_life_bars() {
     // 15 |
     
     //Main character
-    double y_fator = (double)characters[0].hp / characters[0].maxhp;
+    double y_fator = (double)characters[0].hp / (double)characters[0].maxhp;
     
     al_draw_filled_rectangle(170, 410, 300, 425, al_map_rgb(255, 0, 0));
-    al_draw_filled_rectangle(172, 412, 168 + (y_fator * 130), 423, al_map_rgb(0, 255, 0));
+    if(y_fator > 0.0)
+        al_draw_filled_rectangle(172, 412, 168 + (y_fator * 130), 423, al_map_rgb(0, 255, 0));
+    
+    
+    //Char 2
+    if(char_quantity > 1) {
+        y_fator = (double)characters[1].hp / (double)characters[1].maxhp;
+        
+        al_draw_filled_rectangle(80, 360, 210, 375, al_map_rgb(255, 0, 0));
+        
+        if(y_fator > 0.0)
+            al_draw_filled_rectangle(82, 362, 78 + (y_fator * 130), 373, al_map_rgb(0, 255, 0));
+    }
     
     
     //Monster 1
     if(monsters[0].hp > 0) {
         
-        y_fator = (double)monsters[0].hp / monsters[0].maxhp;
+        y_fator = (double)monsters[0].hp / (double)monsters[0].maxhp;
         
         al_draw_filled_rectangle(980, 335, 1110, 350, al_map_rgb(255, 0, 0));
         al_draw_filled_rectangle(982, 337, 978 + (y_fator * 130), 348, al_map_rgb(0, 255, 0));
@@ -2478,7 +2560,7 @@ void draw_life_bars() {
     //Monster 2
     if(monsters[1].id >= 0 && monsters[1].hp > 0) {
         
-        y_fator = (double)monsters[1].hp / monsters[1].maxhp;
+        y_fator = (double)monsters[1].hp / (double)monsters[1].maxhp;
         
         al_draw_filled_rectangle(830, 285, 960, 300, al_map_rgb(255, 0, 0));
         al_draw_filled_rectangle(832, 287, 828 + (y_fator * 130), 298, al_map_rgb(0, 255, 0));
@@ -2487,7 +2569,7 @@ void draw_life_bars() {
     //Monster 3
     if(monsters[2].id >= 0 && monsters[2].hp > 0){
         
-        y_fator = (double)monsters[2].hp / monsters[2].maxhp;
+        y_fator = (double)monsters[2].hp / (double)monsters[2].maxhp;
         
         al_draw_filled_rectangle(680, 310, 810, 325, al_map_rgb(255, 0, 0));
         al_draw_filled_rectangle(682, 312, 678 + (y_fator * 130), 323, al_map_rgb(0, 255, 0));
@@ -2738,7 +2820,7 @@ void draw_character_info(int chara) {
     
     
     //Life bar
-    double y_fator = (double)characters[chara].hp / characters[chara].maxhp;
+    double y_fator = (double)characters[chara].hp / (double)characters[chara].maxhp;
     
     al_draw_filled_circle(190, 40, 20, al_map_rgb(255, 0, 0));
     al_draw_filled_circle(590, 40, 20, al_map_rgb(255, 0, 0));
@@ -2752,7 +2834,7 @@ void draw_character_info(int chara) {
     al_draw_textf(question_font, al_map_rgb(0, 0, 0), 390, 23, ALLEGRO_ALIGN_CENTER, "%d / %d", characters[chara].hp,characters[chara].maxhp);
     
     //Mana bar
-    y_fator = (double)characters[chara].sp / characters[chara].maxsp;
+    y_fator = (double)characters[chara].sp / (double)characters[chara].maxsp;
     
     al_draw_filled_circle(190, 100, 20, al_map_rgb(255, 0, 0));
     al_draw_filled_circle(590, 100, 20, al_map_rgb(255, 0, 0));
@@ -2766,7 +2848,7 @@ void draw_character_info(int chara) {
     
     al_draw_textf(question_font, al_map_rgb(255, 255, 255), 390, 83, ALLEGRO_ALIGN_CENTER, "%d / %d", characters[chara].sp,characters[chara].maxsp);
     
-    y_fator = (double)characters[chara].exp / exp_needed_for_level(characters[chara].level);
+    y_fator = (double)characters[chara].exp / (double)exp_needed_for_level(characters[chara].level);
     
     al_draw_filled_circle(180, 150, 10, al_map_rgb(200, 200, 0));
     al_draw_filled_circle(480, 150, 10, al_map_rgb(200, 200, 0));
@@ -2867,7 +2949,7 @@ void draw_arrow_character(int selected) {
             al_draw_bitmap(monster_arrow, 200, 330, 0);
             break;
         case 1:
-            al_draw_bitmap(monster_arrow, 0, 0, 0);
+            al_draw_bitmap(monster_arrow, 100, 260, 0);
             break;
         case 2:
             al_draw_bitmap(monster_arrow, 0, 0, 0);
@@ -3496,8 +3578,8 @@ void position_characters_for_battle() {
     
     if(char_quantity > 1) {
         
-        characters[1].animation_object.x = 0;
-        characters[1].animation_object.y = 0;
+        characters[1].animation_object.x = 90;
+        characters[1].animation_object.y = 380;
         characters[1].animation_object.invert = true;
         
         if(char_quantity > 2) {
@@ -3514,22 +3596,13 @@ void position_characters_for_battle() {
 
 bool character_can_use_skill(int chara, int value) {
     
-    switch (chara) {
-        case 0:
-            
-            if((characters[chara].sp - characters[chara].skills[value].mana_cost) > 0) {
-                return true;
-            }
-            
-            else {
-                return false;
-            }
-            
-            break;
+    if((characters[chara].sp - characters[chara].skills[value].mana_cost) > 0) {
+        return true;
     }
     
-    printf("Invalid value for character.\n");
-    return false;
+    else {
+        return false;
+    }
 }
 
 
@@ -3584,6 +3657,18 @@ void damage_monster(int monster, int value) {
     
     monsters[monster].hp -= value;
     
+}
+
+
+void use_skill_on_character(int chara, int from_chara, int skill_idx) {
+    
+    execute_fx_animation(1.5, characters[from_chara].skills[skill_idx].fx_id, chara, false);
+    
+    characters[chara].hp += characters[from_chara].skills[skill_idx].matak;
+    
+    if(characters[chara].hp > characters[chara].maxhp)
+        characters[chara].hp = characters[chara].maxhp;
+
 }
 
 
@@ -3774,6 +3859,7 @@ void draw_main_battle() {
 // 3 -> ESCAPE
 
 int begin_battle(int mon_id, int mon_num) {
+
     
     if(mon_id > 99) {
         boss_fight = true;
@@ -3846,11 +3932,33 @@ int begin_battle(int mon_id, int mon_num) {
     //MARK: Main loop battle
     while(battle_on) {
         
-        character_acting++;
+        int qt = char_quantity;
         
-        if(character_acting >= char_quantity) {
-            character_acting = 0;
+        while(1) {
+            character_acting++;
+        
+            if(character_acting >= char_quantity) {
+                character_acting = 0;
+            }
+            
+            if(characters[character_acting].hp <= 0) {
+                qt--;
+            }
+            
+            else break;
+            
+            if(qt <= 0) {
+                battle_on = false;
+                return_result = 2;
+            }
+            
         }
+        
+        if(battle_on == false)
+            break;
+        
+        //Clean keyboard commands
+        al_flush_event_queue(keyboard_queue);
         
         //Wait for command
         while (!enter_pressed) {
@@ -3884,7 +3992,7 @@ int begin_battle(int mon_id, int mon_num) {
                             enter_pressed = true;
                             break;
                         case ALLEGRO_KEY_ESCAPE:
-                            show_exit_screen(true);
+                            //show_exit_screen(true);
                             break;
                     }
                     
@@ -3902,6 +4010,7 @@ int begin_battle(int mon_id, int mon_num) {
                     draw_background();
                     draw_character_info(character_acting);
                     draw_arrow_with(selected_x, selected_y);
+                    draw_all_characters();
                     update_animation_character(character_acting);
                     draw_all_monsters();
                     //update_animations_monsters();
@@ -4018,7 +4127,7 @@ int begin_battle(int mon_id, int mon_num) {
                     if(!cancell) {
                         
                         //get selected character
-                        int char_sel = battle_selection_loop(mon_num, false);
+                        int char_sel = battle_selection_loop(char_quantity, false);
                         
                         if(char_sel >= 0) {
                             
@@ -4128,9 +4237,9 @@ int begin_battle(int mon_id, int mon_num) {
                         
                         //Skill used on character
                         else  {
-                            target = battle_selection_loop(mon_num, false);
+                            target = battle_selection_loop(char_quantity, false);
                             //MARK: NEED FUNCTION FOR HEALING
-                            //use_skill_on_character(target, character_acting, selected);
+                            use_skill_on_character(target, character_acting, selected);
                         }
                         
                     }
@@ -4157,9 +4266,10 @@ int begin_battle(int mon_id, int mon_num) {
         //MARK:Answer wrong: suffer attack
         else if(result == 2) {
             //SOFRER ATAQUE
+            
             if(boss_fight)
-                execute_fx_animation(1.5, 004, rand_lim(char_quantity - 1), false);
-            else execute_fx_animation(1.5, 003, rand_lim(char_quantity - 1), false);
+                execute_fx_animation(1.5, 004, character_acting, false);
+            else execute_fx_animation(1.5, 003, character_acting, false);
             
             if(monsters[0].atk > monsters[0].matak) {
                 if(monsters[0].atk - characters[character_acting].def > 0) {
@@ -4253,7 +4363,18 @@ void execute_action_for_object(int obj) {
     
     switch (objects[obj].object_type) {
         case NPC:
-            show_text(objects[obj].action_id, false);
+            
+            if(objects[obj].action_id >= 1000) {
+                
+                show_text(objects[obj].action_id - 1000, false);
+                set_char_values_for_level(1, 10);
+                char_quantity++;
+                clear_all_objects();
+            }
+        
+            else show_text(objects[obj].action_id, false);
+            
+            
             break;
         case CHEST:
             add_item_to_inventory(objects[obj].action_id);
@@ -4507,7 +4628,7 @@ void scenario() {
                         check_character_interaction();
                         break;
                     case ALLEGRO_KEY_ESCAPE:
-                        show_exit_screen(true);
+                        //show_exit_screen(true);
                         break;
                 }
                 
@@ -4681,7 +4802,7 @@ int show_main_menu() {
                         return selected;
                         break;
                     case ALLEGRO_KEY_ESCAPE:
-                        show_exit_screen(false);
+                        //show_exit_screen(false);
                         break;
                 }
                 
@@ -4723,7 +4844,7 @@ int main(int argc, char **argv) {
     // Main loop
     while(1) {
         
-        game_over = false;
+        set_up_new_game();
         
         //Show main screen and wait for selection
         int res = show_main_menu();
