@@ -599,7 +599,7 @@ const char *text_for_id(int txt_id) {
 void destroy_fx() {
     
     for(int x = 0; x < 30; x++) {
-        if(fxs[x] != NULL) {
+        if(fxs[x] != NULL && al_get_target_bitmap() != fxs[x]) {
             al_destroy_bitmap(fxs[x]);
         }
     }
@@ -818,6 +818,7 @@ void stop_tracks() {
 
 void play_battle_track(){
     
+    //In case tracks aren't loaded yet
     if(loaded_battle_tracks <= 0) {
         return;
     }
@@ -832,6 +833,7 @@ void play_battle_track(){
 
 void play_stage_track(){
     
+    //In case tracks aren't loaded yet
     if(loaded_stage_tracks <= 0) {
         return;
     }
@@ -846,6 +848,7 @@ void play_stage_track(){
 
 //MARK: Load Musics Thread
 
+//Thread to load tracks in background, so it doesn't lose time
 void *t_load_tracks(ALLEGRO_THREAD *thr, void *dados) {
     
     load_stage_tracks();
@@ -863,6 +866,8 @@ void set_new_interations_to_monster() {
 
 
 bool load_character_animations(int num) {
+    
+    //Set bitmaps and positions on the characters
     
     if(num == 0) {
         
@@ -942,6 +947,7 @@ bool check_string_end(char str[], int n) {
 
 void load_questions() {
     
+    //Open file
     FILE *file = fopen("questions.txt", "r");
     
     if(!file) {
@@ -955,6 +961,7 @@ void load_questions() {
     int quantity = str[0] - 48;
     int x;
     
+    //Head question (first)
     head_question = (Question *) malloc(sizeof(Question));
     current_queston = head_question;
     
@@ -977,6 +984,7 @@ void load_questions() {
         
         new_question->ans_num = num;
         
+        //Question
         fgets(new_question->question, 500, file);
         
         if(!check_string_end(new_question->question, 480)) {
@@ -984,6 +992,7 @@ void load_questions() {
             printf("Question exceeded the character limit.");
         }
         
+        //Correct Answer
         fgets(new_question->answer, 300, file);
         
         if(!check_string_end(new_question->answer, 220)) {
@@ -991,6 +1000,7 @@ void load_questions() {
             printf("Answer exceeded the character limit.");
         }
         
+        //Answer 1
         fgets(new_question->other1, 300, file);
         
         if(!check_string_end(new_question->other1, 220)) {
@@ -1005,6 +1015,7 @@ void load_questions() {
         
         if(num > 2) {
             
+            //Answer 2
             fgets(new_question->other2, 300, file);
             
             if(!check_string_end(new_question->other2, 220)) {
@@ -1015,6 +1026,7 @@ void load_questions() {
             
             if(num > 3) {
                 
+                //Answer 3
                 fgets(new_question->other3, 300, file);
                 
                 if(!check_string_end(new_question->other3, 220)) {
@@ -1025,6 +1037,7 @@ void load_questions() {
                 
                 if(num > 4){
                     
+                    //Answer 4
                     fgets(new_question->other4, 300, file);
                     
                     if(!check_string_end(new_question->other4, 220)) {
@@ -1075,7 +1088,7 @@ bool set_up_new_game() {
         return false;
     }
     
-    //For testing
+    //Starting items
     add_item_to_inventory(1);
     add_item_to_inventory(2);
     add_item_to_inventory(1);
@@ -1268,6 +1281,8 @@ void clear_monsters() {
 
 void destroy_characters_animations() {
     
+    
+    //Free all bitmaps
     for(int num = 0; num < MAX_CHARA; num++) {
         
         if(characters[num].id >= 0) {
@@ -1299,6 +1314,7 @@ void destroy_characters_animations() {
 
 void destroy_questions() {
     
+    //Destroy all Question objects
     Question *current = head_question->next;
     Question *prev = head_question;
     
@@ -1796,6 +1812,8 @@ void shift_item_array_left_from_index(int index) {
         inventory->items[x] = inventory->items[x+1];
         x++;
     }
+    
+    inventory->items[MAX_ITEMS - 1].id = 0;
 }
 
 
@@ -3241,6 +3259,10 @@ void execute_fx_animation(double seconds, int fx_id, int idx, bool monster) {
     
     load_fx_animation(fx_id);
     
+    if(fx_count <= 0) {
+        return;
+    }
+    
     int current_frame = 0;
     
     ALLEGRO_TIMER *ani_timer = al_create_timer(seconds / (double)fx_count);
@@ -3283,6 +3305,7 @@ void execute_fx_animation(double seconds, int fx_id, int idx, bool monster) {
             }
             
             al_flip_display();
+            //al_rest(seconds / (double)fx_count);
         }
         
     }
@@ -3625,30 +3648,23 @@ void heal_character(int chara, int value, bool is_hp) {
         return;
     }
     
-    switch (chara) {
-        case 0:
-            
-            if(is_hp) {
-                
-                characters[chara].hp += value;
-                
-                if(characters[chara].hp > characters[chara].maxhp) {
-                    characters[chara].hp = characters[chara].maxhp;
-                }
-            }
-            
-            else {
-                
-                characters[chara].sp += value;
-                
-                if(characters[chara].sp > characters[chara].maxsp) {
-                    characters[chara].sp = characters[chara].maxsp;
-                }
-                
-            }
-            break;
-        default:
-            break;
+    if(is_hp) {
+        
+        characters[chara].hp += value;
+        
+        if(characters[chara].hp > characters[chara].maxhp) {
+            characters[chara].hp = characters[chara].maxhp;
+        }
+    }
+    
+    else {
+        
+        characters[chara].sp += value;
+        
+        if(characters[chara].sp > characters[chara].maxsp) {
+            characters[chara].sp = characters[chara].maxsp;
+        }
+        
     }
     
 }
@@ -4613,6 +4629,7 @@ void scenario() {
     
     bool up = false, down = false, left = false, right = false;
     
+    //Loop while walking around the stage
     while (!game_over) {
         
         ALLEGRO_EVENT ev;
@@ -4671,6 +4688,7 @@ void scenario() {
             al_get_next_event(timer_queue, &ev);
             
             if (ev.type == ALLEGRO_EVENT_TIMER) {
+                //change character position based on the pressed keys
                 int action = walk_character(up, down, left, right);
                 
                 //Reset keys after battle
@@ -4681,6 +4699,7 @@ void scenario() {
                     right = false;
                 }
                 
+                //Next Stage
                 else if(action == 1) {
                     if(current_stage + 1 < MAX_STAGES) {
                         current_stage++;
@@ -4691,12 +4710,13 @@ void scenario() {
                         
                         //INSERT TRANSICTION HERE!
                     }
-                    //ENDING OF THE GAME
+                    //END OF THE GAME
                     else {
                         
                     }
                 }
                 
+                //Previous Stage
                 else if(action == -1) {
                     if(current_stage - 1 >= 0) {
                         current_stage--;
@@ -4756,6 +4776,7 @@ int show_main_menu() {
     
     int selected = 0, max = 4;
     
+    //Fade in
     for(double f = 1.0; f > 0.0; f = f - 0.05) {
         
         al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -4772,6 +4793,7 @@ int show_main_menu() {
         return 3;
     }
     
+    //Fade out
     for(double f = .0; f < 1.0; f = f + 0.05) {
         
         al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -4785,6 +4807,7 @@ int show_main_menu() {
     draw_main_menu_arrow(selected);
     al_flip_display();
     
+    //Loop for selection
     while(1) {
         
         if(!al_event_queue_is_empty(keyboard_queue)) {
